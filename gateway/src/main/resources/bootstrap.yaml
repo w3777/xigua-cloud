@@ -1,0 +1,31 @@
+# Tomcat
+server:
+  port: 8090
+
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: gateway
+  main:
+    web-application-type: reactive
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+  profiles:
+    # 环境配置
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+      discovery:
+        namespace: xigua
+      config:
+        namespace: xigua
+        # 配置文件格式
+        file-extension: yml
+        # 共享配置
+        shared-configs:
+          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}

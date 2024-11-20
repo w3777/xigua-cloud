@@ -17,6 +17,8 @@
     <!-- 版本   -->
     <properties>
         <java.version>17</java.version>
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
         <mybatis.version>3.0.3</mybatis.version>
         <mysql.version>8.3.0</mysql.version>
         <bootstrap.version>4.1.2</bootstrap.version>
@@ -24,7 +26,10 @@
 
     <!-- 模块   -->
     <modules>
-        <module>xigua-module</module>
+        <module>xxl-job-admin</module>
+        <module>xxl-job-executor</module>
+        <module>demo-test</module>
+        <module>gateway</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -65,9 +70,28 @@
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${bootstrap.version}</version>
         </dependency>
-
-
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- https://mvnrepository.com/artifact/com.alibaba.cloud/spring-cloud-alibaba-dependencies -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
