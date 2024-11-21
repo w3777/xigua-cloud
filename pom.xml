@@ -20,6 +20,7 @@
         <spring-cloud.version>2023.0.1</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
         <mybatis.version>3.0.3</mybatis.version>
+        <mybatis-plus.version>3.5.9</mybatis-plus.version>
         <mysql.version>8.3.0</mysql.version>
         <bootstrap.version>4.1.2</bootstrap.version>
     </properties>
@@ -55,6 +56,12 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${mybatis.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
@@ -70,6 +77,14 @@
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${bootstrap.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.9</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
