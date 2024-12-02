@@ -28,9 +28,9 @@ public class SSEUtils {
         emitterMap.put(key, emitter);
 
         // 绑定事件，自动移除无效连接
-        emitter.onCompletion(() -> removeEmitter(key));
-        emitter.onTimeout(() -> removeEmitter(key));
-        emitter.onError(e -> removeEmitter(key));
+        emitter.onCompletion(() -> remove(key));
+        emitter.onTimeout(() -> remove(key));
+        emitter.onError(e -> remove(key));
 
         return emitter;
     }
@@ -40,7 +40,7 @@ public class SSEUtils {
      *
      * @param key 唯一标识
      */
-    public static void removeEmitter(String key) {
+    public static void remove(String key) {
         emitterMap.remove(key);
     }
 

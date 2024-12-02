@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat with User ID</title>
+    <style>
+        #chatBox {
+            width: 300px;
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #messageInput {
+            width: 100%;
+            padding: 10px;
+        }
+        #sendBtn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #connectBtn {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h2>WebSocket Chat</h2>
+<label for="senderIdInput">Enter Sender ID:</label>
+<input type="text" id="senderIdInput" placeholder="Enter your User ID">
+<button id="connectBtn">Connect</button>
+
+<div id="chatBox"></div>
+<input type="text" id="receiverIdInput" placeholder="Enter Receiver ID">
+<input type="text" id="messageInput" placeholder="Type your message...">
+<button id="sendBtn">Send</button>
+
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const senderIdInput = document.getElementById('senderIdInput');
+    const receiverIdInput = document.getElementById('receiverIdInput');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const connectBtn = document.getElementById('connectBtn');
+
+    let socket;
+
+    // 连接按钮点击事件
+    connectBtn.onclick = function() {
+        const senderId = senderIdInput.value;
+        if (!senderId) {
+            alert('Please enter a Sender ID.');
+            return;
+        }
+
+        // 创建 WebSocket 连接
+        socket = new WebSocket(`ws://127.0.0.1:8082/chat/${senderId}`);
+
+        // 连接成功后，接收消息
+        socket.onmessage = function (event) {
+            const message = document.createElement('div');
+            message.textContent = event.data;
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight; // 滚动到底部
+        };
+
+        // 错误处理
+        socket.onerror = function (error) {
+            console.error("WebSocket error: ", error);
+        };
+
+        // 打印连接成功信息
+        socket.onopen = function() {
+            console.log(`WebSocket connection established with sender ID: ${senderId}`);
+        };
+    };
+
+    // 发送消息
+    sendBtn.onclick = function () {
+        const receiverId = receiverIdInput.value;
+        const message = messageInput.value;
+
+        if (receiverId && message && socket && socket.readyState === WebSocket.OPEN) {
+            const payload = JSON.stringify({
+                senderId: senderIdInput.value,
+                receiverId: receiverId,
+                message: message
+            });
+
+            socket.send(payload);
+
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `You to ${receiverId}: ${message}`;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight; // 滚动到底部
+            messageInput.value = ''; // 清空输入框
+        } else {
+            alert('Please connect first or check the WebSocket connection.');
+        }
+    };
+</script>
+</body>
+</html>
