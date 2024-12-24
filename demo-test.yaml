@@ -81,8 +81,9 @@ spring:
     # pagehelper:
     #   pageSizeZero: true
 
-# #打印sql
-# logging:
-#   level:
-#     com.honghao.fleet.mapper: debug
-#     com.honghao.fleet.manager.mapper: debug
+logging:
+  level:
+    # kafka客户端检测打印error
+    org.apache.kafka.clients: error
+    # 打印sql
+    com.xigua.demo.mapper: debug
