@@ -14,7 +14,8 @@ import reactor.core.publisher.Mono;
 
 /**
  * 跨域 Filter
- *
+ * 后端解决跨域问题
+ * 或者前端通过nginx代理解决跨域问题（代理网关），就不用当前配置了
  * @author 芋道源码
  */
 @Component

@@ -64,7 +64,8 @@
         }
 
         // 创建 WebSocket 连接
-        socket = new WebSocket(`ws://127.0.0.1:8082/chat/${senderId}`);
+        // socket = new WebSocket(`ws://127.0.0.1:8082/chat/${senderId}`); // 直连
+        socket = new WebSocket(`ws://127.0.0.1:8090/demo/chat/${senderId}`); // 通过网关连接
 
         // 连接成功后，接收消息
         socket.onmessage = function (event) {
