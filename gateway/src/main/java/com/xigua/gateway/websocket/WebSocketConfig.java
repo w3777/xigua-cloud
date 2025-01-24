@@ -18,7 +18,7 @@ import org.springframework.web.reactive.socket.server.upgrade.TomcatRequestUpgra
 public class WebSocketConfig {
     /**
      * class org.apache.catalina.connector.ResponseFacade cannot be cast to class reactor.netty.http.server.HttpServerResponse
-     * 由于websocket默认使用的是spring-webflux模型，项目中用的是tomcat和spring-webmvc,所以导致类型转换异常
+     * 网关默认使用是基于 Netty 容器的 RequestUpgradeStrategy 和 WebSocketClient 导致错误，声明 Tomcat 容器对应的 Bean 来覆盖它就可以解决这个问题
     */
 
     @Bean
