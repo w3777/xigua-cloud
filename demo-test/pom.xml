@@ -71,6 +71,13 @@
             <version>33.4.0-jre</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.alibaba/transmittable-thread-local -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>${ttl.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>
