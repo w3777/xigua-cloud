@@ -49,12 +49,14 @@ public class ThreadLocalController {
         threadLocal.remove();
 
         // 在业务开发时，也会有一个经典问题（线程上下文传递）就是明明可以通过SessionHelper.getUserId()或者SecurityUtils.getUserId()获取当前用户id
-        // 但就是在执行异步线程池或者mq中拿不到当前用户id
+        // 但就是在执行异步线程池或者mq或者rpc调用（feign、dubbo）中拿不到当前用户id
         // 线程上下文传递问题和threadLocal父子线程传递的思想很想
         // 解决方法：
         // 1. 显示传参
-        // 2. 隐式传参（线程装饰器 - 也是传参思想）
+        // 2. 隐式传参 线程池可以通过线程装饰器、mq和rpc可以通过拦截器设置用户上下文信息 （基本也都是先获取再通过手动添加，达到隐式传参的效果）
         // 3. 阿里TransmittableThreadLocal（把主线程中的ThreadLocal数据复制到子线程的ThreadLocal中）
+        // 阿里的ttl只能解决线程池、多线程之前的线程传递问题，因为它们是在同一个jvm中。ttl是解决不了mq和rpc传递用户上下文的，它们是跨服务，更不在同一个jvm中
+        // 可以参考若依微服务版AuthFilter、HeaderInterceptor中的代码，发送方在请求头中添加userId，调用方在请求头中获取userId，大部分也都是这个思想
     }
 
     @PostMapping("/test02")
