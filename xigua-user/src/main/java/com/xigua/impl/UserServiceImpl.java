@@ -1,6 +1,5 @@
 package com.xigua.impl;
 
-import com.xigua.demo.service.TestServiceImpl;
 import com.xigua.service.TestService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;

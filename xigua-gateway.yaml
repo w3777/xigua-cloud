@@ -12,3 +12,10 @@ spring:
             - Path=/demo/**
           filters:
             - StripPrefix=1
+
+        - id: xigua-user
+          uri: lb://xigua-user
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
