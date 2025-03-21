@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.xigua</groupId>
+        <artifactId>xigua-cloud</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <groupId>com.xigua</groupId>
+    <artifactId>xigua-common</artifactId>
+    <version>${xigua.version}</version>
+    <name>xigua-common</name>
+    <description>通用模块</description>
+
+    <modules>
+        <module>xigua-common-sequence</module>
+    </modules>
+    <packaging>pom</packaging>
+
+</project>

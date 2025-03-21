@@ -38,6 +38,7 @@
         <module>xigua-gateway</module>
         <module>xigua-api</module>
         <module>xigua-user</module>
+        <module>xigua-common</module>
     </modules>
     <packaging>pom</packaging>
 
