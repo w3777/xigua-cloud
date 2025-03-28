@@ -117,3 +117,10 @@ logging:
     org.apache.kafka.clients: error
     # 打印sql
     com.xigua.demo.mapper: debug
+
+# swagger配置
+springdoc:
+  api-docs:
+    path: /demo/v3/api-docs
+  swagger-ui:
+    path: /demo/swagger-ui.html

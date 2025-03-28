@@ -81,3 +81,11 @@ logging:
     org.apache.kafka.clients: error
     # 打印sql
     com.xigua.demo.mapper: debug
+
+
+# swagger配置
+springdoc:
+  api-docs:
+    path: /user/v3/api-docs
+  swagger-ui:
+    path: /user/swagger-ui.html

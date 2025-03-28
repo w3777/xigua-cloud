@@ -19,3 +19,14 @@ spring:
             - Path=/user/**
           filters:
             - StripPrefix=1
+
+springdoc:
+  webjars:
+    # 设置为空，不要前缀
+    prefix:
+  swagger-ui:
+    urls:
+      - name: demo-api
+        url: /demo/v3/api-docs
+      - name: user-api
+        url: /user/v3/api-docs
