@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.xigua</groupId>
 		<artifactId>xigua-common</artifactId>
-		<version>${xigua.version}</version>
+		<version>1.0</version>
 	</parent>
 
 	<artifactId>xigua-common-sequence</artifactId>
@@ -15,7 +15,10 @@
 	<description>分布式发号器</description>
 
 	<dependencies>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

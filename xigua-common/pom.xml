@@ -11,14 +11,14 @@
 
     <groupId>com.xigua</groupId>
     <artifactId>xigua-common</artifactId>
-    <version>${xigua.version}</version>
+    <version>1.0</version>
     <name>xigua-common</name>
     <description>通用模块</description>
+    <packaging>pom</packaging>
 
     <modules>
         <module>xigua-common-sequence</module>
         <module>xigua-common-core</module>
     </modules>
-    <packaging>pom</packaging>
 
 </project>
