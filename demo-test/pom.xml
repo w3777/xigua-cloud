@@ -64,13 +64,6 @@
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.alibaba/transmittable-thread-local -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>transmittable-thread-local</artifactId>
-            <version>${ttl.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
@@ -113,6 +106,12 @@
         <dependency>
             <groupId>com.xigua</groupId>
             <artifactId>xigua-common-sequence</artifactId>
+            <version>${xigua.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.xigua</groupId>
+            <artifactId>xigua-common-core</artifactId>
             <version>${xigua.version}</version>
         </dependency>
     </dependencies>

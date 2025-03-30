@@ -10,21 +10,17 @@
     </parent>
 
     <groupId>com.xigua</groupId>
-    <artifactId>xigua-api</artifactId>
+    <artifactId>xigua-domain</artifactId>
     <version>${xigua.version}</version>
-    <name>xigua-api</name>
-    <description>xigua-api</description>
+    <name>xigua-domain</name>
+    <description>xigua-domain</description>
     <packaging>jar</packaging>
 
     <properties>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.xigua</groupId>
-            <artifactId>xigua-domain</artifactId>
-            <version>${xigua.version}</version>
-        </dependency>
+
     </dependencies>
     <build>
         <plugins>

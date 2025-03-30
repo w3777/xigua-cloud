@@ -17,6 +17,7 @@
 
     <modules>
         <module>xigua-common-sequence</module>
+        <module>xigua-common-core</module>
     </modules>
     <packaging>pom</packaging>
 

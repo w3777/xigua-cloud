@@ -1,5 +1,7 @@
 package com.xigua.service;
 
+import com.xigua.domain.dto.LoginDTO;
+
 /**
  * @ClassName UserService
  * @Description TODO
@@ -8,4 +10,8 @@ package com.xigua.service;
  */
 public interface UserService {
     void testDubbo();
+
+    String login(LoginDTO loginDTO);
+
+    void testToken();
 }

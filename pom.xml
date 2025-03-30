@@ -28,6 +28,8 @@
         <ttl.version>2.14.5</ttl.version>
         <dubbo.version>3.3.0</dubbo.version>
         <guava.version>33.4.0-jre</guava.version>
+        <openapi.version>2.6.0</openapi.version>
+        <jwt.version>4.5.0</jwt.version>
     </properties>
 
     <!-- 模块   -->
@@ -39,6 +41,7 @@
         <module>xigua-api</module>
         <module>xigua-user</module>
         <module>xigua-common</module>
+        <module>xigua-domain</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -90,14 +93,14 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.6.0</version>
+            <version>${openapi.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webflux-ui -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-            <version>2.6.0</version>
+            <version>${openapi.version}</version>
         </dependency>
 
     </dependencies>
