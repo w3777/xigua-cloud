@@ -57,7 +57,7 @@ dubbo:
     address: nacos://127.0.0.1:8848
     # 指定nacos namespace命名空间
     parameters:
-      namespace: xigua
+      namespace: xigua-dubbo
   consumer:
     check: false
     # 重试为0
@@ -65,7 +65,7 @@ dubbo:
     # 超时5秒
     timeout: 5000
     # 自定义过滤器（用来隐式传当前用户信息）
-  #    filter: userContextFilter
+    filter: userContextFilter
   provider:
     check: false
     # 重试为0
@@ -73,7 +73,7 @@ dubbo:
     # 超时5秒
     timeout: 5000
     # 自定义过滤器（用来隐式传当前用户信息）
-#    filter: userContextFilter
+    filter: userContextFilter
 
 logging:
   level:

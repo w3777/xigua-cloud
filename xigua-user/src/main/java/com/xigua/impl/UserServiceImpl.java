@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         TokenUtil tokenUtil = new TokenUtil();
         UserToken userToken = new UserToken();
         userToken.setUserId(1L);
-        userToken.setUserName("admin");
+        userToken.setUserName(username);
         userToken.setPhone("13888888888");
 
         // todo 把登录成功的用户信息存入redis，并设置过期时间
@@ -54,7 +54,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void testToken() {
+        System.out.println("testService.getClass() = " + testService.getClass());
         UserToken userToken = UserContext.get();
-        System.out.println("userToken = " + userToken);
+        System.out.println("user模块获取，userToken = " + userToken);
+
+        testService.testToken();
     }
 }

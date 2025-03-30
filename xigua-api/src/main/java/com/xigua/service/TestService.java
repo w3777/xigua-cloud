@@ -8,4 +8,6 @@ package com.xigua.service;
  */
 public interface TestService {
     String send();
+
+    void testToken();
 }

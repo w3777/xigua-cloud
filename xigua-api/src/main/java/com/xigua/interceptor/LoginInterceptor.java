@@ -1,4 +1,4 @@
-package com.xigua.gateway.interceptor;
+package com.xigua.interceptor;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -25,6 +25,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // 拦截请求 获取token
         String token = request.getHeader("XG-Token");
         if (StringUtils.isEmpty(token)) {
             return false;
@@ -35,6 +36,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         Long userId = null;
         String phone = null;
         try {
+            // 解密token
             decodedJWT = JWT.require(Algorithm.HMAC256(TokenUtil.TOKEN_SECRET)).build().verify(token);
             userName = decodedJWT.getClaim("userName").asString();
             userId = decodedJWT.getClaim("userId").asLong();

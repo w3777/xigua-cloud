@@ -56,12 +56,6 @@
 
         <dependency>
             <groupId>com.xigua</groupId>
-            <artifactId>demo-test</artifactId>
-            <version>${xigua.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.xigua</groupId>
             <artifactId>xigua-common-core</artifactId>
             <version>${xigua.version}</version>
         </dependency>
