@@ -28,7 +28,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 拦截请求 获取token
         String token = request.getHeader("XG-Token");
         if (StringUtils.isEmpty(token)) {
-            return false;
+            return true;
+//            return false;
         }
 
         DecodedJWT decodedJWT;

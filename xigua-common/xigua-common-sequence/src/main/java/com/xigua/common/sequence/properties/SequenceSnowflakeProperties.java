@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "honghao.xsequence.snowflake")
+@ConfigurationProperties(prefix = "xigua.sequence.snowflake")
 public class SequenceSnowflakeProperties extends BaseSequenceProperties {
 
 	/**
