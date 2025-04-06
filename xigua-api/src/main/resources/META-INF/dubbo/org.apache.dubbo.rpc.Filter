@@ -1,1 +1,2 @@
 userContextFilter=com.xigua.filter.UserContextFilter
+traceIdFilter=com.xigua.filter.TraceIdFilter

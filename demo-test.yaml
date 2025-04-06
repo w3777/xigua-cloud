@@ -100,16 +100,16 @@ dubbo:
     retries: 0
     # 超时5秒
     timeout: 5000
-    # 自定义过滤器（用来隐式传当前用户信息）
-    filter: userContextFilter
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id）
+    filter: userContextFilter, traceIdFilter
   provider:
     check: false
     # 重试为0
     retries: 0
     # 超时5秒
     timeout: 5000
-    # 自定义过滤器（用来隐式传当前用户信息）
-    filter: userContextFilter
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id）
+    filter: userContextFilter, traceIdFilter
 
 logging:
   level:

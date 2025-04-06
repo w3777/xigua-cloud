@@ -173,4 +173,15 @@ public class SnowflakeSequence implements Sequence {
 
 		this.datacenterId = datacenterId;
 	}
+
+	/**
+	 * 生成下一个序列号 （string）
+	 * @author wangjinfei
+	 * @date 2025/4/6 10:29
+	 * @return String
+	 */
+	@Override
+	public String nextNo() {
+		return String.valueOf(nextValue());
+	}
 }

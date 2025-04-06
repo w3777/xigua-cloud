@@ -1,5 +1,7 @@
 package com.xigua.config;
 
+import com.xigua.common.sequence.sequence.Sequence;
+import com.xigua.common.sequence.sequence.impl.SnowflakeSequence;
 import com.xigua.interceptor.LoginInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -21,7 +23,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
+        Sequence sequence = new SnowflakeSequence();
+        registry.addInterceptor(new LoginInterceptor(sequence))
                 .addPathPatterns("/**")   //默认对所有请求进行拦截
                 .excludePathPatterns(excludePathList);    //不拦截
     }

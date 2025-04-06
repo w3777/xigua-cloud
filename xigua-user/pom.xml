@@ -73,6 +73,11 @@
             <artifactId>xigua-common-core</artifactId>
             <version>${xigua.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

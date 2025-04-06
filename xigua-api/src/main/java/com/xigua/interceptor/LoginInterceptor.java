@@ -6,11 +6,14 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.xigua.common.core.util.TokenUtil;
 import com.xigua.common.core.util.UserContext;
+import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.token.UserToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -20,11 +23,18 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @Author wangjinfei
  * @Date 2025/3/28 15:45
  */
+@Data
 @Component
 @Slf4j
 public class LoginInterceptor implements HandlerInterceptor {
+    private final Sequence sequence;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // 生成链路id 存储到mdc
+        String traceId = sequence.nextNo();
+        MDC.put("traceId", traceId);
+
         // 拦截请求 获取token
         String token = request.getHeader("XG-Token");
         if (StringUtils.isEmpty(token)) {
@@ -60,5 +70,6 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex){
         UserContext.clear();
+        MDC.remove("traceId");
     }
 }

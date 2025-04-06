@@ -7,8 +7,10 @@ import com.xigua.domain.token.UserToken;
 import com.xigua.service.TestService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.MDC;
 
 /**
  * @ClassName UserService
@@ -16,6 +18,7 @@ import org.apache.dubbo.config.annotation.DubboService;
  * @Author wangjinfei
  * @Date 2025/3/18 22:02
  */
+@Slf4j
 @RequiredArgsConstructor
 @DubboService
 public class UserServiceImpl implements UserService {
@@ -59,5 +62,13 @@ public class UserServiceImpl implements UserService {
         System.out.println("user模块获取，userToken = " + userToken);
 
         testService.testToken();
+    }
+
+    @Override
+    public void testTraceId() {
+        String traceId = MDC.get("traceId");
+        System.out.println("userService, traceId = " + traceId);
+
+        log.info("userService 测试");
     }
 }

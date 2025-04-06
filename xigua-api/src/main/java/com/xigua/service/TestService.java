@@ -10,4 +10,6 @@ public interface TestService {
     String send();
 
     void testToken();
+
+    void testTraceId();
 }

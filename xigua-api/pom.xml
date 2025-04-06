@@ -42,6 +42,12 @@
             <artifactId>xigua-common-core</artifactId>
             <version>${xigua.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.xigua</groupId>
+            <artifactId>xigua-common-sequence</artifactId>
+            <version>${xigua.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

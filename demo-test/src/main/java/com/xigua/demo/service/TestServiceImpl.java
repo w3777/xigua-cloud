@@ -3,7 +3,13 @@ package com.xigua.demo.service;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.token.UserToken;
 import com.xigua.service.TestService;
+import com.xigua.service.UserService;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.MDC;
 
 /**
  * @ClassName UserService
@@ -11,8 +17,13 @@ import org.apache.dubbo.config.annotation.DubboService;
  * @Author wangjinfei
  * @Date 2025/3/18 20:11
  */
+@Slf4j
+@Data
+@RequiredArgsConstructor
 @DubboService
 public class TestServiceImpl implements TestService {
+    @DubboReference
+    private UserService userService;
 
     @Override
     public String send() {
@@ -23,5 +34,15 @@ public class TestServiceImpl implements TestService {
     public void testToken() {
         UserToken userToken = UserContext.get();
         System.out.println("demo模块获取，userToken = " + userToken);
+    }
+
+    @Override
+    public void testTraceId() {
+        String traceId = MDC.get("traceId");
+        System.out.println("testService, traceId = " + traceId);
+
+        log.info("testService 测试");
+
+        userService.testTraceId();
     }
 }

@@ -15,4 +15,12 @@ public interface Sequence {
 	 * @throws SeqException 序列号异常
 	 */
 	long nextValue() throws SeqException;
+
+	/**
+	 * 生成下一个序列号 （string）
+	 * @author wangjinfei
+	 * @date 2025/4/6 10:29
+	 * @return String
+	*/
+	String nextNo();
 }
