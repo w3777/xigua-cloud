@@ -1,7 +1,9 @@
 package com.xigua.common.core.util;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
 /**
@@ -41,5 +43,60 @@ public class RedisUtil {
     public Long scard(String key) {
         Long size = redisTemplate.opsForSet().size(key);
         return size;
+    }
+
+    /**
+     * string添加缓存
+     * @author wangjinfei
+     * @date 2025/4/20 10:38
+     * @param key
+     * @param value
+     * @return boolean
+    */
+    public boolean set(String key, String value) {
+        try {
+            redisTemplate.opsForValue().set(key, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * string获取缓存
+     * @author wangjinfei
+     * @date 2025/4/20 19:15
+     * @param key
+     * @return Object
+    */
+    public String get(String key) {
+        String o = (String) redisTemplate.opsForValue().get(key);
+        return o;
+    }
+
+    /**
+     * 判断value是否存在于set集合中
+     * @author wangjinfei
+     * @date 2025/4/20 11:22
+     * @param value value值
+     * @param key 多个key用*匹配
+     * @return boolean
+    */
+    public String isValueInSet(String value, String key) {
+        // 获取增量迭代器，用于遍历匹配的 Redis 键
+        Cursor<byte[]> cursor = redisTemplate.getConnectionFactory()
+                .getConnection()
+                .scan(ScanOptions.scanOptions().match(key).build());
+
+        // 遍历 SCAN 结果
+        while (cursor.hasNext()) {
+            String currentKey = new String(cursor.next());
+            if (redisTemplate.opsForSet().isMember(currentKey, value)) {
+                return currentKey; // 如果找到用户，说明用户在线
+            }
+        }
+
+        return null; // 如果没找到该用户，说明不在线
     }
 }

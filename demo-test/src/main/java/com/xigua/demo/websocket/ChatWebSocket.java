@@ -1,7 +1,7 @@
 package com.xigua.demo.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.demo.domain.dto.ChatMessageDTO;
+import com.xigua.domain.dto.ChatMessageDTO;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;

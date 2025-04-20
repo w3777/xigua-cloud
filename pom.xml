@@ -31,6 +31,7 @@
         <guava.version>33.4.0-jre</guava.version>
         <openapi.version>2.6.0</openapi.version>
         <jwt.version>4.5.0</jwt.version>
+        <redisson.version>3.35.0</redisson.version>
     </properties>
 
     <!-- 模块   -->
@@ -43,6 +44,8 @@
         <module>xigua-user</module>
         <module>xigua-common</module>
         <module>xigua-domain</module>
+        <module>xigua-connect-center</module>
+        <module>xigua-client</module>
     </modules>
 
     <dependencies>

@@ -1,0 +1,28 @@
+# Tomcat
+server:
+  port: 8084
+
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: xigua-client
+
+  profiles:
+    # 环境配置
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+      discovery:
+        namespace: xigua
+      config:
+        namespace: xigua
+        # 配置文件格式
+        file-extension: yaml
+        # 共享配置
+        shared-configs:
+          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+

@@ -1,6 +1,8 @@
-package com.xigua.demo.domain.dto;
+package com.xigua.domain.dto;
 
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * @ClassName ContentRequest
@@ -9,7 +11,8 @@ import lombok.Data;
  * @Date 2024/12/31 10:20
  */
 @Data
-public class RichTextDTO {
+public class RichTextDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 富文本内容
      */

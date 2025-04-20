@@ -14,7 +14,6 @@
     <description>demo-test</description>
     <properties>
         <druid.version>1.2.23</druid.version>
-        <redisson.version>3.35.0</redisson.version>
     </properties>
     <dependencies>
         <dependency>

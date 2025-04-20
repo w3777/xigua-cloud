@@ -2,6 +2,7 @@ package com.xigua.demo.redis;
 
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
+import com.xigua.domain.enums.RedisEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,6 @@ public class RedisController {
     private final Sequence sequence;
     private final RedisUtil redisUtil;
 
-    private final static String BIG_KEY_PREFIX = "big_key:";
     private final static int partSize = 10;
 
     @RequestMapping("/test01")
@@ -34,9 +34,9 @@ public class RedisController {
             // 取模 计算出要存入的index
             int index = (int) (seq % partSize);
 
-            boolean b = redisUtil.sadd(BIG_KEY_PREFIX + index, String.valueOf(seq));
+            boolean b = redisUtil.sadd(RedisEnum.BIG_KEY_PREFIX.getKey() + index, String.valueOf(seq));
             if (b){
-                log.info("---->>>>> 添加成功, seq:{}, 存入{}：{}", seq, BIG_KEY_PREFIX, index);
+                log.info("---->>>>> 添加成功, seq:{}, 存入{}：{}", seq, RedisEnum.BIG_KEY_PREFIX.getKey(), index);
             }else{
                 log.error("---->>>>> 添加失败, seq:{}", seq);
             }
@@ -50,7 +50,7 @@ public class RedisController {
 
         // 遍历10个集合 计算出总大小
         for (int i = 0; i < partSize; i++) {
-            long size = redisUtil.scard(BIG_KEY_PREFIX + i);
+            long size = redisUtil.scard(RedisEnum.BIG_KEY_PREFIX.getKey() + i);
             log.info("---->>>>> 第{}个集合的大小为：{}", i, size);
 
             total += size;

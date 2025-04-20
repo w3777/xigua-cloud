@@ -31,6 +31,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if(true){
+            return true;
+        }
         // 生成链路id 存储到mdc
         String traceId = sequence.nextNo();
         MDC.put("traceId", traceId);

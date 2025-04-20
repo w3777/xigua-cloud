@@ -56,11 +56,11 @@
     </appender>
 
     <!-- 根日志 -->
-<!--    <root level="INFO">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
 <!--        <appender-ref ref="INFO_FILE"/>-->
 <!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </root>-->
+    </root>
 
 <!--    <springProfile name="dev">-->
 <!--        <root level="INFO">-->

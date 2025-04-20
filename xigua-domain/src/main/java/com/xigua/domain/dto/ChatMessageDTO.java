@@ -1,6 +1,8 @@
-package com.xigua.demo.domain.dto;
+package com.xigua.domain.dto;
 
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * @ClassName MessageBaseDTO
@@ -9,7 +11,8 @@ import lombok.Data;
  * @Date 2024/12/2 16:28
  */
 @Data
-public class ChatMessageDTO {
+public class ChatMessageDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 发送人id
      */

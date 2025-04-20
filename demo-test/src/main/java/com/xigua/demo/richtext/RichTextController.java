@@ -1,7 +1,7 @@
 package com.xigua.demo.richtext;
 
 import com.xigua.demo.domain.RichText;
-import com.xigua.demo.domain.dto.RichTextDTO;
+import com.xigua.domain.dto.RichTextDTO;
 import com.xigua.demo.mapper.RichTextMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

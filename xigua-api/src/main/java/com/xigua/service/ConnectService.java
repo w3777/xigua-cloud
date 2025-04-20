@@ -1,0 +1,36 @@
+package com.xigua.service;
+
+import com.xigua.domain.connect.Client;
+import com.xigua.domain.dto.ChatMessageDTO;
+
+/**
+ * @ClassName ConnectService
+ * @Description TODO
+ * @Author wangjinfei
+ * @Date 2025/4/20 10:11
+ */
+public interface ConnectService {
+    /**
+     * 客户端注册上线
+     * @author wangjinfei
+     * @date 2025/4/20 10:23
+     * @param client
+    */
+    void clientRegister(Client client, String userId);
+
+    /**
+     * 接收来自客户端的消息
+     * @author wangjinfei
+     * @date 2025/4/20 15:06
+     * @param chatMessageDTO
+    */
+    void receiveMessage4Client(ChatMessageDTO chatMessageDTO);
+
+    /**
+     * 发送消息到客户端
+     * @author wangjinfei
+     * @date 2025/4/20 11:11
+     * @param chatMessageDTO
+    */
+    void sendMessage2Client(ChatMessageDTO chatMessageDTO, Client client);
+}
