@@ -3,6 +3,8 @@ package com.xigua.service;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
 
+import java.util.Set;
+
 /**
  * @ClassName ConnectService
  * @Description TODO
@@ -33,4 +35,12 @@ public interface ConnectService {
      * @param chatMessageDTO
     */
     void sendMessage2Client(ChatMessageDTO chatMessageDTO, Client client);
+
+    /**
+     * 获取在线人员id
+     * @author wangjinfei
+     * @date 2025/4/23 19:52
+     * @return List<String>
+    */
+    Set<String> getOnlineId();
 }

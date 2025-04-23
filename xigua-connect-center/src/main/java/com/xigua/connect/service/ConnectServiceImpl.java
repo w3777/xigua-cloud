@@ -15,6 +15,9 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.rpc.cluster.specifyaddress.Address;
 import org.apache.dubbo.rpc.cluster.specifyaddress.UserSpecifiedAddressUtil;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @ClassName ConnectServiceImpl
  * @Description TODO
@@ -56,13 +59,18 @@ public class ConnectServiceImpl implements ConnectService {
      */
     @Override
     public void receiveMessage4Client(ChatMessageDTO chatMessageDTO) {
+        String senderId = chatMessageDTO.getSenderId();
         String receiverId = chatMessageDTO.getReceiverId();
 
         // 判断接收者是否在线
         String userInServer = userIsOnline(receiverId);
         if(StringUtils.isEmpty(userInServer)){
             // todo 这里可以做离线消息存储, 可以存储到es后期做全文检索
-            return;
+
+            // 对方不在线 返回消息给发送者
+            chatMessageDTO.setReceiverId(senderId);
+            chatMessageDTO.setMessage("对方不在线");
+            userInServer = userIsOnline(senderId);
         }
 
         // 获取接收者所在的节点信息
@@ -108,5 +116,33 @@ public class ConnectServiceImpl implements ConnectService {
         ClientService clientService = referenceConfig.get();
         UserSpecifiedAddressUtil.setAddress(new Address(host, dubboPort, true));
         clientService.receiveMessage4Client(chatMessageDTO);
+    }
+
+    /**
+     * 获取在线人员id
+     * @author wangjinfei
+     * @date 2025/4/23 19:52
+     * @return List<String>
+     */
+    @Override
+    public Set<String> getOnlineId() {
+        Set<String> onlineIds = new HashSet<>();
+
+        // 获取所有的节点信息
+        String key = RedisEnum.CLIENT_CONNECT_SERVER.getKey() + "*";
+        Set<String> wsServers = redisUtil.getKeysByKey(key);
+
+        // 根据节点信息获取在线用户
+        for (String wsServer : wsServers) {
+            int index = wsServer.indexOf(":");
+            String wsServerKey = RedisEnum.ONLINE_USER.getKey() + wsServer.substring(index + 1);
+            Set<Object> members = redisUtil.members(wsServerKey);
+
+            members.forEach(member -> {
+                onlineIds.add((String) member);
+            });
+        }
+
+        return onlineIds;
     }
 }

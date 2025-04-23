@@ -6,6 +6,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @ClassName RedisUtil
  * @Description
@@ -31,6 +34,18 @@ public class RedisUtil {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * set集合 key获取所有value
+     * @author wangjinfei
+     * @date 2025/4/23 21:59
+     * @param key
+     * @return Set<Object>
+    */
+    public Set<Object> members (String key) {
+        Set<Object> members = redisTemplate.opsForSet().members(key);
+        return members;
     }
 
     /**
@@ -98,5 +113,26 @@ public class RedisUtil {
         }
 
         return null; // 如果没找到该用户，说明不在线
+    }
+
+    /**
+     * 根据模糊key获取所有key
+     * @author wangjinfei
+     * @date 2025/4/23 21:59
+     * @param key key:*
+     * @return Set<String> 所有key
+    */
+    public Set<String> getKeysByKey(String key) {
+        Set<String> keys = new HashSet<>();
+
+        Cursor<byte[]> cursor = redisTemplate.getConnectionFactory()
+                .getConnection()
+                .scan(ScanOptions.scanOptions().match(key).build());
+
+        while (cursor.hasNext()) {
+            // 获取匹配的 key
+            keys.add(new String(cursor.next()));
+        }
+        return keys;
     }
 }
