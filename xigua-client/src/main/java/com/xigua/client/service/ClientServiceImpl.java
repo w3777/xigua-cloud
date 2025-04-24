@@ -78,7 +78,7 @@ public class ClientServiceImpl implements ClientService {
      * @param chatMessageDTO
      */
     @Override
-    public void receiveMessage4Client(ChatMessageDTO chatMessageDTO) {
+    public void receiveMessage4Server(ChatMessageDTO chatMessageDTO) {
         String receiverId = chatMessageDTO.getReceiverId();
         String message = chatMessageDTO.getMessage();
 

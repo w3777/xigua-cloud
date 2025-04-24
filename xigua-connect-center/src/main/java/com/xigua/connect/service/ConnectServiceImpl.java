@@ -115,7 +115,7 @@ public class ConnectServiceImpl implements ConnectService {
         referenceConfig.setInterface(ClientService.class);
         ClientService clientService = referenceConfig.get();
         UserSpecifiedAddressUtil.setAddress(new Address(host, dubboPort, true));
-        clientService.receiveMessage4Client(chatMessageDTO);
+        clientService.receiveMessage4Server(chatMessageDTO);
     }
 
     /**

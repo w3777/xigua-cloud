@@ -33,5 +33,5 @@ public interface ClientService {
      * @date 2025/4/20 19:27
      * @param chatMessageDTO
     */
-    void receiveMessage4Client(ChatMessageDTO chatMessageDTO);
+    void receiveMessage4Server(ChatMessageDTO chatMessageDTO);
 }

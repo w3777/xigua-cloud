@@ -1,0 +1,137 @@
+# spring配置
+spring:
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+  data:
+    redis:
+      # 数据库
+      database: 0
+      # 主机
+      host: 127.0.0.1
+      # 端口
+      port: 6379
+      # 密码
+      password: 123456
+      # 读超时
+      timeout: 5s
+      # 连接超时
+      connect-timeout: 5s
+      # redis连接池
+      lettuce:
+        pool:
+          # 最小空闲连接数
+          min-idle: 0
+          # 最大空闲连接数
+          max-idle: 8
+          # 获取连接的最大等待时间，-1 代表无限等待
+          max-wait: -1ms
+          # 最大连接数（总连接数）
+          max-active: 16
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/seckill?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&useSSL=false
+    username: root
+    password: 123456
+
+  kafka:
+    # kafka集群信息，多个用逗号间隔
+    bootstrap-servers: 127.0.0.1:9092
+    # 生产者
+    producer:
+      # 重试次数，设置大于0的值，则客户端会将发送失败的记录重新发送
+      retries: 3
+      # 批量处理大小，16K
+      batch-size: 16384
+      # 缓冲存储大，32M
+      buffer-memory: 33554432
+      # procedure要求leader在考虑完成请求之前收到的确认数，用于控制发送记录在服务端的持久化，其值可以为如下：
+      # acks = 0 如果设置为零，则生产者将不会等待来自服务器的任何确认，该记录将立即添加到套接字缓冲区并视为已发送。在这种情况下，无法保证服务器已收到记录，并且重试配置将不会生效（因为客户端通常不会知道任何故障），为每条记录返回的偏移量始终设置为-1。
+      # acks = 1 这意味着leader会将记录写入其本地日志，但无需等待所有副本服务器的完全确认即可做出回应，在这种情况下，如果leader在确认记录后立即失败，但在将数据复制到所有的副本服务器之前，则记录将会丢失。
+      # acks = all 这意味着leader将等待完整的同步副本集以确认记录，这保证了只要至少一个同步副本服务器仍然存活，记录就不会丢失，这是最强有力的保证，这相当于acks = -1的设置。
+      #可以设置的值为：all, -1, 0, 1
+      acks: 1
+      # 指定消息key和消息体的编解码方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    # 消费者
+    consumer:
+      # 消费者组
+      group-id: test-group
+      # 是否自动提交
+      enable-auto-commit: false
+      # 消费偏移配置
+      # none：如果没有为消费者找到先前的offset的值,即没有自动维护偏移量,也没有手动维护偏移量,则抛出异常
+      # earliest：在各分区下有提交的offset时：从offset处开始消费；在各分区下无提交的offset时：从头开始消费
+      # latest：在各分区下有提交的offset时：从offset处开始消费；在各分区下无提交的offset时：从最新的数据开始消费
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    # 监听
+    listener:
+      # record：当每一条记录被消费者监听器ListenerConsumer处理之后提交
+      # batch：当每一批poll()的数据被ListenerConsumer处理之后提交
+      # time：当每一批poll()的数据被ListenerConsumer处理之后，距离上次提交时间大于TIME时提交
+      # count：当每一批poll()的数据被ListenerConsumer处理之后，被处理record数量大于等于COUNT时提交
+      # count_time：TIME或COUNT中有一个条件满足时提交
+      # manual：当每一批poll()的数据被ListenerConsumer处理之后, 手动调用Acknowledgment.acknowledge()后提交
+      # manual_immediate：手动调用Acknowledgment.acknowledge()后立即提交，一般推荐使用这种
+      ack-mode: manual_immediate
+
+    # mybatis配置
+    # mybatis:
+    #     # 搜索指定包别名
+    #     typeAliasesPackage: com.honghao.fleet
+    #     typeEnumsPackage: com.honghao.fleet.enums
+    #     # 配置mapper的扫描，找到所有的mapper.xml映射文件
+    #     mapperLocations: classpath:mapper/**/*.xml
+
+    #pageSize可以为0，表示查全部
+    # pagehelper:
+    #   pageSizeZero: true
+
+dubbo:
+  scan:
+    base-packages: com.xigua
+  protocol:
+    name: dubbo
+    port: 20884
+  registry:
+    check: false
+    # 注册中心nacos
+    address: nacos://127.0.0.1:8848
+    # 指定nacos namespace命名空间
+    parameters:
+      namespace: xigua-dubbo
+  consumer:
+    check: false
+    # 重试为0
+    retries: 0
+    # 超时5秒
+    timeout: 5000
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id）
+    filter: userContextFilter, traceIdFilter
+  provider:
+    check: false
+    # 重试为0
+    retries: 0
+    # 超时5秒
+    timeout: 5000
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id）
+    filter: userContextFilter, traceIdFilter
+
+logging:
+  level:
+    # kafka客户端检测打印error
+    org.apache.kafka.clients: error
+    # 打印sql
+    com.xigua.demo.mapper: debug
+
+# swagger配置
+springdoc:
+  api-docs:
+    path: /demo/v3/api-docs
+  swagger-ui:
+    path: /demo/swagger-ui.html
