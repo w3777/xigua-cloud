@@ -283,7 +283,7 @@
     // 获取在线用户并渲染到 select（POST 版本）
     async function fetchOnlineUsers() {
         try {
-            const response = await fetch('http://localhost:8090/connect/connect/center/getOnlineId', {
+            const response = await fetch('http://localhost:8090/center/center/getOnlineId', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

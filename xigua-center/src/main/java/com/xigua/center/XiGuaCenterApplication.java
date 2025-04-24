@@ -1,13 +1,13 @@
-package com.xigua.connect;
+package com.xigua.center;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class XiGuaConnectCenterApplication {
+public class XiGuaCenterApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(XiGuaConnectCenterApplication.class, args);
+        SpringApplication.run(XiGuaCenterApplication.class, args);
     }
 
 }

@@ -11,7 +11,7 @@ import java.util.Set;
  * @Author wangjinfei
  * @Date 2025/4/20 10:11
  */
-public interface ConnectService {
+public interface CenterService {
     /**
      * 客户端注册上线
      * @author wangjinfei

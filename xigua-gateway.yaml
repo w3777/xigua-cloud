@@ -20,6 +20,20 @@ spring:
           filters:
             - StripPrefix=1
 
+        - id: xigua-client
+          uri: lb://xigua-client
+          predicates:
+            - Path=/client/**
+          filters:
+            - StripPrefix=1
+
+        - id: xigua-center
+          uri: lb://xigua-center
+          predicates:
+            - Path=/center/**
+          filters:
+            - StripPrefix=1
+
 springdoc:
   webjars:
     # 设置为空，不要前缀

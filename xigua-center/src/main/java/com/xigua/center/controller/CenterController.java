@@ -1,6 +1,6 @@
-package com.xigua.connect;
+package com.xigua.center.controller;
 
-import com.xigua.service.ConnectService;
+import com.xigua.service.CenterService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,17 +10,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Set;
 
 /**
- * @ClassName ConnectController
+ * @ClassName CenterController
  * @Description TODO
  * @Author wangjinfei
  * @Date 2025/4/23 20:15
  */
 @RequiredArgsConstructor
-@RequestMapping("/connect/center")
+@RequestMapping("/center")
 @RestController
-public class ConnectController {
+public class CenterController {
     @DubboReference
-    private ConnectService connectService;
+    private CenterService centerService;
 
     /**
      * 获取在线人员id
@@ -30,6 +30,6 @@ public class ConnectController {
      */
     @PostMapping("/getOnlineId")
     public Set<String> getOnlineId(){
-        return connectService.getOnlineId();
+        return centerService.getOnlineId();
     }
 }

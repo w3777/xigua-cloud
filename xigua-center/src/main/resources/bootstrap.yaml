@@ -6,7 +6,7 @@ server:
 spring:
   application:
     # 应用名称
-    name: xigua-connect-center
+    name: xigua-center
 
   profiles:
     # 环境配置

@@ -39,7 +39,7 @@ public class WsServer {
         log.info("---->>>>>[websocket] 新的连接：userId={}",userId);
 
         // 当前用户所连接的ws节点信息注册到长连接服务器
-        clientService.clientRegister2Server(userId);
+        clientService.clientRegister2Center(userId);
     }
 
     // 连接关闭
@@ -58,7 +58,7 @@ public class WsServer {
         ChatMessageDTO chatMessageDTO = JSONObject.parseObject(message, ChatMessageDTO.class);
 
         // 发消息到长连接服务器
-        clientService.sendMessage2Server(chatMessageDTO);
+        clientService.sendMessage2Center(chatMessageDTO);
     }
 
     // 连接异常

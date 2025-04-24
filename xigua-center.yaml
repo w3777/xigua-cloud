@@ -132,6 +132,6 @@ logging:
 # swagger配置
 springdoc:
   api-docs:
-    path: /demo/v3/api-docs
+    path: /center/v3/api-docs
   swagger-ui:
-    path: /demo/swagger-ui.html
+    path: /center/swagger-ui.html

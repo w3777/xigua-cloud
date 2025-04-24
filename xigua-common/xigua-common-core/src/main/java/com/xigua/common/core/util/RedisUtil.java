@@ -1,6 +1,8 @@
 package com.xigua.common.core.util;
 
+import com.xigua.common.core.config.RedisConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
@@ -16,6 +18,7 @@ import java.util.Set;
  * @Date 2025/4/18 16:14
  */
 @Component
+@ConditionalOnBean({RedisConfig.class})
 @RequiredArgsConstructor
 public class RedisUtil {
     public final RedisTemplate<String, Object> redisTemplate;

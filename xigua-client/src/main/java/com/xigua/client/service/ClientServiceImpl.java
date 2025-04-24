@@ -4,7 +4,7 @@ import com.xigua.client.helper.SessionHelper;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.service.ClientService;
-import com.xigua.service.ConnectService;
+import com.xigua.service.CenterService;
 import jakarta.websocket.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import org.springframework.boot.web.servlet.context.ServletWebServerApplicationC
 public class ClientServiceImpl implements ClientService {
     private final ServletWebServerApplicationContext webServerAppContext;
     @DubboReference
-    private final ConnectService connectService;
+    private final CenterService centerService;
 
     @Value("${dubbo.protocol.port}")
     private Integer dubboPort;
@@ -38,7 +38,7 @@ public class ClientServiceImpl implements ClientService {
      * @return Boolean
      */
     @Override
-    public Boolean clientRegister2Server(String userId) {
+    public Boolean clientRegister2Center(String userId) {
         // 获取当前服务ip和端口
         int port = webServerAppContext.getWebServer().getPort();
         String host = null;
@@ -56,7 +56,7 @@ public class ClientServiceImpl implements ClientService {
         client.setPort(port);
         client.setDubboPort(dubboPort);
         // ws节点信息注册到服务端
-        connectService.clientRegister(client, userId);
+        centerService.clientRegister(client, userId);
         return true;
     }
 
@@ -67,8 +67,8 @@ public class ClientServiceImpl implements ClientService {
      * @param chatMessageDTO
      */
     @Override
-    public void sendMessage2Server(ChatMessageDTO chatMessageDTO) {
-        connectService.receiveMessage4Client(chatMessageDTO);
+    public void sendMessage2Center(ChatMessageDTO chatMessageDTO) {
+        centerService.receiveMessage4Client(chatMessageDTO);
     }
 
     /**
@@ -78,7 +78,7 @@ public class ClientServiceImpl implements ClientService {
      * @param chatMessageDTO
      */
     @Override
-    public void receiveMessage4Server(ChatMessageDTO chatMessageDTO) {
+    public void receiveMessage4Center(ChatMessageDTO chatMessageDTO) {
         String receiverId = chatMessageDTO.getReceiverId();
         String message = chatMessageDTO.getMessage();
 

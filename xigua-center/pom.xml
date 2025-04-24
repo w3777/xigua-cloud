@@ -8,10 +8,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xigua</groupId>
-    <artifactId>xigua-connect-center</artifactId>
+    <artifactId>xigua-center</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>connect-center</name>
-    <description>connect-center</description>
+    <name>xigua-center</name>
+    <description>xigua-center</description>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

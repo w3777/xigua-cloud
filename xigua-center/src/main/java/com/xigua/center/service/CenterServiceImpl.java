@@ -1,4 +1,4 @@
-package com.xigua.connect.service;
+package com.xigua.center.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.common.core.util.RedisUtil;
@@ -6,7 +6,7 @@ import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.service.ClientService;
-import com.xigua.service.ConnectService;
+import com.xigua.service.CenterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @ClassName ConnectServiceImpl
+ * @ClassName CenterServiceImpl
  * @Description TODO
  * @Author wangjinfei
  * @Date 2025/4/20 10:12
@@ -27,7 +27,7 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 @DubboService
-public class ConnectServiceImpl implements ConnectService {
+public class CenterServiceImpl implements CenterService {
     private final RedisUtil redisUtil;
 
     /**
@@ -41,7 +41,7 @@ public class ConnectServiceImpl implements ConnectService {
         // 客户端ws节点信息存储到redis
         String host = client.getHost();
         Integer port = client.getPort();
-        String key = RedisEnum.CLIENT_CONNECT_SERVER.getKey() + host + ":" + port;
+        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() + host + ":" + port;
         redisUtil.set(key, JSONObject.toJSONString(client));
 
         // 存储在线用户
@@ -74,7 +74,7 @@ public class ConnectServiceImpl implements ConnectService {
         }
 
         // 获取接收者所在的节点信息
-        String key = RedisEnum.CLIENT_CONNECT_SERVER.getKey() +
+        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
                 userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
         String value = redisUtil.get(key);
         Client client = JSONObject.parseObject(value, Client.class);
@@ -115,7 +115,7 @@ public class ConnectServiceImpl implements ConnectService {
         referenceConfig.setInterface(ClientService.class);
         ClientService clientService = referenceConfig.get();
         UserSpecifiedAddressUtil.setAddress(new Address(host, dubboPort, true));
-        clientService.receiveMessage4Server(chatMessageDTO);
+        clientService.receiveMessage4Center(chatMessageDTO);
     }
 
     /**
@@ -129,7 +129,7 @@ public class ConnectServiceImpl implements ConnectService {
         Set<String> onlineIds = new HashSet<>();
 
         // 获取所有的节点信息
-        String key = RedisEnum.CLIENT_CONNECT_SERVER.getKey() + "*";
+        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() + "*";
         Set<String> wsServers = redisUtil.getKeysByKey(key);
 
         // 根据节点信息获取在线用户

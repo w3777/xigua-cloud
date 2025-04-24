@@ -16,7 +16,7 @@ public interface ClientService {
      * @param userId
      * @return Boolean
     */
-    Boolean clientRegister2Server(String userId);
+    Boolean clientRegister2Center(String userId);
 
 
     /**
@@ -25,7 +25,7 @@ public interface ClientService {
      * @date 2025/4/20 15:58
      * @param chatMessageDTO
     */
-    void sendMessage2Server(ChatMessageDTO chatMessageDTO);
+    void sendMessage2Center(ChatMessageDTO chatMessageDTO);
 
     /**
      * 接收来自长连接服务器的消息
@@ -33,5 +33,5 @@ public interface ClientService {
      * @date 2025/4/20 19:27
      * @param chatMessageDTO
     */
-    void receiveMessage4Server(ChatMessageDTO chatMessageDTO);
+    void receiveMessage4Center(ChatMessageDTO chatMessageDTO);
 }

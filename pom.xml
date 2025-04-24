@@ -44,8 +44,8 @@
         <module>xigua-user</module>
         <module>xigua-common</module>
         <module>xigua-domain</module>
-        <module>xigua-connect-center</module>
         <module>xigua-client</module>
+        <module>xigua-center</module>
     </modules>
 
     <dependencies>

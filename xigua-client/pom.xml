@@ -10,8 +10,8 @@
     <groupId>com.xigua</groupId>
     <artifactId>xigua-client</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>connect-center</name>
-    <description>client</description>
+    <name>xigua-client</name>
+    <description>xigua-client</description>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
