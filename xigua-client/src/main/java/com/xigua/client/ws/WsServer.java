@@ -48,7 +48,8 @@ public class WsServer {
         SessionHelper.remove(userId);
         log.info("---->>>>>[websocket] 连接断开：userId={}，reason={}",userId,closeReason);
 
-        // todo 当前用户下线通知长连接服务器 删除用户所在节点信息
+        // 当前用户所连接的ws节点信息注销到长连接服务器
+        clientService.clientDeregister2Center(userId);
     }
 
     // 收到消息

@@ -61,6 +61,37 @@ public class ClientServiceImpl implements ClientService {
     }
 
     /**
+     * 当前用户所连接的ws节点信息注销到长连接服务器
+     * @author wangjinfei
+     * @date 2025/4/24 15:36
+     * @param userId
+     * @return Boolean
+     */
+    @Override
+    public Boolean clientDeregister2Center(String userId) {
+        // 获取当前服务ip和端口
+        int port = webServerAppContext.getWebServer().getPort();
+        String host = null;
+        try {
+            // 获取本机的 IP 地址
+            host = java.net.InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("----->>>>> 获取ip失败", e);
+        }
+        log.info("----->>>>> host:{},port:{}", host, port);
+
+        Client client = new Client();
+        client.setHost(host);
+        client.setPort(port);
+        client.setDubboPort(dubboPort);
+
+        // ws节点信息从服务端注销
+        centerService.clientDeregister(client, userId);
+        return true;
+    }
+
+    /**
      * 发消息到长连接服务器
      * @author wangjinfei
      * @date 2025/4/20 15:58

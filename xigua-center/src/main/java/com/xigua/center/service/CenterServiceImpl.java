@@ -52,6 +52,33 @@ public class CenterServiceImpl implements CenterService {
     }
 
     /**
+     * 客户端注销下线
+     * @author wangjinfei
+     * @date 2025/4/24 15:41
+     * @param client
+     * @param userId
+     */
+    @Override
+    public void clientDeregister(Client client, String userId) {
+        String host = client.getHost();
+        Integer port = client.getPort();
+
+        // redis移除在线用户
+        String onlineUserKey = RedisEnum.ONLINE_USER.getKey() + host + ":" + port;
+        redisUtil.srem(onlineUserKey, userId);
+
+        // 如果当前节点没有在线用户了，移除节点信息
+        String wsClientKey = RedisEnum.CLIENT_CONNECT_CENTER.getKey() + host + ":" + port;
+        long wsClientSize = redisUtil.scard(onlineUserKey);
+        if(wsClientSize == 0){
+            // 客户端ws节点信息从redis移除
+            redisUtil.del(wsClientKey);
+        }
+
+        log.info("------->>>>>>> 用户：{}，所在服务器：{}，注销下线", userId, wsClientKey);
+    }
+
+    /**
      * 接收来自客户端的消息
      * @author wangjinfei
      * @date 2025/4/20 15:06

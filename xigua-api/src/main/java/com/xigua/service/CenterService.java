@@ -21,6 +21,15 @@ public interface CenterService {
     void clientRegister(Client client, String userId);
 
     /**
+     * 客户端注销下线
+     * @author wangjinfei
+     * @date 2025/4/24 15:41
+     * @param client
+     * @param userId
+    */
+    void clientDeregister(Client client, String userId);
+
+    /**
      * 接收来自客户端的消息
      * @author wangjinfei
      * @date 2025/4/20 15:06

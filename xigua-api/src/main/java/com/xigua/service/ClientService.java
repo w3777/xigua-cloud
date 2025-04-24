@@ -18,6 +18,15 @@ public interface ClientService {
     */
     Boolean clientRegister2Center(String userId);
 
+    /**
+     * 当前用户所连接的ws节点信息注销到长连接服务器
+     * @author wangjinfei
+     * @date 2025/4/24 15:36
+     * @param userId
+     * @return Boolean
+    */
+    Boolean clientDeregister2Center(String userId);
+
 
     /**
      * 发消息到长连接服务器

@@ -64,6 +64,24 @@ public class RedisUtil {
     }
 
     /**
+     * set集合 根据key删除value
+     * @author wangjinfei
+     * @date 2025/4/24 15:45
+     * @param key
+     * @param value
+     * @return boolean
+    */
+    public boolean srem(String key, Object value) {
+        try {
+            redisTemplate.opsForSet().remove(key, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * string添加缓存
      * @author wangjinfei
      * @date 2025/4/20 10:38
@@ -91,6 +109,23 @@ public class RedisUtil {
     public String get(String key) {
         String o = (String) redisTemplate.opsForValue().get(key);
         return o;
+    }
+
+    /**
+     * 根据key 删除缓存
+     * @author wangjinfei
+     * @date 2025/4/24 15:50
+     * @param key
+     * @return Boolean
+    */
+    public Boolean del(String key){
+        try {
+            redisTemplate.delete(key);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
