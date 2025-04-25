@@ -48,6 +48,35 @@
         <module>xigua-center</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>local</id>
+            <properties>
+                <!-- 本地 -->
+                <profiles.active>local</profiles.active>
+                <nacos.username>nacos</nacos.username>
+                <nacos.password>nacos</nacos.password>
+                <nacos.server>127.0.0.1:8848</nacos.server>
+            </properties>
+
+        </profile>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <!-- 远程 -->
+                <profiles.active>dev</profiles.active>
+                <nacos.username>nacos</nacos.username>
+                <nacos.password>nacos</nacos.password>
+<!--                <nacos.server>172.17.0.3:8848</nacos.server>-->
+                <nacos.server>101.200.186.48:8848</nacos.server>
+            </properties>
+            <activation>
+                <!-- 默认环境 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -120,6 +149,26 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- 关闭过滤 -->
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- 引入所有 匹配文件进行过滤 -->
+                <includes>
+                    <include>application*</include>
+                    <include>bootstrap*</include>
+                    <include>logback*</include>
+                    <include>**/*.p12</include>
+                </includes>
+                <!-- 启用过滤 即该资源中的变量将会被过滤器中的值替换 -->
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
 </project>

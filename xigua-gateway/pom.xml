@@ -9,7 +9,6 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xigua</groupId>
     <artifactId>xigua-gateway</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>gateway</name>
     <description>gateway</description>
     <dependencies>

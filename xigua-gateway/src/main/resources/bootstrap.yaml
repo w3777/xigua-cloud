@@ -7,19 +7,18 @@ spring:
   application:
     # 应用名称
     name: xigua-gateway
+  # 环境配置
+  profiles:
+    active: @profiles.active@
   main:
     web-application-type: reactive
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-
-  profiles:
-    # 环境配置
-    active: dev
   cloud:
     nacos:
-      server-addr: 127.0.0.1:8848
-      username: nacos
-      password: nacos
+      server-addr: @nacos.server@
+      username: @nacos.username@
+      password: @nacos.password@
       discovery:
         namespace: xigua
       config:
