@@ -58,7 +58,10 @@
                 <nacos.password>nacos</nacos.password>
                 <nacos.server>127.0.0.1:8848</nacos.server>
             </properties>
-
+            <activation>
+                <!-- 默认环境 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>dev</id>
@@ -67,13 +70,8 @@
                 <profiles.active>dev</profiles.active>
                 <nacos.username>nacos</nacos.username>
                 <nacos.password>nacos</nacos.password>
-<!--                <nacos.server>172.17.0.3:8848</nacos.server>-->
-                <nacos.server>101.200.186.48:8848</nacos.server>
+                <nacos.server>x.x.x.x:8848</nacos.server>
             </properties>
-            <activation>
-                <!-- 默认环境 -->
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
     </profiles>
 
