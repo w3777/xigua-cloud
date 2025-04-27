@@ -47,6 +47,13 @@
             <version>${dubbo.version}</version>
         </dependency>
 
+        <!-- 解决java.lang.TypeNotPresentException: Type kotlin.reflect.KProperty not present 所需依赖 -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
         <dependency>
             <groupId>org.springdoc</groupId>

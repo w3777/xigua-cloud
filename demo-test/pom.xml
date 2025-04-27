@@ -12,9 +12,6 @@
     <version>${xigua.version}</version>
     <name>demo-test</name>
     <description>demo-test</description>
-    <properties>
-        <druid.version>1.2.23</druid.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

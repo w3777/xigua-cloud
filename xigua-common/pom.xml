@@ -19,6 +19,7 @@
     <modules>
         <module>xigua-common-sequence</module>
         <module>xigua-common-core</module>
+        <module>xigua-common-mybatis</module>
     </modules>
 
 </project>

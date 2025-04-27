@@ -83,6 +83,11 @@
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-pool2</artifactId>
                 </exclusion>
+
+                <exclusion>
+                    <groupId>com.xigua</groupId>
+                    <artifactId>xigua-common-mybatis</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 

@@ -23,8 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        Sequence sequence = new SnowflakeSequence();
-        registry.addInterceptor(new LoginInterceptor(sequence))
+        registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**")   //默认对所有请求进行拦截
                 .excludePathPatterns(excludePathList);    //不拦截
     }

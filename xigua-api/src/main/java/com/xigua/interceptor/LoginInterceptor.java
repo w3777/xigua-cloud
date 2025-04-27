@@ -10,10 +10,11 @@ import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.token.UserToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -23,11 +24,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @Author wangjinfei
  * @Date 2025/3/28 15:45
  */
-@Data
+@ConditionalOnBean({Sequence.class})
 @Component
 @Slf4j
 public class LoginInterceptor implements HandlerInterceptor {
-    private final Sequence sequence;
+    @Autowired
+    private Sequence sequence;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
