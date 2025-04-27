@@ -17,6 +17,10 @@ import org.springframework.context.annotation.Configuration;
 @OpenAPIDefinition
 @Configuration
 public class OpenAPIConfig {
+    /*
+    * http://localhost:8090/swagger-ui/index.html swagger网关统一访问路径
+    * 转发到具体的服务接口路径
+    */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI().info(new Info()
@@ -41,6 +45,24 @@ public class OpenAPIConfig {
                 .route("user-api", r -> r.path("/user/v3/api-docs")
                         .filters(f -> f.rewritePath("/user/(?<segment>.*)", "/user/${segment}"))
                         .uri("http://127.0.0.1:8082"))
+                .build();
+    }
+
+    @Bean
+    public RouteLocator clientRoute(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("client-api", r -> r.path("/client/v3/api-docs")
+                        .filters(f -> f.rewritePath("/client/(?<segment>.*)", "/client/${segment}"))
+                        .uri("http://127.0.0.1:8084"))
+                .build();
+    }
+
+    @Bean
+    public RouteLocator centerRoute(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("center-api", r -> r.path("/center/v3/api-docs")
+                        .filters(f -> f.rewritePath("/center/(?<segment>.*)", "/center/${segment}"))
+                        .uri("http://127.0.0.1:8083"))
                 .build();
     }
 }

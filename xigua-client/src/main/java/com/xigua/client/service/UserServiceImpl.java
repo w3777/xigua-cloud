@@ -1,7 +1,9 @@
 package com.xigua.client.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.UserMapper;
+import com.xigua.common.core.exception.BusinessException;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
@@ -49,6 +51,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Boolean register(RegisterUserDTO dto) {
+        String email = dto.getEmail();
+
+        // 邮箱是否存在
+        Long count = baseMapper.selectCount(new LambdaQueryWrapper<User>()
+                .eq(User::getEmail, email));
+        if(count > 0){
+            throw new BusinessException("邮箱已存在");
+        }
+
         User user = new User();
         BeanUtils.copyProperties(dto,user);
 

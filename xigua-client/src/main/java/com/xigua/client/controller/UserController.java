@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author wangjinfei
  * @Date 2025/4/27 11:48
  */
-@Tag(name = "用户相关接口")
+@Tag(name = "用户接口")
 @RequiredArgsConstructor
 @RequestMapping("/user")
 @RestController

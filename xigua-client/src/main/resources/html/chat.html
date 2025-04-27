@@ -291,7 +291,7 @@
                 body: JSON.stringify({})  // 如果接口需要传参数，可以在这里补上
             });
 
-            const onlineUsers = await response.json();
+            const onlineUsers = await response.json().then(data => data.data);
 
             // 清除原有选项，保留默认几个用户
             userSelect.innerHTML = `
