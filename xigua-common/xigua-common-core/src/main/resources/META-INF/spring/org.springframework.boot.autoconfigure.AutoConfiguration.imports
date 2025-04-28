@@ -1,3 +1,2 @@
 com.xigua.common.core.util.RedisUtil
 com.xigua.common.core.config.RedisConfig
-com.xigua.common.core.handle.ExceptionHandle

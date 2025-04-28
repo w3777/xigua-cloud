@@ -1,2 +1,3 @@
 com.xigua.config.WebConfig
 com.xigua.interceptor.LoginInterceptor
+com.xigua.handle.ExceptionHandle
