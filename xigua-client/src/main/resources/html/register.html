@@ -13,7 +13,7 @@
         }
 
         .container {
-            width: 300px;
+            width: 320px;
             margin: 50px auto;
             padding: 20px;
             background-color: white;
@@ -27,13 +27,13 @@
             margin-bottom: 20px;
         }
 
-        input[type="text"], input[type="email"], input[type="password"] {
+        input[type="text"], input[type="email"], input[type="password"], input[type="code"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
             border-radius: 4px;
             border: 1px solid #ccc;
-            box-sizing: border-box;  /* 确保输入框包含内边距和边框 */
+            box-sizing: border-box; /* 确保输入框包含内边距和边框 */
         }
 
         button {
@@ -67,9 +67,24 @@
             text-decoration: underline;
         }
 
+        /* 优化输入框和按钮在同一行 */
+        .input-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px; /* 给输入框和按钮之间添加间距 */
+            margin-bottom: 10px;
+        }
+
+        /* 调整邮箱验证码输入框的宽度 */
+        #register-code {
+            width: 120px; /* 设置验证码输入框的宽度 */
+            padding: 10px;
+        }
+
         /* 调整发送验证码按钮样式 */
         #send-code-btn {
-            width: 35%;
+            width: 35%; /* 设置按钮的宽度 */
             padding: 6px 12px;
             background-color: #28a745;
             color: white;
@@ -77,7 +92,6 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            margin-left: 10px;
         }
 
         #send-code-btn:disabled {
@@ -85,17 +99,58 @@
             cursor: not-allowed;
         }
 
+        .email-wrapper {
+            display: flex;
+            align-items: center;  /* 确保输入框和@符号垂直居中对齐 */
+            width: 100%;  /* 容器宽度自适应 */
+        }
+
+        #register-email {
+            flex-grow: 1;  /* 让输入框占满剩余空间 */
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            box-sizing: border-box;  /* 确保输入框宽度包含内边距和边框 */
+        }
+
+        span {
+            font-size: 14px;
+            color: #333;
+            margin-left: 5px;  /* 输入框和@符号之间的间距 */
+        }
+
+        /* 定时器样式 */
         .timer {
             color: #ff0000;
             font-size: 14px;
-            display: inline-block;
             margin-left: 10px;
+            display: inline-block;
         }
 
-        .input-wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+                padding: 15px;
+            }
+
+            input[type="text"], input[type="email"], input[type="password"], input[type="code"], button {
+                width: 100%; /* 使所有元素在小屏幕下占满容器 */
+            }
+
+            .input-wrapper {
+                flex-direction: column; /* 在小屏幕下，输入框和按钮排列成列 */
+                gap: 5px; /* 调整小屏幕下的间距 */
+            }
+
+            #register-code {
+                width: 100%; /* 在小屏幕下验证码输入框占满宽度 */
+            }
+
+            #send-code-btn {
+                width: 100%; /* 使按钮在小屏幕下占满宽度 */
+            }
         }
     </style>
 </head>
@@ -105,9 +160,12 @@
     <div class="form-title">注册</div>
     <form id="register-form" onsubmit="event.preventDefault(); register();">
         <input type="text" id="register-username" placeholder="用户名" required>
-<!--        <input type="email" id="register-email" placeholder="电子邮件" required>-->
-        <div style="display: flex; align-items: center;">
-            <input type="email" id="register-email" placeholder="电子邮件" required>
+        <div>
+            <div class="email-wrapper">
+                <input type="text" id="register-email" placeholder="电子邮件" required>
+                <span>@qq.com</span>
+            </div>
+            <input type="code" id="register-code" placeholder="邮箱验证码" required>
             <button type="button" id="send-code-btn" onclick="sendEmailCode()">发送验证码</button>
             <span id="timer" class="timer"></span>
         </div>
@@ -124,12 +182,14 @@
     function register() {
         const username = document.getElementById('register-username').value;
         const email = document.getElementById('register-email').value;
+        const code = document.getElementById('register-code').value;
         const password = document.getElementById('register-password').value;
 
         // 请求数据
         const requestData = {
             username: username,
-            email: email,
+            email: email + "@qq.com",
+            code: code,
             password: password
         };
 
@@ -165,7 +225,19 @@
 
     // 发送验证码并处理倒计时的功能
     function sendEmailCode() {
-        const email = document.getElementById('register-email').value;
+        var email = document.getElementById('register-email').value;
+        if(email == ''){
+            alert('请输入邮箱地址');
+            return;
+        }
+
+        // 正则表达式匹配 QQ 邮箱
+        const qqEmailPattern = /^\d{8,}@qq\.com$/;
+        email = email + "@qq.com";
+        if (qqEmailPattern.test(email) == false) {
+            alert('请输入有效的QQ邮箱');
+            return;
+        }
 
         // 获取当前时间
         const currentTime = Date.now();

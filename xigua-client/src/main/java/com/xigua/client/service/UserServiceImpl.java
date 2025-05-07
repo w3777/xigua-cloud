@@ -98,7 +98,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
         User user = baseMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username));
+                .eq(User::getUsername, username)
+                .or()
+                .eq(User::getEmail, username));
         if(user == null){
             throw new BusinessException("用户名不存在");
         }
