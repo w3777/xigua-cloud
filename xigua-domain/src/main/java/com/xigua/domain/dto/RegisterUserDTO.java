@@ -39,4 +39,11 @@ public class RegisterUserDTO implements Serializable {
     @NotEmpty(message = "邮箱不可以为空")
     @Schema(name = "email", description = "邮箱")
     private String email;
+
+    /**
+     * 邮箱验证码
+     */
+    @NotEmpty(message = "邮箱验证码不可以为空")
+    @Schema(name = "code", description = "邮箱验证码")
+    private String code;
 }

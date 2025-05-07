@@ -27,11 +27,6 @@ public class UserController {
         userService.testDubbo();
     }
 
-    @PostMapping("/login")
-    public String login(@RequestBody LoginDTO loginDTO){
-        return userService.login(loginDTO);
-    }
-
     @PostMapping("/testToken")
     public void testToken() {
         userService.testToken();

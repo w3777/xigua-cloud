@@ -1,5 +1,6 @@
 package com.xigua.client.controller;
 
+import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.result.R;
 import com.xigua.service.UserService;
@@ -47,5 +48,24 @@ public class UserController {
             return R.fail("注册失败");
         }
         return R.ok(null,"注册成功");
+    }
+
+    /**
+     * 登录
+     * @author wangjinfei
+     * @date 2025/5/7 13:40
+     * @param loginDTO
+     * @return Boolean
+     */
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "登录成功", content =
+            { @Content(mediaType = "application/json") })})
+    @Operation(summary = "登录")
+    @PostMapping("/login")
+    public R register(@Validated @RequestBody LoginDTO loginDTO){
+        Boolean register = userService.login(loginDTO);
+        if(!register){
+            return R.fail("登录失败");
+        }
+        return R.ok(null,"登录成功");
     }
 }

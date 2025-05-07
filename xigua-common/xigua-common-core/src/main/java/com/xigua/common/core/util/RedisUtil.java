@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName RedisUtil
@@ -92,6 +93,25 @@ public class RedisUtil {
     public boolean set(String key, String value) {
         try {
             redisTemplate.opsForValue().set(key, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * string添加缓存 并设置过期时间
+     * @author wangjinfei
+     * @date 2025/4/20 10:38
+     * @param key
+     * @param value
+     * @param expire
+     * @return boolean
+     */
+    public boolean set(String key, String value, long expire) {
+        try {
+            redisTemplate.opsForValue().set(key, value, expire, TimeUnit.SECONDS);
             return true;
         } catch (Exception e) {
             e.printStackTrace();

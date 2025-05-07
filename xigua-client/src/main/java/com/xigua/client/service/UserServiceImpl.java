@@ -4,12 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.UserMapper;
 import com.xigua.common.core.exception.BusinessException;
+import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
+import com.xigua.domain.enums.RedisEnum;
+import com.xigua.service.EmailService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 
@@ -22,14 +26,13 @@ import org.springframework.beans.BeanUtils;
 @DubboService
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+    @DubboReference
+    private final EmailService emailService;
+    private final RedisUtil redisUtil;
+
     @Override
     public void testDubbo() {
 
-    }
-
-    @Override
-    public String login(LoginDTO loginDTO) {
-        return null;
     }
 
     @Override
@@ -52,13 +55,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Boolean register(RegisterUserDTO dto) {
         String email = dto.getEmail();
+        String username = dto.getUsername();
+        String code = dto.getCode();
+
+        // 用户名是否存在
+        Long usernameCount = baseMapper.selectCount(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username));
+        if(usernameCount > 0){
+            throw new BusinessException("用户名已存在");
+        }
 
         // 邮箱是否存在
-        Long count = baseMapper.selectCount(new LambdaQueryWrapper<User>()
+        Long emailCount = baseMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getEmail, email));
-        if(count > 0){
+        if(emailCount > 0){
             throw new BusinessException("邮箱已存在");
         }
+
+        // 校验邮箱
+        Boolean checkCode = emailService.checkCode(email, code);
+        redisUtil.del(RedisEnum.EMAIL_CODE.getKey() + email);
 
         User user = new User();
         BeanUtils.copyProperties(dto,user);
@@ -68,5 +84,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         int insert = baseMapper.insert(user);
         return insert > 0;
+    }
+
+    /**
+     * 登录
+     * @author wangjinfei
+     * @date 2025/5/7 13:40
+     * @param loginDTO
+     * @return Boolean
+     */
+    @Override
+    public Boolean login(LoginDTO loginDTO) {
+        String username = loginDTO.getUsername();
+        String password = loginDTO.getPassword();
+        User user = baseMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username));
+        if(user == null){
+            throw new BusinessException("用户名不存在");
+        }
+        if(!user.getPassword().equals(DigestUtils.md5Hex(password))){
+            throw new BusinessException("密码错误");
+        }
+
+        // todo 登录成功，生成token
+
+        return true;
     }
 }

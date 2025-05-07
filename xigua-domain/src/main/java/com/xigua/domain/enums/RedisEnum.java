@@ -9,6 +9,7 @@ public enum RedisEnum {
     BIG_KEY_PREFIX("big_key:", "大key前缀"),
     CLIENT_CONNECT_CENTER("client_connect_center:", "客户端长连接映射信息"),
     ONLINE_USER("online_user:", "在线用户"),
+    EMAIL_CODE("email_code:", "邮箱验证码"),
     ;
 
     final String key;

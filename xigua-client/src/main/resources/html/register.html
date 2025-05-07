@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;  /* 确保输入框包含内边距和边框 */
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .switch-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #007bff;
+        }
+
+        .switch-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .switch-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* 调整发送验证码按钮样式 */
+        #send-code-btn {
+            width: 35%;
+            padding: 6px 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        #send-code-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .timer {
+            color: #ff0000;
+            font-size: 14px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-title">注册</div>
+    <form id="register-form" onsubmit="event.preventDefault(); register();">
+        <input type="text" id="register-username" placeholder="用户名" required>
+<!--        <input type="email" id="register-email" placeholder="电子邮件" required>-->
+        <div style="display: flex; align-items: center;">
+            <input type="email" id="register-email" placeholder="电子邮件" required>
+            <button type="button" id="send-code-btn" onclick="sendEmailCode()">发送验证码</button>
+            <span id="timer" class="timer"></span>
+        </div>
+        <input type="password" id="register-password" placeholder="密码" required>
+        <button type="submit" id="register-btn">注册</button>
+    </form>
+    <div class="switch-link">
+        已有账户？<a href="./login.html">登录</a>
+    </div>
+</div>
+
+<script>
+    // 发送注册请求
+    function register() {
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+
+        // 请求数据
+        const requestData = {
+            username: username,
+            email: email,
+            password: password
+        };
+
+        // 使用 fetch 向后端提交请求
+        fetch('http://localhost:8090/client/user/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('注册失败');
+        })
+        .then(data => {
+            if (data.code == 200) {
+                alert('注册成功！');
+                window.location.href = './login.html';
+            } else {
+                alert('注册失败：' + data.msg);
+            }
+        })
+    }
+
+    let lastSentTime = 0;  // 上次发送验证码的时间
+    let countdownTimer = null;  // 倒计时定时器
+    let countdown = 60;  // 倒计时初始值（秒）
+    const codeBtn = document.getElementById('send-code-btn');
+    const timerDisplay = document.getElementById('timer');
+
+    // 发送验证码并处理倒计时的功能
+    function sendEmailCode() {
+        const email = document.getElementById('register-email').value;
+
+        // 获取当前时间
+        const currentTime = Date.now();
+
+        // 如果上次发送时间和当前时间相差不到60秒，提示用户
+        if (currentTime - lastSentTime < 60000) {
+            const remainingTime = Math.ceil((60000 - (currentTime - lastSentTime)) / 1000);
+            timerDisplay.textContent = `请等待 ${remainingTime} 秒后重试。`;
+            return;
+        }
+
+        // 使用 fetch 向后端提交请求发送验证码
+        fetch('http://localhost:8090/client/email/send?email=' + email, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('发送验证码失败');
+            })
+            .then(data => {
+                if (data.code === 200) {
+                    // 记录发送时间
+                    lastSentTime = currentTime;
+                    timerDisplay.textContent = '验证码已发送，请查收您的邮箱。';
+
+                    // 启用按钮，防止重复点击
+                    disableSendButton();
+                    startCountdown();
+                } else {
+                    timerDisplay.textContent = '发送失败：' + data.msg;
+                }
+            })
+            .catch(err => {
+                timerDisplay.textContent = '发送失败：' + err.message;
+            });
+    }
+
+    // 禁用发送验证码按钮
+    function disableSendButton() {
+        codeBtn.disabled = true;
+    }
+
+    // 启用发送验证码按钮
+    function enableSendButton() {
+        codeBtn.disabled = false;
+        timerDisplay.textContent = '';
+    }
+
+    // 启动倒计时
+    function startCountdown() {
+        countdown = 60;  // 重置倒计时
+        countdownTimer = setInterval(function() {
+            if (countdown > 0) {
+                countdown--;
+                timerDisplay.textContent = `${countdown} 秒后可重试`;
+            } else {
+                clearInterval(countdownTimer);  // 停止倒计时
+                enableSendButton();  // 启用按钮
+            }
+        }, 1000);
+    }
+</script>
+
+</body>
+</html>

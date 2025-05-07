@@ -4,6 +4,19 @@ spring:
     multipart:
       max-file-size: 500MB
       max-request-size: 500MB
+
+  # 邮箱
+  mail:
+    host: smtp.qq.com
+    protocol: smtp
+    username: 377792937@qq.com
+    password: xvtmypkejzmkbjhj
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+
   data:
     redis:
       # 数据库
