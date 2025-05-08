@@ -148,3 +148,10 @@ springdoc:
     path: /client/v3/api-docs
   swagger-ui:
     path: /client/swagger-ui.html
+
+# minio
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: xigua
