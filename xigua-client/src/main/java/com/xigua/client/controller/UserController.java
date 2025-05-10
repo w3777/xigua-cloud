@@ -82,4 +82,18 @@ public class UserController {
         User userInfo = userService.getUserInfo();
         return R.ok(userInfo,"获取成功");
     }
+
+    /**
+     * 上传头像
+     * @author wangjinfei
+     * @date 2025/5/10 20:37
+     * @param avatar
+     * @return String
+     */
+    @Operation(summary = "上传头像")
+    @PostMapping("/uploadAvatar")
+    public R<String> uploadAvatar(@RequestParam("avatar") String avatar){
+        userService.uploadAvatar(avatar);
+        return R.ok("上传成功");
+    }
 }

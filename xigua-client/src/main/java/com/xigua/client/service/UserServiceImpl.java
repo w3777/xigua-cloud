@@ -1,6 +1,7 @@
 package com.xigua.client.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.UserMapper;
 import com.xigua.common.core.exception.BusinessException;
@@ -13,6 +14,7 @@ import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.token.UserToken;
 import com.xigua.service.EmailService;
+import com.xigua.service.FileService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -29,9 +31,9 @@ import org.springframework.beans.BeanUtils;
 @DubboService
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+    private final RedisUtil redisUtil;
     @DubboReference
     private final EmailService emailService;
-    private final RedisUtil redisUtil;
 
     @Override
     public void testDubbo() {
@@ -143,5 +145,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserToken userToken = UserContext.get();
         User user = baseMapper.selectById(userToken.getUserId());
         return user;
+    }
+
+    /**
+     * 上传头像
+     * @author wangjinfei
+     * @date 2025/5/10 20:37
+     * @param avatar
+     * @return String
+     */
+    @Override
+    public Boolean uploadAvatar(String avatar) {
+        UserToken userToken = UserContext.get();
+        baseMapper.update(new User(), new LambdaUpdateWrapper<User>().eq(User::getId, userToken.getUserId())
+                .set(User::getAvatar, avatar));
+        return true;
     }
 }

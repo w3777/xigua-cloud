@@ -52,4 +52,13 @@ public interface UserService extends IService<User> {
      * @return User
     */
     User getUserInfo();
+
+    /**
+     * 上传头像
+     * @author wangjinfei
+     * @date 2025/5/10 20:37
+     * @param avatar
+     * @return String
+    */
+    Boolean uploadAvatar(String avatar);
 }

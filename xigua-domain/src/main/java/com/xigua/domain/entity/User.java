@@ -52,6 +52,12 @@ public class User implements Serializable {
     private String phone;
 
     /**
+     * 头像
+     */
+    @Schema(name = "头像")
+    private String avatar;
+
+    /**
      * 是否删除 （0：未删除；1：已删除）
      */
     @Schema(name = "是否删除 （0：未删除；1：已删除）")
