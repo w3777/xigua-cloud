@@ -34,5 +34,22 @@ public interface UserService extends IService<User> {
      * @param loginDTO
      * @return Boolean
     */
-    Boolean login(LoginDTO loginDTO);
+    String login(LoginDTO loginDTO);
+
+    /**
+     * 创建token
+     * @author wangjinfei
+     * @date 2025/5/10 12:20
+     * @param user
+     * @return String
+    */
+    String createToken(User user);
+
+    /**
+     * 获取当前登录用户信息
+     * @author wangjinfei
+     * @date 2025/5/10 12:52
+     * @return User
+    */
+    User getUserInfo();
 }

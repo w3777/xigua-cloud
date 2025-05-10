@@ -21,13 +21,13 @@ public class UserToken implements Serializable {
      * tokenId
      */
     @Schema(name = "id", description = "tokenId")
-    private Long id;
+    private String id;
 
     /**
      * 用户id
      */
     @Schema(name = "userId", description = "用户id")
-    private Long userId;
+    private String userId;
 
     /**
      * 用户名

@@ -40,12 +40,6 @@ public class User implements Serializable {
     private String password;
 
     /**
-     * 昵称
-     */
-    @Schema(name = "昵称")
-    private String nickname;
-
-    /**
      * 邮箱
      */
     @Schema(name = "邮箱")

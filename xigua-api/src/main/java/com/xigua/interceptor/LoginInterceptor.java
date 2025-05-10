@@ -24,7 +24,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @Author wangjinfei
  * @Date 2025/3/28 15:45
  */
-@ConditionalOnBean({Sequence.class})
 @Component
 @Slf4j
 public class LoginInterceptor implements HandlerInterceptor {
@@ -33,9 +32,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if(true){
-            return true;
-        }
         // 生成链路id 存储到mdc
         String traceId = sequence.nextNo();
         MDC.put("traceId", traceId);
@@ -43,19 +39,29 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 拦截请求 获取token
         String token = request.getHeader("XG-Token");
         if (StringUtils.isEmpty(token)) {
-            return true;
-//            return false;
+            try {
+                // 返回401未授权状态码
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"code\":401,\"msg\":\"未提供认证令牌\"}");
+            }catch (Exception e){
+                log.error("返回未授权状态码异常：", e);
+            }
+            return false;
         }
+
+        // todo 判断token是否过期
 
         DecodedJWT decodedJWT;
         String userName = null;
-        Long userId = null;
+        String userId = null;
         String phone = null;
         try {
             // 解密token
             decodedJWT = JWT.require(Algorithm.HMAC256(TokenUtil.TOKEN_SECRET)).build().verify(token);
             userName = decodedJWT.getClaim("userName").asString();
-            userId = decodedJWT.getClaim("userId").asLong();
+            userId = decodedJWT.getClaim("userId").asString();
             phone = decodedJWT.getClaim("phone").asString();
         } catch (JWTVerificationException e) {
             log.error("解析Token异常：token={}", token, e);

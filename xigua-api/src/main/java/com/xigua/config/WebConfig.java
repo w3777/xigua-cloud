@@ -1,8 +1,11 @@
 package com.xigua.config;
 
+import com.xigua.common.sequence.SequenceAutoConfiguration;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.common.sequence.sequence.impl.SnowflakeSequence;
 import com.xigua.interceptor.LoginInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,14 +19,18 @@ import java.util.List;
  * @Author wangjinfei
  * @Date 2025/3/28 16:41
  */
+@ConditionalOnBean({SequenceAutoConfiguration.class})
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    private List<String> excludePathList = Arrays.asList("/user/login",
+    @Autowired
+    LoginInterceptor loginInterceptor;
+
+    private List<String> excludePathList = Arrays.asList("/user/login", "/user/register", "/user/logout",
             "/*/v3/api-docs/**", "/*/swagger-ui/**", "/*/swagger-ui.html");
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
+        registry.addInterceptor(loginInterceptor)
                 .addPathPatterns("/**")   //默认对所有请求进行拦截
                 .excludePathPatterns(excludePathList);    //不拦截
     }

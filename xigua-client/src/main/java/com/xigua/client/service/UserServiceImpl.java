@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.UserMapper;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
+import com.xigua.common.core.util.TokenUtil;
+import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
+import com.xigua.domain.token.UserToken;
 import com.xigua.service.EmailService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -94,7 +97,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return Boolean
      */
     @Override
-    public Boolean login(LoginDTO loginDTO) {
+    public String login(LoginDTO loginDTO) {
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
         User user = baseMapper.selectOne(new LambdaQueryWrapper<User>()
@@ -109,7 +112,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // todo 登录成功，生成token
+        String token = createToken(user);
+        return token;
+    }
 
-        return true;
+    /**
+     * 创建token
+     * @author wangjinfei
+     * @date 2025/5/10 12:20
+     * @param user
+     * @return String
+     */
+    @Override
+    public String createToken(User user) {
+        UserToken userToken = new UserToken();
+        userToken.setUserId(user.getId());
+        userToken.setUserName(user.getUsername());
+        userToken.setPhone(user.getPhone());
+        return TokenUtil.genToken(userToken);
+    }
+
+    /**
+     * 获取当前登录用户信息
+     * @author wangjinfei
+     * @date 2025/5/10 12:52
+     * @return User
+     */
+    @Override
+    public User getUserInfo() {
+        UserToken userToken = UserContext.get();
+        User user = baseMapper.selectById(userToken.getUserId());
+        return user;
     }
 }
