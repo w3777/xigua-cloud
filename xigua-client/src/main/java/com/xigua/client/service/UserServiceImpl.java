@@ -115,6 +115,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // todo 登录成功，生成token
         String token = createToken(user);
+
+        // todo 保存token到redis
         return token;
     }
 
@@ -160,5 +162,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         baseMapper.update(new User(), new LambdaUpdateWrapper<User>().eq(User::getId, userToken.getUserId())
                 .set(User::getAvatar, avatar));
         return true;
+    }
+
+    /**
+     * 更新用户信息
+     * @author wangjinfei
+     * @date 2025/5/11 20:34
+     * @param user
+     * @return Boolean
+     */
+    @Override
+    public Boolean updateUserInfo(User user) {
+        UserToken userToken = UserContext.get();
+        String userId = userToken.getUserId();
+        String originalUserName = userToken.getUserName();
+        String username = user.getUsername();
+
+        // 用户名根之前不一样在校验
+        if(!originalUserName.equals(username)){
+            // 用户名是否存在
+            Long usernameCount = baseMapper.selectCount(new LambdaQueryWrapper<User>()
+                    .eq(User::getUsername, username));
+            if(usernameCount > 0){
+                throw new BusinessException("用户名已存在");
+            }
+        }
+
+        user.setId(userId);
+        int i = baseMapper.updateById(user);
+        return i > 0;
     }
 }

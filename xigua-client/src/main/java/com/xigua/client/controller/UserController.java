@@ -96,4 +96,21 @@ public class UserController {
         userService.uploadAvatar(avatar);
         return R.ok("上传成功");
     }
+
+    /**
+     * 更新用户信息
+     * @author wangjinfei
+     * @date 2025/5/11 20:34
+     * @param user
+     * @return Boolean
+     */
+    @Operation(summary = "更新用户信息")
+    @PostMapping("/updateUserInfo")
+    public R<Boolean> updateUserInfo(@RequestBody User user){
+        Boolean updateUserInfo = userService.updateUserInfo(user);
+        if(!updateUserInfo){
+            return R.fail("更新失败");
+        }
+        return R.ok(null,"更新成功");
+    }
 }

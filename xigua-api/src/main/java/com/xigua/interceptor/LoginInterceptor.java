@@ -51,7 +51,19 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        // todo 判断token是否过期
+        // 判断token是否过期
+        if(TokenUtil.tokenExpire(token)){
+            try {
+                // 返回401 token过期
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"code\":401,\"msg\":\"认证已过期\"}");
+            }catch (Exception e){
+                log.error("认证已过期：", e);
+            }
+            return false;
+        }
 
         DecodedJWT decodedJWT;
         String userName = null;

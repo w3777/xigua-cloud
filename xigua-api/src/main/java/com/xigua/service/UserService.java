@@ -61,4 +61,13 @@ public interface UserService extends IService<User> {
      * @return String
     */
     Boolean uploadAvatar(String avatar);
+
+    /**
+     * 更新用户信息
+     * @author wangjinfei
+     * @date 2025/5/11 20:34
+     * @param user
+     * @return Boolean
+    */
+    Boolean updateUserInfo(User user);
 }

@@ -58,6 +58,24 @@ public class User implements Serializable {
     private String avatar;
 
     /**
+     * 性别（1；男；2：女）
+     */
+    @Schema(name = "性别（1；男；2：女）")
+    private Integer sex;
+
+    /**
+     * 地区
+     */
+    @Schema(name = "地区")
+    private String region;
+
+    /**
+     * 个性签名
+     */
+    @Schema(name = "个性签名")
+    private String signature;
+
+    /**
      * 是否删除 （0：未删除；1：已删除）
      */
     @Schema(name = "是否删除 （0：未删除；1：已删除）")
