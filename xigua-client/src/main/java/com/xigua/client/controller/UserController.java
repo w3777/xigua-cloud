@@ -4,6 +4,7 @@ import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.result.R;
+import com.xigua.domain.vo.UserSearchVO;
 import com.xigua.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassName UserController
@@ -112,5 +115,18 @@ public class UserController {
             return R.fail("更新失败");
         }
         return R.ok(null,"更新成功");
+    }
+
+    /**
+     * 根据用户名查询用户列表
+     * @author wangjinfei
+     * @date 2025/5/12 21:18
+     * @param username
+     * @return List<User>
+     */
+    @Operation(summary = "根据用户名查询用户列表")
+    @PostMapping("/getListByName")
+    public R<List<UserSearchVO>> getListByName(@RequestParam("username") String username){
+        return R.ok(userService.getListByName(username),"查询成功");
     }
 }

@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
+import com.xigua.domain.vo.UserSearchVO;
+
+import java.util.List;
 
 /**
  * @ClassName UserService
@@ -70,4 +73,13 @@ public interface UserService extends IService<User> {
      * @return Boolean
     */
     Boolean updateUserInfo(User user);
+
+    /**
+     * 根据用户名查询用户列表
+     * @author wangjinfei
+     * @date 2025/5/12 21:18
+     * @param username
+     * @return List<User>
+    */
+    List<UserSearchVO> getListByName(String username);
 }

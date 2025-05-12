@@ -12,7 +12,9 @@ import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
+import com.xigua.domain.enums.UserConnectStatus;
 import com.xigua.domain.token.UserToken;
+import com.xigua.domain.vo.UserSearchVO;
 import com.xigua.service.EmailService;
 import com.xigua.service.FileService;
 import com.xigua.service.UserService;
@@ -21,6 +23,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @ClassName UserServiceImpl
@@ -191,5 +196,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setId(userId);
         int i = baseMapper.updateById(user);
         return i > 0;
+    }
+
+    /**
+     * 根据用户名查询用户列表
+     * @author wangjinfei
+     * @date 2025/5/12 21:18
+     * @param username
+     * @return List<User>
+     */
+    @Override
+    public List<UserSearchVO> getListByName(String username) {
+        List<UserSearchVO> userList = new ArrayList<>();
+        userList = baseMapper.getListByName(username);
+
+        // 获取用户连接状态
+        for (UserSearchVO user : userList) {
+            // todo 通过redis获取用户连接状态
+//            String userId = user.getId();
+//            Boolean isOnline = redisUtil.hasKey(RedisEnum.USER_ONLINE.getKey() + userId);
+//            user.setConnectStatus(isOnline ? 1 : 2);
+
+            // 模拟获取用户连接状态
+            String id = user.getId();
+            String lastChar = id.substring(id.length() - 1);
+            if(Integer.valueOf(lastChar) % 2 == 0){
+                user.setConnectStatus(UserConnectStatus.OFFLINE.getStatus());
+            }else{
+                user.setConnectStatus(UserConnectStatus.ONLINE.getStatus());
+            }
+        }
+
+        return userList;
     }
 }
