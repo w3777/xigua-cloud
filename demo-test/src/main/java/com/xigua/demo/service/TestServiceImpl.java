@@ -1,7 +1,7 @@
 package com.xigua.demo.service;
 
 import com.xigua.common.core.util.UserContext;
-import com.xigua.domain.token.UserToken;
+import com.xigua.common.core.model.UserToken;
 import com.xigua.service.TestService;
 import com.xigua.service.UserService;
 import lombok.Data;

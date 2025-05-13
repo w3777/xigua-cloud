@@ -1,7 +1,6 @@
-package com.xigua.domain.token;
+package com.xigua.common.core.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -20,31 +19,26 @@ public class UserToken implements Serializable {
     /**
      * tokenId
      */
-    @Schema(name = "id", description = "tokenId")
     private String id;
 
     /**
      * 用户id
      */
-    @Schema(name = "userId", description = "用户id")
     private String userId;
 
     /**
      * 用户名
      */
-    @Schema(name = "userName", description = "用户名")
     private String userName;
 
     /**
      * 手机号
      */
-    @Schema(name = "phone", description = "手机号")
     private String phone;
 
     /**
      * 过期时间
      */
-    @Schema(name = "expireTime", description = "过期时间")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expireTime;
 }

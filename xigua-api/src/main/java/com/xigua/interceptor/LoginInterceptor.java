@@ -7,14 +7,13 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.xigua.common.core.util.TokenUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.common.sequence.sequence.Sequence;
-import com.xigua.domain.token.UserToken;
+import com.xigua.common.core.model.UserToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 

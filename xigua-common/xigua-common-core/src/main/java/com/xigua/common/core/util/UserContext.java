@@ -1,7 +1,7 @@
 package com.xigua.common.core.util;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
-import com.xigua.domain.token.UserToken;
+import com.xigua.common.core.model.UserToken;
 
 /**
  * @ClassName UserContext

@@ -1,6 +1,7 @@
 package com.xigua.common.mybatis.handle;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.xigua.common.core.util.UserContext;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
         //todo 后续通过threadLocal获取当前用户
 //        String.valueOf(SecurityUtils.getUserId())
-        this.strictInsertFill(metaObject, "createBy", String.class, "管理员");
+        this.strictInsertFill(metaObject, "createBy", String.class, UserContext.get().getUserId());
     }
 
     @Override

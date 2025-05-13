@@ -2,7 +2,7 @@ package com.xigua.filter;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.common.core.util.UserContext;
-import com.xigua.domain.token.UserToken;
+import com.xigua.common.core.model.UserToken;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;

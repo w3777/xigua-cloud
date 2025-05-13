@@ -13,7 +13,10 @@
 	<version>${xigua.version}</version>
 	<packaging>jar</packaging>
 
-	<description>通用-核心包</description>
+	<description>
+		通用-核心包
+		common作为一个通过模块，不要引入任何业务代码（包含自己的业务模块，如domain、api等）
+	</description>
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2 -->
@@ -35,12 +38,6 @@
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
 			<version>${jwt.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.xigua</groupId>
-			<artifactId>xigua-domain</artifactId>
-			<version>${xigua.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.alibaba/transmittable-thread-local -->
