@@ -10,6 +10,8 @@ public enum RedisEnum {
     CLIENT_CONNECT_CENTER("client_connect_center:", "客户端长连接映射信息"),
     ONLINE_USER("online_user:", "在线用户"),
     EMAIL_CODE("email_code:", "邮箱验证码"),
+    LOCATION_IP("location_ip:", "ip位置信息"),
+    WEATHER_CITY("weather_city:", "城市天气信息"),
     ;
 
     final String key;

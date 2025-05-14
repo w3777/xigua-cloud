@@ -82,4 +82,13 @@ public interface UserService extends IService<User> {
      * @return List<User>
     */
     List<UserSearchVO> getListByName(String username);
+
+    /**
+     * 根据id列表查询用户列表
+     * @author wangjinfei
+     * @date 2025/5/13 23:36
+     * @param ids
+     * @return List<User>
+    */
+    List<User> getListByIds(List<String> ids);
 }

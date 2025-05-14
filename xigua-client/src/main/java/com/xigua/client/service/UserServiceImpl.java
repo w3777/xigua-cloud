@@ -19,6 +19,7 @@ import com.xigua.service.EmailService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
@@ -207,7 +208,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<UserSearchVO> getListByName(String username) {
         List<UserSearchVO> userList = new ArrayList<>();
-        userList = baseMapper.getListByName(username);
+
+        String myselfId = UserContext.get().getUserId();
+        // 根据用户名模糊查询且排除自己
+        userList = baseMapper.getListByName(username, myselfId);
 
         // 获取用户连接状态
         for (UserSearchVO user : userList) {
@@ -226,6 +230,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
 
+        return userList;
+    }
+
+    /**
+     * 根据id列表查询用户列表
+     * @author wangjinfei
+     * @date 2025/5/13 23:36
+     * @param ids
+     * @return List<User>
+     */
+    @Override
+    public List<User> getListByIds(List<String> ids) {
+        List<User> userList = new ArrayList<>();
+        if(CollectionUtils.isEmpty(ids)){
+            return userList;
+        }
+
+        userList = baseMapper.selectList(new LambdaQueryWrapper<User>()
+                .in(User::getId, ids));
         return userList;
     }
 }

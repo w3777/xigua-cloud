@@ -2,9 +2,12 @@ package com.xigua.client.service;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.common.core.util.RedisUtil;
+import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.thirdparty.GetLocationRes;
 import com.xigua.domain.thirdparty.GetWeatherRes;
 import com.xigua.service.ThirdPartyService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -21,7 +24,9 @@ import static org.springframework.boot.actuate.autoconfigure.security.servlet.En
  */
 @Slf4j
 @DubboService
+@RequiredArgsConstructor
 public class ThirdPartyServiceImpl implements ThirdPartyService {
+    private final RedisUtil redisUtil;
     private final OkHttpClient client = new OkHttpClient();
 
     // ip地址查询接口地址
@@ -44,6 +49,12 @@ public class ThirdPartyServiceImpl implements ThirdPartyService {
     @Override
     public GetLocationRes getLocation(String ip) {
         GetLocationRes getLocationRes = new GetLocationRes();
+
+        // 从缓存中获取结果
+        String cachedResult = redisUtil.get(RedisEnum.LOCATION_IP.getKey() + ip);
+        if (cachedResult != null) {
+            return JSONObject.parseObject(cachedResult, GetLocationRes.class);
+        }
 
         // 1. 构建请求URL
         HttpUrl url = HttpUrl.parse(LOCATION_API_URL).newBuilder()
@@ -80,6 +91,9 @@ public class ThirdPartyServiceImpl implements ThirdPartyService {
 
             String result = jsonObject.getString("result");
             getLocationRes = JSONObject.parseObject(result, GetLocationRes.class);
+
+            // 6. 缓存结果
+            redisUtil.set(RedisEnum.LOCATION_IP.getKey() + ip, result, 60 * 60 * 24L);
             return getLocationRes;
         }catch (Exception e) {
             log.error("获取地址失败", e);
@@ -97,6 +111,12 @@ public class ThirdPartyServiceImpl implements ThirdPartyService {
     @Override
     public GetWeatherRes getWeather(String city) {
         GetWeatherRes getWeatherRes = new GetWeatherRes();
+
+        // 从缓存中获取结果
+        String cachedResult = redisUtil.get(RedisEnum.WEATHER_CITY.getKey() + city);
+        if (cachedResult != null) {
+            return JSONObject.parseObject(cachedResult, GetWeatherRes.class);
+        }
 
 
         HttpUrl url = HttpUrl.parse(WEATHER_API_URL).newBuilder()
@@ -133,6 +153,9 @@ public class ThirdPartyServiceImpl implements ThirdPartyService {
 
             String result = jsonObject.getJSONObject("result").getString("realtime");
             getWeatherRes = JSONObject.parseObject(result, GetWeatherRes.class);
+
+            // 缓存结果
+            redisUtil.set(RedisEnum.WEATHER_CITY.getKey() + city, result, 60 * 60 * 24L);
             return getWeatherRes;
         }catch (Exception e) {
             log.error("获取天气失败", e);

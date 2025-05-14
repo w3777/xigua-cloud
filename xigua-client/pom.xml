@@ -92,10 +92,11 @@
             <version>${lang3.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
         <dependency>
-            <groupId>com.xigua</groupId>
-            <artifactId>xigua-common-core</artifactId>
-            <version>${xigua.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${collections4.version}</version>
         </dependency>
 
         <dependency>

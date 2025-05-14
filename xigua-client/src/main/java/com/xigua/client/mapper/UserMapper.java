@@ -23,5 +23,5 @@ public interface UserMapper extends BaseMapper<User> {
      * @param username
      * @return List<User>
      */
-    List<UserSearchVO> getListByName(@Param("username") String username);
+    List<UserSearchVO> getListByName(@Param("username") String username, @Param("exclusionId") String exclusionId);
 }
