@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     LoginInterceptor loginInterceptor;
 
-    private List<String> excludePathList = Arrays.asList("/user/login", "/user/register", "/user/logout",
+    private List<String> excludePathList = Arrays.asList("/user/login", "/user/register", "/user/logout", "/email/send",
             "/*/v3/api-docs/**", "/*/swagger-ui/**", "/*/swagger-ui.html");
 
     @Override
