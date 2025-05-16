@@ -1,5 +1,6 @@
 package com.xigua.common.core.util;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -18,6 +19,13 @@ public class DateUtil {
             return "";
         }
         return formatter.format(dateTime);
+    }
+
+    public static String formatDate(LocalDate date, DateTimeFormatter formatter) {
+        if (date == null) {
+            return "";
+        }
+        return formatter.format(date);
     }
 
 }

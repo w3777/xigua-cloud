@@ -2,6 +2,7 @@ package com.xigua.client.service;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.thirdparty.GetLocationRes;
@@ -13,6 +14,9 @@ import okhttp3.*;
 import org.apache.dubbo.config.annotation.DubboService;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest.to;
 
@@ -155,7 +159,10 @@ public class ThirdPartyServiceImpl implements ThirdPartyService {
             getWeatherRes = JSONObject.parseObject(result, GetWeatherRes.class);
 
             // 缓存结果
-            redisUtil.set(RedisEnum.WEATHER_CITY.getKey() + city, result, 60 * 60 * 24L);
+            LocalDateTime toDayLatestTime = LocalDate.now().atTime(23, 59, 59);
+            long second = ChronoUnit.SECONDS.between(LocalDateTime.now(), toDayLatestTime);
+            // 缓存有效期为当天23:59:59
+            redisUtil.set(RedisEnum.WEATHER_CITY.getKey() + city, result, second);
             return getWeatherRes;
         }catch (Exception e) {
             log.error("获取天气失败", e);
