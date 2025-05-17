@@ -5,13 +5,13 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @ClassName receiveFriendRequestVO
+ * @ClassName FriendVO
  * @Description TODO
  * @Author wangjinfei
  * @Date 2025/5/13 23:09
  */
 @Data
-public class FriendRequestVO implements Serializable {
+public class FriendDetailVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,7 +19,11 @@ public class FriendRequestVO implements Serializable {
     private String username;
     private String avatar;
     private String signature;
-    private String createTime;
-    private String source;
-    private Integer flowStatus;
+    private Integer sex;
+    private String region;
+    private String email;
+    private String phone;
+    private String registerTime;
+    private String createFriendTime;
+    private Integer connectStatus;
 }

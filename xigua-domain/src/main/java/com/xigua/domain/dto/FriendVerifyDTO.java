@@ -14,5 +14,5 @@ import java.io.Serializable;
 public class FriendVerifyDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private String friendId;
-    private Integer status;
+    private Integer flowStatus;
 }

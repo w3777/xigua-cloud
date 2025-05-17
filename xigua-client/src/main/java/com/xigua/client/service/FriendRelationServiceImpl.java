@@ -13,8 +13,9 @@ import com.xigua.domain.dto.sendFriendRequestDTO;
 import com.xigua.domain.entity.FriendRelation;
 import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.entity.User;
-import com.xigua.domain.enums.FriendRequestStatus;
+import com.xigua.domain.enums.FriendRequestFlowStatus;
 import com.xigua.domain.enums.UserConnectStatus;
+import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.FriendRequestVO;
 import com.xigua.service.FriendRelationService;
@@ -63,7 +64,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         friendRequest.setSenderId(userId);
         friendRequest.setReceiverId(friendId);
         friendRequest.setApplyMsg(dto.getApplyMsg());
-        friendRequest.setStatus(FriendRequestStatus.ZERO.getStatus());
+        friendRequest.setFlowStatus(FriendRequestFlowStatus.ZERO.getStatus());
         boolean i = friendRequestService.save(friendRequest);
 
         return i;
@@ -139,7 +140,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
             friendRequestVO.setSignature(receiver.getSignature());
             friendRequestVO.setSource("send");
 
-            friendRequestVO.setStatus(friendRequest.getStatus());
+            friendRequestVO.setFlowStatus(friendRequest.getFlowStatus());
             friendRequestVO.setCreateTime(DateUtil.formatDateTime(friendRequest.getCreateTime(),
                     DateUtil.DATE_TIME_FORMATTER));
             voList.add(friendRequestVO);
@@ -160,7 +161,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
             friendRequestVO.setSignature(sender.getSignature());
             friendRequestVO.setSource("receive");
 
-            friendRequestVO.setStatus(friendRequest.getStatus());
+            friendRequestVO.setFlowStatus(friendRequest.getFlowStatus());
             friendRequestVO.setCreateTime(DateUtil.formatDateTime(friendRequest.getCreateTime(),
                     DateUtil.DATE_TIME_FORMATTER));
             voList.add(friendRequestVO);
@@ -225,7 +226,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     public Boolean friendVerify(FriendVerifyDTO dto) {
         String userId = UserContext.get().getUserId();
         String friendId = dto.getFriendId();
-        Integer status = dto.getStatus();
+        Integer flowStatus = dto.getFlowStatus();
 
         // 验证是否存在好友关系
         Long count = baseMapper.selectCount(new LambdaQueryWrapper<FriendRelation>()
@@ -235,10 +236,10 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
             throw new BusinessException("已经是好友关系");
         }
 
-        if(status == FriendRequestStatus.ONE.getStatus()){ // 同意
+        if(flowStatus == FriendRequestFlowStatus.ONE.getStatus()){ // 同意
             // 双向关系 互相添加好友关系
             acceptFriendRequest(userId,friendId);
-        }else if(status == FriendRequestStatus.TWO.getStatus()){ // 拒绝
+        }else if(flowStatus == FriendRequestFlowStatus.TWO.getStatus()){ // 拒绝
             rejectFriendRequest(userId, friendId);
         }else {
             throw new BusinessException("好友请求状态异常");
@@ -256,11 +257,40 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     */
     private void acceptFriendRequest(String userId, String friendId) {
         // 查询待验证的好友请求
-        FriendRequest friendRequest = friendRequestService.getBySenderIdAndReceiverIdAndStatus(userId, friendId,
-                FriendRequestStatus.ZERO.getStatus());
+        FriendRequest friendRequest = friendRequestService.getLastOne(friendId, userId);
         if(friendRequest == null){
             throw new BusinessException("待验证的好友请求不存在");
         }
+
+        // 直接同意好友请求
+        if(friendRequest.getFlowStatus() == FriendRequestFlowStatus.ZERO.getStatus()){
+            directAccept(userId, friendId);
+        }
+
+        // 上一次请求状态是拒绝，重新验证好友
+        if(friendRequest.getFlowStatus() == FriendRequestFlowStatus.TWO.getStatus()){
+            againFriendVerify(userId, friendId);
+        }
+    }
+
+    /**
+     * 直接同意好友请求
+     * @author wangjinfei
+     * @date 2025/5/16 20:09
+     * @param userId
+     * @param friendId
+    */
+    private void directAccept(String userId, String friendId) {
+        // 把之前的好友请求状态修改为失效
+        friendRequestService.updateFlowStatus2Invalid(friendId, userId);
+
+        // 添加好友请求状态为通过
+        FriendRequest friendRequest = new FriendRequest();
+        friendRequest.setId(sequence.nextNo());
+        friendRequest.setSenderId(userId);
+        friendRequest.setReceiverId(friendId);
+        friendRequest.setFlowStatus(FriendRequestFlowStatus.ONE.getStatus());
+        friendRequestService.save(friendRequest);
 
         // 添加好友关系
         FriendRelation friendRelation = new FriendRelation();
@@ -275,10 +305,26 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         friendRelation2.setUserId(friendId);
         friendRelation2.setFriendId(userId);
         boolean save2 = save(friendRelation2);
+    }
 
-        // 修改好友请求状态为通过
-        friendRequest.setStatus(FriendRequestStatus.ONE.getStatus());
-        friendRequestService.updateById(friendRequest);
+    /**
+     * 重新验证好友
+     * @author wangjinfei
+     * @date 2025/5/16 20:13
+     * @param userId
+     * @param friendId
+    */
+    private void againFriendVerify(String userId, String friendId) {
+        // 把之前的好友请求状态修改为失效
+        friendRequestService.updateFlowStatus2Invalid(friendId, userId);
+
+        // 添加好友请求状态为待验证
+        FriendRequest friendRequest = new FriendRequest();
+        friendRequest.setId(sequence.nextNo());
+        friendRequest.setSenderId(userId);
+        friendRequest.setReceiverId(friendId);
+        friendRequest.setFlowStatus(FriendRequestFlowStatus.ZERO.getStatus());
+        friendRequestService.save(friendRequest);
     }
 
     /**
@@ -290,14 +336,34 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     */
     private void rejectFriendRequest(String userId, String friendId){
         // 查询待验证的好友请求
-        FriendRequest friendRequest = friendRequestService.getBySenderIdAndReceiverIdAndStatus(userId, friendId,
-                FriendRequestStatus.ZERO.getStatus());
+        FriendRequest friendRequest = friendRequestService.getLastOne(friendId, userId);
         if(friendRequest == null){
             throw new BusinessException("待验证的好友请求不存在");
         }
 
-        // 修改好友请求状态为拒绝
-        friendRequest.setStatus(FriendRequestStatus.TWO.getStatus());
-        friendRequestService.updateById(friendRequest);
+        // 把之前的好友请求状态修改为失效
+        friendRequestService.updateFlowStatus2Invalid(friendId, userId);
+
+        // 添加好友请求状态为拒绝
+        FriendRequest friendRequest2 = new FriendRequest();
+        friendRequest2.setId(sequence.nextNo());
+        friendRequest2.setSenderId(userId);
+        friendRequest2.setReceiverId(friendId);
+        friendRequest2.setFlowStatus(FriendRequestFlowStatus.TWO.getStatus());
+        friendRequestService.save(friendRequest2);
+    }
+
+    /**
+     * 好友详情
+     * @author wangjinfei
+     * @date 2025/5/17 12:06
+     * @param friendId
+     * @return FriendDetailVO
+     */
+    @Override
+    public FriendDetailVO getFriendDetail(String friendId) {
+        String userId = UserContext.get().getUserId();
+        FriendDetailVO friendDetail = baseMapper.getFriendDetail(userId, friendId);
+        return friendDetail;
     }
 }

@@ -2,6 +2,7 @@ package com.xigua.service;
 
 import com.xigua.domain.dto.FriendVerifyDTO;
 import com.xigua.domain.dto.sendFriendRequestDTO;
+import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.FriendRequestVO;
 
@@ -47,4 +48,13 @@ public interface FriendRelationService {
      * @return Boolean
     */
     Boolean friendVerify(FriendVerifyDTO dto);
+
+    /**
+     * 好友详情
+     * @author wangjinfei
+     * @date 2025/5/17 12:06
+     * @param friendId
+     * @return FriendDetailVO
+    */
+    FriendDetailVO getFriendDetail(String friendId);
 }

@@ -41,22 +41,22 @@ public interface FriendRequestService extends IService<FriendRequest> {
     void checkFriendRequest(String userId, String friendId);
 
     /**
-     * 修改好友请求状态
+     * 修改好友请求流程状态为失效
      * @author wangjinfei
      * @date 2025/5/14 22:13
-     * @param friendRequest
+     * @param senderId
+     * @param receiverId
      * @return Boolean
-    */
-    Boolean updateFriendRequestStatus(FriendRequest friendRequest);
+     */
+    Boolean updateFlowStatus2Invalid(String senderId, String receiverId);
 
     /**
-     * 根据发送者ID、接收者ID和状态查询好友请求
+     * 根据发送者ID、接收者ID获取最后一条好友请求
      * @author wangjinfei
      * @date 2025/5/14 22:16
      * @param senderId
      * @param receiverId
-     * @param status
      * @return FriendRequest
     */
-    FriendRequest getBySenderIdAndReceiverIdAndStatus(String senderId, String receiverId, Integer status);
+    FriendRequest getLastOne(String senderId, String receiverId);
 }

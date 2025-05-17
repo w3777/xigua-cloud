@@ -3,6 +3,7 @@ package com.xigua.client.controller;
 import com.xigua.domain.dto.FriendVerifyDTO;
 import com.xigua.domain.dto.sendFriendRequestDTO;
 import com.xigua.domain.result.R;
+import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.FriendRequestVO;
 import com.xigua.service.FriendRelationService;
@@ -85,5 +86,18 @@ public class FriendRelationController {
             return R.fail("验证失败");
         }
         return R.ok(null,"验证成功");
+    }
+
+    /**
+     * 好友详情
+     * @author wangjinfei
+     * @date 2025/5/17 12:06
+     * @param friendId
+     * @return FriendDetailVO
+     */
+    @Operation(summary = "好友详情")
+    @GetMapping("/getFriendDetail")
+    public R<FriendDetailVO> getFriendDetail(@RequestParam("friendId") String friendId){
+        return R.ok(friendRelationService.getFriendDetail(friendId), "查询成功");
     }
 }

@@ -5,9 +5,10 @@ import lombok.ToString;
 
 @ToString
 @AllArgsConstructor
-public enum FriendRequestStatus {
-    ZERO(0,"失效"),
-    ONE(1,"有效");
+public enum FriendRequestFlowStatus {
+    ZERO(0,"待处理"),
+    ONE(1,"同意"),
+    TWO(2,"拒绝");
 
     final Integer status;
 
