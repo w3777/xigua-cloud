@@ -24,6 +24,11 @@ public class ChatMessageDTO implements Serializable {
     private String receiverId;
 
     /**
+     * 消息类型
+     */
+    private String messageType;
+
+    /**
      * 消息文本正文
      */
     private String message;

@@ -15,6 +15,7 @@ import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.enums.UserConnectStatus;
 import com.xigua.common.core.model.UserToken;
 import com.xigua.domain.vo.UserSearchVO;
+import com.xigua.service.CenterService;
 import com.xigua.service.EmailService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final RedisUtil redisUtil;
     @DubboReference
     private final EmailService emailService;
+    @DubboReference
+    private final CenterService centerService;
 
     @Override
     public void testDubbo() {
@@ -215,19 +218,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 获取用户连接状态
         for (UserSearchVO user : userList) {
-            // todo 通过redis获取用户连接状态
-//            String userId = user.getId();
-//            Boolean isOnline = redisUtil.hasKey(RedisEnum.USER_ONLINE.getKey() + userId);
-//            user.setConnectStatus(isOnline ? 1 : 2);
-
-            // 模拟获取用户连接状态
-            String id = user.getId();
-            String lastChar = id.substring(id.length() - 1);
-            if(Integer.valueOf(lastChar) % 2 == 0){
-                user.setConnectStatus(UserConnectStatus.OFFLINE.getStatus());
-            }else{
-                user.setConnectStatus(UserConnectStatus.ONLINE.getStatus());
-            }
+            user.setIsOnline(centerService.isOnline(user.getId()));
         }
 
         return userList;

@@ -1,5 +1,6 @@
 package com.xigua.client.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.xigua.client.helper.SessionHelper;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
@@ -111,12 +112,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void receiveMessage4Center(ChatMessageDTO chatMessageDTO) {
         String receiverId = chatMessageDTO.getReceiverId();
-        String message = chatMessageDTO.getMessage();
 
         Session session = SessionHelper.get(receiverId);
         if(session != null && session.isOpen()){
             try {
-                session.getBasicRemote().sendText(message);
+                session.getBasicRemote().sendText(JSONObject.toJSONString(chatMessageDTO));
             } catch (Exception e) {
                 log.error("发送消息失败", e);
             }

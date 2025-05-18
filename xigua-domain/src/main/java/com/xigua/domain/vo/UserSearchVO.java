@@ -42,8 +42,8 @@ public class UserSearchVO implements Serializable {
     private Integer sex;
 
     /**
-     * 连接状态（1：在线；2：离线）
+     * 是否在线
      */
-    @Schema(name = "连接状态（1：在线；2：离线）")
-    private Integer connectStatus;
+    @Schema(name = "是否在线")
+    private Boolean isOnline;
 }
