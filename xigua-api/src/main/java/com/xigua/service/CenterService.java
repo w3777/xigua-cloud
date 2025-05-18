@@ -52,4 +52,13 @@ public interface CenterService {
      * @return List<String>
     */
     Set<String> getOnlineId();
+
+    /**
+     * 根据用户id判断是否在线
+     * @author wangjinfei
+     * @date 2025/5/18 14:12
+     * @param userId
+     * @return Boolean
+    */
+    Boolean isOnline(String userId);
 }

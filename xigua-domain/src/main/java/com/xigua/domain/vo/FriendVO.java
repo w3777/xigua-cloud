@@ -19,5 +19,5 @@ public class FriendVO implements Serializable {
     private String username;
     private String avatar;
     private String signature;
-    private Integer connectStatus;
+    private Boolean isOnline;
 }

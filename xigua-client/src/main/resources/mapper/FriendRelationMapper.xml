@@ -7,12 +7,12 @@
     <select id="getFriendDetail" resultType="com.xigua.domain.vo.FriendDetailVO">
         select u.id as userId,
                u.username,
-               u.avatar,
+               ifnull(u.avatar, '') as avatar,
                u.sex,
-               u.signature,
-               u.region,
-               u.email,
-               u.phone,
+               ifnull(u.signature, '') as signature,
+               ifnull(u.region, '') as region,
+               ifnull(u.email, '') as email,
+               ifnull(u.phone, '') as phone,
                date(u.create_time) as registerTime,
                date(fr.create_time) as createFriendTime
         from xg_user u

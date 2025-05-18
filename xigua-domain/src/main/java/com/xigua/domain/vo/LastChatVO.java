@@ -5,25 +5,19 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @ClassName FriendVO
+ * @ClassName LastChatVO
  * @Description TODO
  * @Author wangjinfei
- * @Date 2025/5/13 23:09
+ * @Date 2025/5/17 19:23
  */
 @Data
-public class FriendDetailVO implements Serializable {
+public class LastChatVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String userId;
     private String username;
     private String avatar;
-    private String signature;
-    private Integer sex;
-    private String region;
-    private String email;
-    private String phone;
-    private String registerTime;
-    private String createFriendTime;
+    private String lastMessage;
     private Boolean isOnline;
 }

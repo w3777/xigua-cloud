@@ -18,6 +18,7 @@ import com.xigua.domain.enums.UserConnectStatus;
 import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.FriendRequestVO;
+import com.xigua.service.CenterService;
 import com.xigua.service.FriendRelationService;
 import com.xigua.service.FriendRequestService;
 import com.xigua.service.UserService;
@@ -41,6 +42,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     private final Sequence sequence;
     private final FriendRequestService friendRequestService;
     private final UserService userService;
+    private final CenterService centerService;
 
     /**
      * 发送好友请求
@@ -202,14 +204,8 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
             friendVO.setAvatar(user.getAvatar());
             friendVO.setSignature(user.getSignature());
 
-            // 模拟获取用户连接状态 todo 后续从redis中获取
-            String lastChar = userId2.substring(userId2.length() - 1);
-            if(Integer.valueOf(lastChar) % 2 == 0){
-                friendVO.setConnectStatus(UserConnectStatus.OFFLINE.getStatus());
-            }else{
-                friendVO.setConnectStatus(UserConnectStatus.ONLINE.getStatus());
-            }
-            friendVO.setConnectStatus(UserConnectStatus.ONLINE.getStatus());
+            // 判断是否在线
+            friendVO.setIsOnline(centerService.isOnline(userId2));
             voList.add(friendVO);
         }
         return voList;
@@ -364,6 +360,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     public FriendDetailVO getFriendDetail(String friendId) {
         String userId = UserContext.get().getUserId();
         FriendDetailVO friendDetail = baseMapper.getFriendDetail(userId, friendId);
+        friendDetail.setIsOnline(centerService.isOnline(friendDetail.getUserId()));
         return friendDetail;
     }
 }

@@ -118,6 +118,8 @@ public class CenterServiceImpl implements CenterService {
      * @return Boolean
      */
     private String userIsOnline(String userId) {
+        // todo 需要抽出来，单独作为一个方法
+
         // 判断接收者是否在线
         String onlineKey = redisUtil.isValueInSet(userId, RedisEnum.ONLINE_USER.getKey() + "*");
         if(StringUtils.isEmpty(onlineKey)){
@@ -171,5 +173,21 @@ public class CenterServiceImpl implements CenterService {
         }
 
         return onlineIds;
+    }
+
+    /**
+     * 根据用户id判断是否在线
+     * @author wangjinfei
+     * @date 2025/5/18 14:12
+     * @param userId
+     * @return Boolean
+     */
+    @Override
+    public Boolean isOnline(String userId) {
+        String onlineKey = redisUtil.isValueInSet(userId, RedisEnum.ONLINE_USER.getKey() + "*");
+        if(StringUtils.isEmpty(onlineKey)){
+            return false;
+        }
+        return true;
     }
 }
