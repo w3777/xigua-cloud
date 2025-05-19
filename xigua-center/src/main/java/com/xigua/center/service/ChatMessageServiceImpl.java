@@ -1,11 +1,15 @@
-package com.xigua.client.service;
+package com.xigua.center.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xigua.client.mapper.ChatMessageMapper;
+import com.xigua.center.mapper.ChatMessageMapper;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.UserContext;
+import com.xigua.domain.dto.GetFriendLastMesDTO;
 import com.xigua.domain.entity.ChatMessage;
 import com.xigua.domain.entity.User;
+import com.xigua.domain.result.BasePageVO;
+import com.xigua.domain.util.BasePage;
 import com.xigua.domain.vo.LastChatVO;
 import com.xigua.service.CenterService;
 import com.xigua.service.ChatMessageService;
@@ -32,15 +36,18 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
     private final CenterService centerService;
 
     /**
-     * 获取最后几条聊天记录
+     * 获取好友最后一条消息
      * @author wangjinfei
      * @date 2025/5/17 19:25
-     * @param topUserId 置顶用户聊天记录的用户id
+     * @param dto
      * @return List<LastChatVO>
      */
     @Override
-    public List<LastChatVO> getLastChat(String topUserId) {
+    public BasePageVO<LastChatVO> getFriendLastMes(GetFriendLastMesDTO dto) {
+        String topUserId = dto.getTopUserId();
         String userId = UserContext.get().getUserId();
+        String friendId = dto.getFriendId();
+
         List<LastChatVO> lastChatList = new ArrayList<>();
         User topUser = userService.getById(topUserId);
         if (topUser == null) {
@@ -52,7 +59,7 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
         topLastChatVO.setUserId(topUserId);
         topLastChatVO.setUsername(topUser.getUsername());
         topLastChatVO.setAvatar(topUser.getAvatar());
-        topLastChatVO.setLastMessage("");
+        topLastChatVO.setLastMessage("最后发送的消息😄");
 
         Boolean online = centerService.isOnline(topUserId);
         topLastChatVO.setIsOnline(online);
@@ -60,6 +67,13 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
 
 
         // todo 分页查询剩余几天的聊天记录
-        return lastChatList;
+        Integer pageNum = 1;
+        Integer pageSize = 10;
+
+        //分页查询我接受的最后一条消息
+        Page<LastChatVO> page = new Page<>(pageNum, pageSize);
+        lastChatList.addAll(baseMapper.getFriendLastMes(page, userId));
+        BasePageVO<LastChatVO> result = BasePage.getResult(page, lastChatList);
+        return result;
     }
 }

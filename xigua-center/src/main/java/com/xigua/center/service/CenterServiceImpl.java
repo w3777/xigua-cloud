@@ -2,8 +2,11 @@ package com.xigua.center.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.common.core.util.RedisUtil;
+import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.enums.ChatMessageIsRead;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.service.ClientService;
 import com.xigua.service.CenterService;
@@ -28,7 +31,10 @@ import java.util.Set;
 @RequiredArgsConstructor
 @DubboService
 public class CenterServiceImpl implements CenterService {
+    private final Sequence sequence;
     private final RedisUtil redisUtil;
+    private final ChatMessageServiceImpl chatMessageService;
+
 
     /**
      * 客户端注册上线
@@ -88,16 +94,26 @@ public class CenterServiceImpl implements CenterService {
     public void receiveMessage4Client(ChatMessageDTO chatMessageDTO) {
         String senderId = chatMessageDTO.getSenderId();
         String receiverId = chatMessageDTO.getReceiverId();
+        String message = chatMessageDTO.getMessage();
+
+        // 封装聊天消息
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setId(sequence.nextNo());
+        chatMessage.setSenderId(senderId);
+        chatMessage.setReceiverId(receiverId);
+        chatMessage.setMessage(message);
+        // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
+        chatMessage.setCreateBy(senderId);
+        // 消息默认全部未读，已读状态由前端主动修改
+        chatMessage.setIsRead(ChatMessageIsRead.UNREAD.getType());
 
         // 判断接收者是否在线
-        String userInServer = userIsOnline(receiverId);
+        String userInServer = onlineUser(receiverId);
         if(StringUtils.isEmpty(userInServer)){
-            // todo 这里可以做离线消息存储, 可以存储到es后期做全文检索
-
-            // 对方不在线 返回消息给发送者
-            chatMessageDTO.setReceiverId(senderId);
-            chatMessageDTO.setMessage("对方不在线");
-            userInServer = userIsOnline(senderId);
+            // 这里做离线消息存储, mysql做持久化
+            // 不采用双写同步es，后期用同步工具解决，减少侵入性
+            chatMessageService.save(chatMessage);
+            return;
         }
 
         // 获取接收者所在的节点信息
@@ -106,8 +122,10 @@ public class CenterServiceImpl implements CenterService {
         String value = redisUtil.get(key);
         Client client = JSONObject.parseObject(value, Client.class);
 
-        // 把消息再发送到接收人所在节点
+        // 实时推送消息，发送到接收人所在节点
         sendMessage2Client(chatMessageDTO, client);
+        // 存储消息到mysql
+        chatMessageService.save(chatMessage);
     }
 
     /**
@@ -117,14 +135,9 @@ public class CenterServiceImpl implements CenterService {
      * @param userId
      * @return Boolean
      */
-    private String userIsOnline(String userId) {
-        // todo 需要抽出来，单独作为一个方法
-
-        // 判断接收者是否在线
+    private String onlineUser(String userId) {
+        // 获取在线用户所在的节点信息
         String onlineKey = redisUtil.isValueInSet(userId, RedisEnum.ONLINE_USER.getKey() + "*");
-        if(StringUtils.isEmpty(onlineKey)){
-            log.info("------->>>>>>> 用户：{}，不在线", userId);
-        }
         return onlineKey;
     }
 
@@ -184,7 +197,7 @@ public class CenterServiceImpl implements CenterService {
      */
     @Override
     public Boolean isOnline(String userId) {
-        String onlineKey = redisUtil.isValueInSet(userId, RedisEnum.ONLINE_USER.getKey() + "*");
+        String onlineKey = onlineUser(userId);
         if(StringUtils.isEmpty(onlineKey)){
             return false;
         }

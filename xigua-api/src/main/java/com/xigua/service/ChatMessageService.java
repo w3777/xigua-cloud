@@ -1,10 +1,10 @@
 package com.xigua.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xigua.domain.dto.GetFriendLastMesDTO;
 import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.result.BasePageVO;
 import com.xigua.domain.vo.LastChatVO;
-
-import java.util.List;
 
 /**
  * @ClassName ChatMessageService
@@ -14,11 +14,11 @@ import java.util.List;
  */
 public interface ChatMessageService extends IService<ChatMessage> {
     /**
-     * 获取最后几条聊天记录
+     * 获取好友最后一条消息
      * @author wangjinfei
      * @date 2025/5/17 19:25
-     * @param topUserId 置顶用户聊天记录的用户id
+     * @param dto
      * @return List<LastChatVO>
     */
-    List<LastChatVO> getLastChat(String topUserId);
+    BasePageVO<LastChatVO> getFriendLastMes(GetFriendLastMesDTO dto);
 }

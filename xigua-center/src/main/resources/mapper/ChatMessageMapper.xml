@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xigua.center.mapper.ChatMessageMapper">
+
+    <select id="getFriendLastMes" resultType="com.xigua.domain.vo.LastChatVO">
+        select u.id as userId, u.username, u.avatar, cm.message as lastMessage, cm.create_time
+        from xg_chat_message cm
+                 left join xg_user u on u.id = cm.sender_id and u.del_flag = 0
+        where cm.del_flag = 0
+          and cm.receiver_id = #{userId}
+        order by cm.create_time
+    </select>
+</mapper>

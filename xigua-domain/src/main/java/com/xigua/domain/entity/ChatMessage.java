@@ -46,6 +46,12 @@ public class ChatMessage implements Serializable {
     private String message;
 
     /**
+     * 是否已读（0：未读；1：已读）
+     */
+    @Schema(name = "是否已读（0：未读；1：已读）")
+    private Integer isRead;
+
+    /**
      * 是否删除 （0：未删除；1：已删除）
      */
     @Schema(name = "是否删除 （0：未删除；1：已删除）")

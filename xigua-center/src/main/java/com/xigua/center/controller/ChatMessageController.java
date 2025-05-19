@@ -1,5 +1,7 @@
-package com.xigua.client.controller;
+package com.xigua.center.controller;
 
+import com.xigua.domain.dto.GetFriendLastMesDTO;
+import com.xigua.domain.result.BasePageVO;
 import com.xigua.domain.result.R;
 import com.xigua.domain.vo.LastChatVO;
 import com.xigua.service.ChatMessageService;
@@ -8,8 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @ClassName ChatMessageController
@@ -26,16 +26,16 @@ public class ChatMessageController {
     private ChatMessageService chatMessageService;
 
     /**
-     * 获取最后几条聊天记录
+     * 获取好友最后一条消息
      * @author wangjinfei
      * @date 2025/5/17 19:25
-     * @param topUserId 置顶用户聊天记录的用户id
+     * @param dto
      * @return List<LastChatVO>
      */
-    @Operation(summary = "获取最后几条聊天记录")
-    @GetMapping("/getLastChat")
-    public R<List<LastChatVO>> getLastChat(@RequestParam(value = "topUserId", required = false) String topUserId){
-        List<LastChatVO> lastChat = chatMessageService.getLastChat(topUserId);
+    @Operation(summary = "获取好友最后一条消息")
+    @PostMapping("/getFriendLastMes")
+    public R<BasePageVO<LastChatVO>> getFriendLastMes(@RequestBody GetFriendLastMesDTO dto){
+        BasePageVO<LastChatVO> lastChat = chatMessageService.getFriendLastMes(dto);
         return R.ok(lastChat, "获取成功");
     }
 }
