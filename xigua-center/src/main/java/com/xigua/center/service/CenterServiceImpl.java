@@ -94,25 +94,13 @@ public class CenterServiceImpl implements CenterService {
     public void receiveMessage4Client(ChatMessageDTO chatMessageDTO) {
         String senderId = chatMessageDTO.getSenderId();
         String receiverId = chatMessageDTO.getReceiverId();
-        String message = chatMessageDTO.getMessage();
-
-        // 封装聊天消息
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setId(sequence.nextNo());
-        chatMessage.setSenderId(senderId);
-        chatMessage.setReceiverId(receiverId);
-        chatMessage.setMessage(message);
-        // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
-        chatMessage.setCreateBy(senderId);
-        // 消息默认全部未读，已读状态由前端主动修改
-        chatMessage.setIsRead(ChatMessageIsRead.UNREAD.getType());
 
         // 判断接收者是否在线
         String userInServer = onlineUser(receiverId);
         if(StringUtils.isEmpty(userInServer)){
-            // 这里做离线消息存储, mysql做持久化
-            // 不采用双写同步es，后期用同步工具解决，减少侵入性
-            chatMessageService.save(chatMessage);
+            // 这里做离线消息存储
+            // db处理 mysql持久化 redis缓存
+            messageDbHandle(chatMessageDTO);
             return;
         }
 
@@ -124,8 +112,9 @@ public class CenterServiceImpl implements CenterService {
 
         // 实时推送消息，发送到接收人所在节点
         sendMessage2Client(chatMessageDTO, client);
-        // 存储消息到mysql
-        chatMessageService.save(chatMessage);
+
+        // db处理 mysql持久化 redis缓存
+        messageDbHandle(chatMessageDTO);
     }
 
     /**
@@ -139,6 +128,37 @@ public class CenterServiceImpl implements CenterService {
         // 获取在线用户所在的节点信息
         String onlineKey = redisUtil.isValueInSet(userId, RedisEnum.ONLINE_USER.getKey() + "*");
         return onlineKey;
+    }
+
+    /**
+     * db处理 mysql持久化 redis缓存最后聊天消息
+     * @author wangjinfei
+     * @date 2025/5/20 22:02
+     * @param chatMessageDTO
+    */
+    private void messageDbHandle(ChatMessageDTO chatMessageDTO){
+        String senderId = chatMessageDTO.getSenderId();
+        String receiverId = chatMessageDTO.getReceiverId();
+        String message = chatMessageDTO.getMessage();
+
+        // 封装聊天消息
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setId(sequence.nextNo());
+        chatMessage.setSenderId(senderId);
+        chatMessage.setReceiverId(receiverId);
+        chatMessage.setMessage(message);
+        // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
+        chatMessage.setCreateBy(senderId);
+        // 消息默认全部未读，已读状态由前端主动修改
+        chatMessage.setIsRead(ChatMessageIsRead.UNREAD.getType());
+        chatMessageService.save(chatMessage);
+        // 注意 不采用双写同步es，后期用同步工具解决，减少侵入性
+
+        long timestamp = System.currentTimeMillis();
+        // 存储redis 最后消息的好友（这样的key可以保证唯一）
+        redisUtil.zsadd(RedisEnum.LAST_MES_FRIEND.getKey() + receiverId, senderId, timestamp);
+        // 存储redis 最后消息
+        redisUtil.hashPut(RedisEnum.LAST_MES.getKey() + receiverId, senderId, JSONObject.toJSONString(chatMessageDTO));
     }
 
     /**

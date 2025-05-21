@@ -1,13 +1,16 @@
 package com.xigua.center.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.center.mapper.ChatMessageMapper;
 import com.xigua.common.core.exception.BusinessException;
+import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.dto.GetFriendLastMesDTO;
 import com.xigua.domain.entity.ChatMessage;
 import com.xigua.domain.entity.User;
+import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.result.BasePageVO;
 import com.xigua.domain.util.BasePage;
 import com.xigua.domain.vo.LastChatVO;
@@ -15,11 +18,13 @@ import com.xigua.service.CenterService;
 import com.xigua.service.ChatMessageService;
 import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @ClassName ChatMessageServiceImpl
@@ -30,6 +35,7 @@ import java.util.List;
 @DubboService
 @RequiredArgsConstructor
 public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatMessage> implements ChatMessageService {
+    private final RedisUtil redisUtil;
     @DubboReference
     private final UserService userService;
     @DubboReference
@@ -46,34 +52,86 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
     public BasePageVO<LastChatVO> getFriendLastMes(GetFriendLastMesDTO dto) {
         String topUserId = dto.getTopUserId();
         String userId = UserContext.get().getUserId();
-        String friendId = dto.getFriendId();
-
+        Integer pageNum = dto.getPageNum();
+        Integer pageSize = dto.getPageSize();
         List<LastChatVO> lastChatList = new ArrayList<>();
-        User topUser = userService.getById(topUserId);
-        if (topUser == null) {
-            throw new BusinessException("用户不存在");
+
+        // 从redis查询最后一条消息好友
+        String lastFriendKey = RedisEnum.LAST_MES_FRIEND.getKey() + userId;
+        Long totalCount = redisUtil.zsetSize(lastFriendKey);
+        Set<Object> lastFriends = redisUtil.zsReverseRange(lastFriendKey, 0, 9);
+        lastFriends.removeIf(friendId -> friendId.equals(topUserId));
+
+        // 置顶用户
+        if(StringUtils.isNotEmpty(topUserId)){
+            getTopUser(topUserId, lastChatList);
         }
 
-        // 置顶用户的聊天记录
+        // 遍历好友最后一条消息
+        for (Object lastFriend : lastFriends) {
+            LastChatVO lastChatVO = new LastChatVO();
+            String friendId = lastFriend.toString();
+            lastChatVO.setUserId(friendId);
+
+            // todo 优化成从redis中获取用户信息
+            User friend = userService.getById(friendId);
+            lastChatVO.setUsername(friend.getUsername());
+            lastChatVO.setAvatar(friend.getAvatar());
+
+            Object mesObj = redisUtil.hashGet(RedisEnum.LAST_MES.getKey() + userId, friendId);
+            if (mesObj != null) {
+                JSONObject lastFriendMes = JSONObject.parseObject(mesObj.toString());
+                lastChatVO.setLastMessage(lastFriendMes.getString("message"));
+            }else{
+                lastChatVO.setLastMessage("");
+            }
+            lastChatVO.setIsOnline(centerService.isOnline(lastFriend.toString()));
+            lastChatList.add(lastChatVO);
+        }
+
+        // 封装分页
+        BasePageVO<LastChatVO> result = new BasePageVO<>();
+        result.setPageNum(pageNum);
+        result.setPageSize(pageSize);
+        result.setRows(lastChatList);
+        result.setTotalPage((totalCount + pageSize - 1) / pageSize);
+        result.setTotalCount(totalCount);
+
+        return result;
+    }
+
+    /**
+     * 获取置顶用户
+     * @author wangjinfei
+     * @date 2025/5/20 22:23
+     * @param topUserId
+     * @param lastChatList
+    */
+    public void getTopUser(String topUserId, List<LastChatVO> lastChatList){
+        String userId = UserContext.get().getUserId();
+        User topUser = userService.getById(topUserId);
+        if (topUser == null) {
+            throw new BusinessException("置顶用户不存在");
+        }
+
+        // 置顶用户
+        // todo 可以优化成从redis获取
         LastChatVO topLastChatVO = new LastChatVO();
         topLastChatVO.setUserId(topUserId);
         topLastChatVO.setUsername(topUser.getUsername());
         topLastChatVO.setAvatar(topUser.getAvatar());
-        topLastChatVO.setLastMessage("最后发送的消息😄");
+
+        // 获取置顶用户最后一条消息
+        Object mesObj = redisUtil.hashGet(RedisEnum.LAST_MES.getKey() + userId, topUserId);
+        if (mesObj != null) {
+            JSONObject lastFriendMes = JSONObject.parseObject(mesObj.toString());
+            topLastChatVO.setLastMessage(lastFriendMes.getString("message"));
+        }else{
+            topLastChatVO.setLastMessage("");
+        }
 
         Boolean online = centerService.isOnline(topUserId);
         topLastChatVO.setIsOnline(online);
         lastChatList.add(topLastChatVO);
-
-
-        // todo 分页查询剩余几天的聊天记录
-        Integer pageNum = 1;
-        Integer pageSize = 10;
-
-        //分页查询我接受的最后一条消息
-        Page<LastChatVO> page = new Page<>(pageNum, pageSize);
-        lastChatList.addAll(baseMapper.getFriendLastMes(page, userId));
-        BasePageVO<LastChatVO> result = BasePage.getResult(page, lastChatList);
-        return result;
     }
 }

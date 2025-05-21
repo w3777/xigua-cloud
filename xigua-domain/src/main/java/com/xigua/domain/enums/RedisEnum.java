@@ -12,6 +12,8 @@ public enum RedisEnum {
     EMAIL_CODE("email_code:", "邮箱验证码"),
     LOCATION_IP("location_ip:", "ip位置信息"),
     WEATHER_CITY("weather_city:", "城市天气信息"),
+    LAST_MES_FRIEND("last_mes_friend:", "最后消息好友"),
+    LAST_MES("last_mes:", "好友最后的消息"),
     ;
 
     final String key;

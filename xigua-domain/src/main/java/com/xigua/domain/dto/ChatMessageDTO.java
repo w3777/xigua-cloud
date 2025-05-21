@@ -32,4 +32,9 @@ public class ChatMessageDTO implements Serializable {
      * 消息文本正文
      */
     private String message;
+
+    /**
+     * 创建时间
+     */
+    private String createTime;
 }

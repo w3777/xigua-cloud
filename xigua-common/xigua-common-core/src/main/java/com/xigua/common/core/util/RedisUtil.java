@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -192,5 +193,87 @@ public class RedisUtil {
             keys.add(new String(cursor.next()));
         }
         return keys;
+    }
+
+    /**
+     * zset添加缓存
+     * @author wangjinfei
+     * @date 2025/5/20 20:02
+     * @param key
+     * @param value
+     * @param score
+     * @return Boolean
+    */
+    public Boolean zsadd(String key, Object value, long score) {
+        return redisTemplate.opsForZSet().add(key, value, score);
+    }
+
+    /**
+     * zset获取指定区间的元素
+     * @author wangjinfei
+     * @date 2025/5/20 20:54
+     * @param key
+     * @param start
+     * @param end
+     * @return Set<Object>
+    */
+    public Set<Object> zsReverseRange(String key, long start, long end) {
+        Set<Object> setObj = redisTemplate.opsForZSet().reverseRange(key, start, end);
+        return setObj;
+    }
+    
+    /** 
+     * zset获取数量
+     * @author wangjinfei
+     * @date 2025/5/20 21:29 
+     * @param key 
+    */
+    public Long zsetSize(String key) {
+        return redisTemplate.opsForZSet().size(key);
+    }
+
+    /**
+     * hash添加换成
+     * @author wangjinfei
+     * @date 2025/5/20 20:42
+     * @param key
+     * @param hashKey
+     * @param value
+     * @return Boolean
+    */
+    public Boolean hashPut(String key, String hashKey, Object value) {
+        try {
+            redisTemplate.opsForHash().put(key, hashKey, value);
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    /** 
+     * hash批量获取key的value
+     * @author wangjinfei
+     * @date 2025/5/20 21:28 
+     * @param key 
+     * @param hashKeys 
+     * @return List<Object> 
+    */
+    public List<Object> hashGetRang(String key, Set<Object> hashKeys){
+        List<Object> objects = redisTemplate.opsForHash().multiGet(key, hashKeys);
+        return objects;
+    }
+
+    /**
+     * hash获取指定key的value
+     * @author wangjinfei
+     * @date 2025/5/20 22:37
+     * @param key
+     * @param hashKey
+     * @return Object
+    */
+    public Object hashGet(String key, String hashKey) {
+        Object o = redisTemplate.opsForHash().get(key, hashKey);
+        return o;
     }
 }

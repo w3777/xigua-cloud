@@ -8,12 +8,14 @@ import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.common.sequence.sequence.Sequence;
+import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.dto.FriendVerifyDTO;
 import com.xigua.domain.dto.sendFriendRequestDTO;
 import com.xigua.domain.entity.FriendRelation;
 import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.FriendRequestFlowStatus;
+import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.UserConnectStatus;
 import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
@@ -280,6 +282,21 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         // 把之前的好友请求状态修改为失效
         friendRequestService.updateFlowStatus2Invalid(friendId, userId);
 
+        // 确认好友关系以及默认消息
+        friendDbHandle(userId, friendId);
+        // 角色反转 确认好友关系以及默认消息
+        friendDbHandle(friendId, userId);
+    }
+
+    /**
+     * 好友db处理
+     * 确认好友关系、添加默认消息
+     * @author wangjinfei
+     * @date 2025/5/21 11:42
+     * @param userId
+     * @param friendId
+    */
+    private void friendDbHandle(String userId, String friendId){
         // 添加好友请求状态为通过
         FriendRequest friendRequest = new FriendRequest();
         friendRequest.setId(sequence.nextNo());
@@ -295,12 +312,14 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         friendRelation.setFriendId(friendId);
         boolean save = save(friendRelation);
 
-        // 角色反转 对方也添加好友关系
-        FriendRelation friendRelation2 = new FriendRelation();
-        friendRelation2.setId(sequence.nextNo());
-        friendRelation2.setUserId(friendId);
-        friendRelation2.setFriendId(userId);
-        boolean save2 = save(friendRelation2);
+        // 添加好友默认发送消息
+        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
+        chatMessageDTO.setSenderId(userId);
+        chatMessageDTO.setReceiverId(friendId);
+        chatMessageDTO.setMessageType(MessageType.CHAT.getType());
+        chatMessageDTO.setMessage("你已成为我的好友");
+        chatMessageDTO.setCreateTime(String.valueOf(System.currentTimeMillis()));
+        centerService.receiveMessage4Client(chatMessageDTO);
     }
 
     /**

@@ -16,5 +16,4 @@ public class GetFriendLastMesDTO extends BasePageDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String topUserId;
-    private String friendId;
 }
