@@ -1,0 +1,41 @@
+package com.xigua.domain.vo;
+
+import com.xigua.domain.result.BasePageVO;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * @ClassName MessageBaseDTO
+ * @Description
+ * @Author wangjinfei
+ * @Date 2024/12/2 16:28
+ */
+@Data
+public class ChatMessageVO extends BasePageVO implements Serializable {
+    private static final long serialVersionUID = 1L;
+    /**
+     * 发送人id
+     */
+    private String senderId;
+
+    /**
+     * 接收人id
+     */
+    private String receiverId;
+
+    /**
+     * 消息类型
+     */
+    private String messageType;
+
+    /**
+     * 消息文本正文
+     */
+    private String message;
+
+    /**
+     * 创建时间
+     */
+    private String createTime;
+}

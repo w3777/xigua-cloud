@@ -3,6 +3,7 @@ package com.xigua.center.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.vo.ChatMessageVO;
 import com.xigua.domain.vo.LastChatVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -25,4 +26,16 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @return List<LastChatVO>
     */
     List<LastChatVO> getFriendLastMes(Page<LastChatVO> page, @Param("userId") String userId);
+
+    /**
+     * 分页获取好友历史消息
+     * @author wangjinfei
+     * @date 2025/5/25 11:01
+     * @param page
+     * @param senderId
+     * @param receiverId
+     * @return List<ChatMessageVO>
+    */
+    List<ChatMessageVO> getHistoryMes(Page<ChatMessageVO> page, @Param("senderId") String senderId,
+                                      @Param("receiverId") String receiverId);
 }

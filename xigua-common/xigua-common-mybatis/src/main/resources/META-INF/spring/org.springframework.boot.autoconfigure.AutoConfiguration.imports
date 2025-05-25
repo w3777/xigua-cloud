@@ -1,1 +1,2 @@
 com.xigua.common.mybatis.handle.MyMetaObjectHandler
+com.xigua.common.mybatis.config.MybatisPlusConfig

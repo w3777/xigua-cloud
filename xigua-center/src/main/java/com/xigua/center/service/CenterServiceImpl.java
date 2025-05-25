@@ -50,6 +50,11 @@ public class CenterServiceImpl implements CenterService {
         String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() + host + ":" + port;
         redisUtil.set(key, JSONObject.toJSONString(client));
 
+
+        /**
+         * todo可能服务器直接挂了，但redis还存储着在线用户
+         * 需要维护一个过期时间,或者心跳检测
+        */
         // 存储在线用户
         String onlineUserKey = RedisEnum.ONLINE_USER.getKey() + host + ":" + port;
         redisUtil.sadd(onlineUserKey, userId);

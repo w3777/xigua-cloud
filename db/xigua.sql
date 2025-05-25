@@ -62,7 +62,7 @@ create table xg_chat_message
     id          bigint            not null comment '主键id'
         primary key,
     sender_id   bigint            null comment '发送人',
-    receiver    bigint            null comment '接收人',
+    receiver_id    bigint            null comment '接收人',
     message     text              null comment '消息内容',
     is_read     tinyint           null comment '是否已读（0：未读；1：已读）',
     del_flag    tinyint default 0 null comment '是否删除 （0：未删除；1：已删除）',

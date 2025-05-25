@@ -8,11 +8,13 @@ import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.dto.GetFriendLastMesDTO;
+import com.xigua.domain.dto.GetHistoryMes;
 import com.xigua.domain.entity.ChatMessage;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.result.BasePageVO;
 import com.xigua.domain.util.BasePage;
+import com.xigua.domain.vo.ChatMessageVO;
 import com.xigua.domain.vo.LastChatVO;
 import com.xigua.service.CenterService;
 import com.xigua.service.ChatMessageService;
@@ -23,6 +25,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -133,5 +136,29 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
         Boolean online = centerService.isOnline(topUserId);
         topLastChatVO.setIsOnline(online);
         lastChatList.add(topLastChatVO);
+    }
+
+    /**
+     * 分页获取好友历史消息
+     * @author wangjinfei
+     * @date 2025/5/25 10:16
+     * @param dto
+     * @return BasePageVO<ChatMessageVO>
+     */
+    @Override
+    public BasePageVO<ChatMessageVO> getHistoryMes(GetHistoryMes dto) {
+        String senderId = UserContext.get().getUserId();
+        String receiverId = dto.getReceiverId();
+        Integer pageNum = dto.getPageNum();
+        Integer pageSize = dto.getPageSize();
+        Page<ChatMessageVO> page = new Page<>(pageNum, pageSize);
+        List<ChatMessageVO> chatMesList = new ArrayList<>();
+        // 查询历史消息（我发给好友和好友发给我的消息，按时间倒序查询）
+        chatMesList = baseMapper.getHistoryMes(page, senderId, receiverId);
+        // 反转消息列表 页面显示最新的消息在最下面
+        Collections.reverse(chatMesList);
+        BasePageVO<ChatMessageVO> result = BasePage.getResult(page, chatMesList);
+
+        return result;
     }
 }
