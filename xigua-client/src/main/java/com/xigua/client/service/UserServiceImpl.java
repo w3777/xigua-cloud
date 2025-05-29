@@ -1,5 +1,6 @@
 package com.xigua.client.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -96,6 +97,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setPassword(DigestUtils.md5Hex(user.getPassword()));
 
         int insert = baseMapper.insert(user);
+
+        // 缓存用户信息
+        redisUtil.set(RedisEnum.USER_ALL.getKey() + user.getId(), JSONObject.toJSONString(user));
         return insert > 0;
     }
 
@@ -167,8 +171,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Boolean uploadAvatar(String avatar) {
         UserToken userToken = UserContext.get();
-        baseMapper.update(new User(), new LambdaUpdateWrapper<User>().eq(User::getId, userToken.getUserId())
+        String userId = userToken.getUserId();
+        baseMapper.update(new User(), new LambdaUpdateWrapper<User>().eq(User::getId, userId)
                 .set(User::getAvatar, avatar));
+
+        // 缓存用户信息
+        User user = baseMapper.selectById(userId);
+        redisUtil.set(RedisEnum.USER_ALL.getKey() + userId, JSONObject.toJSONString(user));
         return true;
     }
 
@@ -198,6 +207,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         user.setId(userId);
         int i = baseMapper.updateById(user);
+
+        // 更新缓存
+        redisUtil.set(RedisEnum.USER_ALL.getKey() + user.getId(), JSONObject.toJSONString(user));
         return i > 0;
     }
 

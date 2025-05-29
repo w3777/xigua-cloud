@@ -34,6 +34,7 @@ public class WsServer {
     // 连接打开
     @OnOpen
     public void onOpen(@PathParam("userId") String userId, Session session){
+        // todo 可以根据userId判断是否是合法用户，达到token鉴权的目的
         // 根据用户保存session
         SessionHelper.put(userId,session);
         log.info("---->>>>>[websocket] 新的连接：userId={}",userId);

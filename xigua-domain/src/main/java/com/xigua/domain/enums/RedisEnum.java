@@ -14,6 +14,7 @@ public enum RedisEnum {
     WEATHER_CITY("weather_city:", "城市天气信息"),
     LAST_MES_FRIEND("last_mes_friend:", "最后消息好友"),
     LAST_MES("last_mes:", "好友最后的消息"),
+    USER_ALL("user_all:", "所有用户"),
     ;
 
     final String key;
