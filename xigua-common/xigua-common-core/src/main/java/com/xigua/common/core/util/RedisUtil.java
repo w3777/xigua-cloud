@@ -4,10 +4,12 @@ import com.xigua.common.core.config.RedisConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -230,6 +232,38 @@ public class RedisUtil {
     */
     public Long zsetSize(String key) {
         return redisTemplate.opsForZSet().size(key);
+    }
+
+    /**
+     * 根据 member 扫描 zset 中所有 key
+     * @author wangjinfei
+     * @date 2025/5/31 10:50
+     * @param member 要查询的 member
+     * @param pattern key 匹配模式（如 "prefix:*"）
+     * @return Set<String>
+    */
+    public Set<String> scanZSetKeysInMember(String member, String pattern) {
+        Set<String> result = new HashSet<>();
+
+        ScanOptions options = ScanOptions.scanOptions()
+                .match(pattern)
+                .count(100)
+                .build();
+
+        redisTemplate.execute((RedisCallback<Void>) connection -> {
+            try (Cursor<byte[]> cursor = connection.scan(options)) {
+                while (cursor.hasNext()) {
+                    String key = new String(cursor.next(), StandardCharsets.UTF_8);
+                    Double score = redisTemplate.opsForZSet().score(key, member);
+                    if (score != null) {
+                        result.add(key);
+                    }
+                }
+            }
+            return null;
+        });
+
+        return result;
     }
 
     /**

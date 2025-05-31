@@ -15,6 +15,7 @@ public enum RedisEnum {
     LAST_MES_FRIEND("last_mes_friend:", "最后消息好友"),
     LAST_MES("last_mes:", "好友最后的消息"),
     USER_ALL("user_all:", "所有用户"),
+    FRIEND_RELATION("friend_relation:", "好友关系"),
     ;
 
     final String key;

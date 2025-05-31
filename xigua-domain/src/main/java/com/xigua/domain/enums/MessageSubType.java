@@ -5,9 +5,9 @@ import lombok.ToString;
 
 @ToString
 @AllArgsConstructor
-public enum MessageType {
-    CHAT("chat","聊天消息"),
-    NOTIFY("notify","通知消息"),
+public enum MessageSubType {
+    FRIEND_ONLINE("friend_online", "好友上线通知"),
+    FRIEND_OFFLINE("friend_offline", "好友下线通知"),
     ;
 
     final String type;

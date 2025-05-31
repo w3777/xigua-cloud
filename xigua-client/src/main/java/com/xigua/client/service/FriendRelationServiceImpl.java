@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.FriendRelationMapper;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.DateUtil;
+import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.dto.ChatMessageDTO;
@@ -16,6 +17,7 @@ import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.FriendRequestFlowStatus;
 import com.xigua.domain.enums.MessageType;
+import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.enums.UserConnectStatus;
 import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
@@ -45,6 +47,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     private final FriendRequestService friendRequestService;
     private final UserService userService;
     private final CenterService centerService;
+    private final RedisUtil redisUtil;
 
     /**
      * 发送好友请求
@@ -320,6 +323,9 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         chatMessageDTO.setMessage("你已成为我的好友");
         chatMessageDTO.setCreateTime(String.valueOf(System.currentTimeMillis()));
         centerService.receiveMessage4Client(chatMessageDTO);
+
+        // 缓存好友关系
+        redisUtil.zsadd(RedisEnum.FRIEND_RELATION.getKey() + userId, friendId, System.currentTimeMillis());
     }
 
     /**

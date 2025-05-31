@@ -25,8 +25,15 @@ public class ChatMessageDTO implements Serializable {
 
     /**
      * 消息类型
+     * @see com.xigua.domain.enums.MessageType
      */
     private String messageType;
+
+    /**
+     * 子类型
+     * @see com.xigua.domain.enums.MessageSubType
+     */
+    private String subType;
 
     /**
      * 消息文本正文
