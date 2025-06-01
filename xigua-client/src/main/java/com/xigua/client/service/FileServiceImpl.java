@@ -38,8 +38,8 @@ public class FileServiceImpl implements FileService {
     private final MinioClient minioClient;
     @Value("${minio.bucket-name}")
     private String bucketName;
-    @Value("${minio.endpoint}")
-    private String endpoint;
+    @Value("${minio.proxy}")
+    private String proxy;
 
     /**
      * 上传文件
@@ -76,7 +76,8 @@ public class FileServiceImpl implements FileService {
                             .stream(inputStream, inputStream.available(), -1)
                             .build());
 
-            String url = endpoint + "/" + bucketName + "/" + fileKey;
+            // 用代理前缀拼接访问地址  nginx做了代理会直接访问minio服务器
+            String url = proxy + "/" + bucketName + "/" + fileKey;
             return url;
         } catch (Exception e) {
             log.error("上传失败", e);
