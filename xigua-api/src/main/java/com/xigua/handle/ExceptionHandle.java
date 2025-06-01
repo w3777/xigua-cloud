@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.stream.Collectors;
 
@@ -37,6 +38,12 @@ public class ExceptionHandle {
     public R BusinessExceptionHandle(BusinessException e) {
         log.error("业务异常捕获 --->>>", e);
         return R.fail(e.getMessage());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public R MaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        log.error("文件上传异常捕获 --->>>", e);
+        return R.fail("文件大小超过限制");
     }
 
     @ExceptionHandler(Exception.class)

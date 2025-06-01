@@ -1,10 +1,12 @@
 package com.xigua.client.controller;
 
+import com.xigua.common.core.exception.BusinessException;
 import com.xigua.domain.dto.MultipartFileDTO;
 import com.xigua.domain.result.R;
 import com.xigua.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
@@ -37,7 +39,16 @@ public class FileController {
      */
     @Operation(summary = "上传文件")
     @PostMapping("/upload")
-    public R<String> upload(@RequestPart("file") MultipartFile file){
+    public R<String> upload(@RequestPart(value = "file", required = false) MultipartFile file, HttpServletRequest request){
+        String contentType = request.getContentType();
+        if (contentType == null || !contentType.toLowerCase().startsWith("multipart/")) {
+            throw new BusinessException("不是有效文件");
+        }
+
+        if(file == null || file.isEmpty()){
+            throw new BusinessException("文件为空");
+        }
+
         //MultipartFile dubbo不能直接序列化 用对象包装一下
         MultipartFileDTO multipartFileDTO = new MultipartFileDTO();
         BeanUtils.copyProperties(file,multipartFileDTO);
