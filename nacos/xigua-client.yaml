@@ -9,8 +9,8 @@ spring:
   mail:
     host: smtp.qq.com
     protocol: smtp
-    username: 377792937@qq.com
-    password: xvtmypkejzmkbjhj
+    username: xxx@qq.com
+    password: xxxxxx
     properties:
       mail:
         smtp:
@@ -156,3 +156,10 @@ minio:
   access-key: minioadmin
   secret-key: minioadmin
   bucket-name: xigua
+
+# 三方接口配置(天地聚合平台)
+third-party:
+  location-api-url: http://apis.juhe.cn/ip/ipNewV3
+  location-api-key: xxxxxxxxxx
+  weather-api-url: http://apis.juhe.cn/simpleWeather/query
+  weather-api-key: xxxxxxxxxx

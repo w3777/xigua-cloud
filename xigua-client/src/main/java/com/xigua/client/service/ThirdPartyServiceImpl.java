@@ -2,6 +2,7 @@ package com.xigua.client.service;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.client.properties.ThirdPartyProperties;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.enums.RedisEnum;
@@ -32,16 +33,7 @@ import static org.springframework.boot.actuate.autoconfigure.security.servlet.En
 public class ThirdPartyServiceImpl implements ThirdPartyService {
     private final RedisUtil redisUtil;
     private final OkHttpClient client = new OkHttpClient();
-
-    // ip地址查询接口地址
-    public static String LOCATION_API_URL = "http://apis.juhe.cn/ip/ipNewV3";
-    // ip地址接口请求Key
-    public static String LOCATION_API_KEY = "1946c6e1088c0c79d7957bbeb692c2f3";
-
-    // 天气查询接口地址
-    public static String WEATHER_API_URL = "http://apis.juhe.cn/simpleWeather/query";
-    // 天气接口请求Key
-    public static String WEATHER_API_KEY = "f84f1a02de1cbaebda0e00dde63644e3";
+    private final ThirdPartyProperties thirdPartyProperties;
 
     /**
      * 根据ip获取地址
@@ -61,8 +53,8 @@ public class ThirdPartyServiceImpl implements ThirdPartyService {
         }
 
         // 1. 构建请求URL
-        HttpUrl url = HttpUrl.parse(LOCATION_API_URL).newBuilder()
-                .addQueryParameter("key", LOCATION_API_KEY)
+        HttpUrl url = HttpUrl.parse(thirdPartyProperties.getLocationApiUrl()).newBuilder()
+                .addQueryParameter("key", thirdPartyProperties.getLocationApiKey())
                 .addQueryParameter("ip", ip)
                 .build();
 
@@ -123,8 +115,8 @@ public class ThirdPartyServiceImpl implements ThirdPartyService {
         }
 
 
-        HttpUrl url = HttpUrl.parse(WEATHER_API_URL).newBuilder()
-                .addQueryParameter("key", WEATHER_API_KEY)
+        HttpUrl url = HttpUrl.parse(thirdPartyProperties.getWeatherApiUrl()).newBuilder()
+                .addQueryParameter("key", thirdPartyProperties.getWeatherApiKey())
                 .addQueryParameter("city", city)
                 .build();
 

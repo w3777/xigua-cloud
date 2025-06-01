@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "minio")
 public class MinioProperties {
     private String endpoint;
+    private String proxy;
     private String accessKey;
     private String secretKey;
     private String bucketName;
