@@ -42,12 +42,9 @@
 
     <!-- 模块   -->
     <modules>
-        <module>xxl-job-admin</module>
-        <module>xxl-job-executor</module>
         <module>demo-test</module>
         <module>xigua-gateway</module>
         <module>xigua-api</module>
-        <module>xigua-user</module>
         <module>xigua-common</module>
         <module>xigua-domain</module>
         <module>xigua-client</module>
