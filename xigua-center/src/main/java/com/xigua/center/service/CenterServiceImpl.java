@@ -1,6 +1,7 @@
 package com.xigua.center.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.center.factory.MessageHandlerFactory;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
@@ -40,6 +41,7 @@ public class CenterServiceImpl implements CenterService {
     private final Sequence sequence;
     private final RedisUtil redisUtil;
     private final ChatMessageServiceImpl chatMessageService;
+    private final MessageHandlerFactory messageHandlerFactory;
 
 
     /**
@@ -66,49 +68,11 @@ public class CenterServiceImpl implements CenterService {
         redisUtil.sadd(onlineUserKey, userId);
 
         // 通知好友用户上线
-        this.notifyFriendsOnline(userId);
+        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
+        chatMessageDTO.setSenderId(userId);
+        messageHandlerFactory.dispatch(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_ONLINE.getType(), chatMessageDTO);
+
         log.info("------->>>>>>> 用户：{}，所在服务器：{}，注册上线", userId, key);
-    }
-
-    /**
-     * 通知好友用户上线
-     * @author wangjinfei
-     * @date 2025/5/31 17:07
-     * @param userId
-    */
-    private void notifyFriendsOnline(String userId){
-        // 获取和当前用户有好友关系的用户
-        Set<String> friendKeys = redisUtil.scanZSetKeysInMember(userId, RedisEnum.FRIEND_RELATION.getKey() + "*");
-        if(CollectionUtils.isEmpty(friendKeys)){
-            return;
-        }
-
-        Set<String> friends = friendKeys.stream()
-                .map(key -> key.replace(RedisEnum.FRIEND_RELATION.getKey(), "")) // 去除前缀
-                .collect(Collectors.toSet());
-        for (String friend : friends) {
-            // 判断好友是否在线
-            String friendInServer = onlineUser(friend);
-            if(StringUtils.isEmpty(friendInServer)){
-                continue;
-            }
-
-            // 获取好友所在的节点信息
-            String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
-                    friendInServer.split(":")[1] + ":" + friendInServer.split(":")[2];
-            String value = redisUtil.get(key);
-            Client client = JSONObject.parseObject(value, Client.class);
-
-            // 通知好友用户上线
-            ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-            chatMessageDTO.setSenderId(userId);
-            chatMessageDTO.setReceiverId(friend);
-            chatMessageDTO.setMessage("");
-            chatMessageDTO.setMessageType(MessageType.NOTIFY.getType());
-            chatMessageDTO.setSubType(MessageSubType.FRIEND_ONLINE.getType());
-            chatMessageDTO.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-            sendMessage2Client(chatMessageDTO, client);
-        }
     }
 
     /**
@@ -136,49 +100,11 @@ public class CenterServiceImpl implements CenterService {
         }
 
         // 通知好友用户下线
-        this.notifyFriendsOffline(userId);
+        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
+        chatMessageDTO.setSenderId(userId);
+        messageHandlerFactory.dispatch(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_OFFLINE.getType(), chatMessageDTO);
+
         log.info("------->>>>>>> 用户：{}，所在服务器：{}，注销下线", userId, wsClientKey);
-    }
-
-    /**
-     * 通知好友用户上线
-     * @author wangjinfei
-     * @date 2025/5/31 17:07
-     * @param userId
-     */
-    private void notifyFriendsOffline(String userId){
-        // 获取和当前用户有好友关系的用户
-        Set<String> friendKeys = redisUtil.scanZSetKeysInMember(userId, RedisEnum.FRIEND_RELATION.getKey() + "*");
-        if(CollectionUtils.isEmpty(friendKeys)){
-            return;
-        }
-
-        Set<String> friends = friendKeys.stream()
-                .map(key -> key.replace(RedisEnum.FRIEND_RELATION.getKey(), "")) // 去除前缀
-                .collect(Collectors.toSet());
-        for (String friend : friends) {
-            // 判断好友是否在线
-            String friendInServer = onlineUser(friend);
-            if(StringUtils.isEmpty(friendInServer)){
-                continue;
-            }
-
-            // 获取好友所在的节点信息
-            String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
-                    friendInServer.split(":")[1] + ":" + friendInServer.split(":")[2];
-            String value = redisUtil.get(key);
-            Client client = JSONObject.parseObject(value, Client.class);
-
-            // 通知好友用户上线
-            ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-            chatMessageDTO.setSenderId(userId);
-            chatMessageDTO.setReceiverId(friend);
-            chatMessageDTO.setMessage("");
-            chatMessageDTO.setMessageType(MessageType.NOTIFY.getType());
-            chatMessageDTO.setSubType(MessageSubType.FRIEND_OFFLINE.getType());
-            chatMessageDTO.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-            sendMessage2Client(chatMessageDTO, client);
-        }
     }
 
     /**
@@ -189,29 +115,12 @@ public class CenterServiceImpl implements CenterService {
      */
     @Override
     public void receiveMessage4Client(ChatMessageDTO chatMessageDTO) {
-        String senderId = chatMessageDTO.getSenderId();
-        String receiverId = chatMessageDTO.getReceiverId();
+        String messageType = chatMessageDTO.getMessageType();
+        String subType = chatMessageDTO.getSubType();
 
-        // 判断接收者是否在线
-        String userInServer = onlineUser(receiverId);
-        if(StringUtils.isEmpty(userInServer)){
-            // 这里做离线消息存储
-            // db处理 mysql持久化 redis缓存
-            messageDbHandle(chatMessageDTO);
-            return;
-        }
-
-        // 获取接收者所在的节点信息
-        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
-                userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
-        String value = redisUtil.get(key);
-        Client client = JSONObject.parseObject(value, Client.class);
-
-        // 实时推送消息，发送到接收人所在节点
-        sendMessage2Client(chatMessageDTO, client);
-
-        // db处理 mysql持久化 redis缓存
-        messageDbHandle(chatMessageDTO);
+        log.info("------->>>>>>> 接收到客户端消息：{}", chatMessageDTO);
+        // 接收客户端发来的消息，根据消息类型和子类型进行不同处理 （工厂 + 策略设计模式）
+        messageHandlerFactory.dispatch(messageType, subType, chatMessageDTO);
     }
 
     /**
@@ -221,41 +130,10 @@ public class CenterServiceImpl implements CenterService {
      * @param userId
      * @return Boolean
      */
-    private String onlineUser(String userId) {
+    public String onlineUser(String userId) {
         // 获取在线用户所在的节点信息
         String onlineKey = redisUtil.isValueInSet(userId, RedisEnum.ONLINE_USER.getKey() + "*");
         return onlineKey;
-    }
-
-    /**
-     * db处理 mysql持久化 redis缓存最后聊天消息
-     * @author wangjinfei
-     * @date 2025/5/20 22:02
-     * @param chatMessageDTO
-    */
-    private void messageDbHandle(ChatMessageDTO chatMessageDTO){
-        String senderId = chatMessageDTO.getSenderId();
-        String receiverId = chatMessageDTO.getReceiverId();
-        String message = chatMessageDTO.getMessage();
-
-        // 封装聊天消息
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setId(sequence.nextNo());
-        chatMessage.setSenderId(senderId);
-        chatMessage.setReceiverId(receiverId);
-        chatMessage.setMessage(message);
-        // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
-        chatMessage.setCreateBy(senderId);
-        // 消息默认全部未读，已读状态由前端主动修改
-        chatMessage.setIsRead(ChatMessageIsRead.UNREAD.getType());
-        chatMessageService.save(chatMessage);
-        // 注意 不采用双写同步es，后期用同步工具解决，减少侵入性
-
-        long timestamp = System.currentTimeMillis();
-        // 存储redis 最后消息的好友（这样的key可以保证唯一）
-        redisUtil.zsadd(RedisEnum.LAST_MES_FRIEND.getKey() + receiverId, senderId, timestamp);
-        // 存储redis 最后消息
-        redisUtil.hashPut(RedisEnum.LAST_MES.getKey() + receiverId, senderId, JSONObject.toJSONString(chatMessageDTO));
     }
 
     /**

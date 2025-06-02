@@ -388,4 +388,28 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         friendDetail.setIsOnline(centerService.isOnline(friendDetail.getUserId()));
         return friendDetail;
     }
+
+    /**
+     * 所有好友关系存入redis
+     * @author wangjinfei
+     * @date 2025/6/2 20:58
+     */
+    @Override
+    public void allFriendRelationToRedis() {
+        List<User> userList = userService.list();
+        for(User user : userList){
+            String userId = user.getId();
+            List<FriendRelation> friendList = baseMapper.selectList(new LambdaQueryWrapper<FriendRelation>()
+                    .eq(FriendRelation::getUserId, userId));
+            if(CollectionUtils.isEmpty(friendList)){
+                continue;
+            }
+
+            for (FriendRelation friendRelation : friendList) {
+                String friendId = friendRelation.getFriendId();
+                // 缓存好友关系
+                redisUtil.zsadd(RedisEnum.FRIEND_RELATION.getKey() + userId, friendId, System.currentTimeMillis());
+            }
+        }
+    }
 }

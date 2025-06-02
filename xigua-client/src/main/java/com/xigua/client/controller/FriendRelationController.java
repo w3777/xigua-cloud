@@ -100,4 +100,16 @@ public class FriendRelationController {
     public R<FriendDetailVO> getFriendDetail(@RequestParam("friendId") String friendId){
         return R.ok(friendRelationService.getFriendDetail(friendId), "查询成功");
     }
+
+    /**
+     * 所有好友关系存入redis
+     * @author wangjinfei
+     * @date 2025/6/2 20:58
+     */
+    @Operation(summary = "所有好友关系存入redis")
+    @GetMapping("/allFriendRelationToRedis")
+    public R<Boolean> allFriendRelationToRedis(){
+        friendRelationService.allFriendRelationToRedis();
+        return R.ok(true, "缓存成功");
+    }
 }

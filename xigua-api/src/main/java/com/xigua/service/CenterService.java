@@ -46,6 +46,15 @@ public interface CenterService {
     void sendMessage2Client(ChatMessageDTO chatMessageDTO, Client client);
 
     /**
+     * 用户是否在线
+     * @author wangjinfei
+     * @date 2025/4/20 11:42
+     * @param userId
+     * @return Boolean
+     */
+    String onlineUser(String userId);
+
+    /**
      * 获取在线人员id
      * @author wangjinfei
      * @date 2025/4/23 19:52

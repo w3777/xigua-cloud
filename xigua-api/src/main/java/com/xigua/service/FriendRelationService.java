@@ -57,4 +57,11 @@ public interface FriendRelationService {
      * @return FriendDetailVO
     */
     FriendDetailVO getFriendDetail(String friendId);
+
+    /**
+     * 所有好友关系存入redis
+     * @author wangjinfei
+     * @date 2025/6/2 20:58
+    */
+    void allFriendRelationToRedis();
 }
