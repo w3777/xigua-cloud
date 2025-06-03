@@ -44,4 +44,9 @@ public class ChatMessageDTO implements Serializable {
      * 创建时间
      */
     private String createTime;
+
+    /**
+     * 聊天消息id
+     */
+    private String chatMessageId;
 }

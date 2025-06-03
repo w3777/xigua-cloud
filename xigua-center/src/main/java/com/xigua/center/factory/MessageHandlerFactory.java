@@ -1,6 +1,6 @@
 package com.xigua.center.factory;
 
-import com.xigua.center.handler.MessageTypeHandler;
+import com.xigua.center.handler.base.MessageTypeHandler;
 import com.xigua.domain.dto.ChatMessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

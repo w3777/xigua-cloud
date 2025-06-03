@@ -1,4 +1,4 @@
-package com.xigua.center.handler;
+package com.xigua.center.handler.base;
 
 import com.xigua.domain.dto.ChatMessageDTO;
 

@@ -1,5 +1,7 @@
-package com.xigua.center.handler;
+package com.xigua.center.handler.impl.maintype;
 
+import com.xigua.center.handler.base.MessageTypeHandler;
+import com.xigua.center.handler.base.SubTypeHandler;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.enums.MessageType;
 import lombok.extern.slf4j.Slf4j;
@@ -11,20 +13,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @ClassName ChatSubTypeHandler
+ * @ClassName NotifyTypeHandler
  * @Description TODO
  * @Author wangjinfei
- * @Date 2025/6/2 17:42
+ * @Date 2025/6/2 20:14
  */
 @Slf4j
 @Component
-public class ChatTypeHandler implements MessageTypeHandler{
+public class NotifyTypeHandler implements MessageTypeHandler {
     private final Map<String, SubTypeHandler> subHandlerMap = new HashMap<>();
 
-    // 构造器注入所有的chat子类型处理器
-    public ChatTypeHandler(List<SubTypeHandler> allSubHandlers) {
+    // 构造器注入所有的notify子类型处理器
+    public NotifyTypeHandler(List<SubTypeHandler> allSubHandlers) {
         for (SubTypeHandler subHandler : allSubHandlers) {
-            if(MessageType.CHAT.getType().equals(subHandler.getMessageType())){
+            if(MessageType.NOTIFY.getType().equals(subHandler.getMessageType())){
                 subHandlerMap.put(subHandler.getSubType(), subHandler);
             }
         }
@@ -38,7 +40,7 @@ public class ChatTypeHandler implements MessageTypeHandler{
      */
     @Override
     public String getMessageType() {
-        return MessageType.CHAT.getType();
+        return MessageType.NOTIFY.getType();
     }
 
     /**
