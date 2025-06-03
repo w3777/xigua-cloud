@@ -41,6 +41,11 @@ public class ChatMessageVO extends BasePageVO implements Serializable {
     private String message;
 
     /**
+     * 是否已读（0：未读；1：已读）
+     */
+    private Boolean isRead;
+
+    /**
      * 创建时间
      */
     private String createTime;

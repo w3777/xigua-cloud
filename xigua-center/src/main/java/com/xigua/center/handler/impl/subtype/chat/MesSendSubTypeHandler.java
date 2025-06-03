@@ -1,6 +1,7 @@
 package com.xigua.center.handler.impl.subtype.chat;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.xigua.center.handler.base.SubTypeHandler;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
@@ -142,6 +143,12 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
             dto.setMessage(json);
             dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
             centerService.sendMessage2Client(dto, client);
+
+            // 修改消息状态为已读  todo 可以优化成异步处理，减少阻塞
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setId(chatMessageDTO.getChatMessageId());
+            chatMessage.setIsRead(ChatMessageIsRead.READ.getType());
+            chatMessageService.updateById(chatMessage);
         }
     }
 
