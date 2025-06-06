@@ -1,7 +1,6 @@
 package com.xigua.center.handler.impl.subtype.chat;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.xigua.center.handler.base.SubTypeHandler;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
@@ -55,14 +54,14 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
      */
     @Override
     public void handle(ChatMessageDTO chatMessageDTO) {
+        // ack处理 (回传消息id给发送人)
+        ackHandle(chatMessageDTO);
+
         String receiverId = chatMessageDTO.getReceiverId();
         // 判断接收者是否在线
         String userInServer = centerService.onlineUser(receiverId);
         String chatMessageId = sequence.nextNo();
         chatMessageDTO.setChatMessageId(chatMessageId);
-
-        // 发送消息id给发送人
-        sendChatMessageId2Sender(chatMessageDTO);
 
         if(StringUtils.isEmpty(userInServer)){
             // 这里做离线消息存储
@@ -90,13 +89,14 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
     }
 
     /**
-     * 发送消息id给发送人
-     * （id在服务端生成，客户端应该第一时间拿到消息id，也为后续已读做铺垫）
+     * ack处理
+     * 回传消息id给发送人
+     * id在服务端生成，客户端应该第一时间拿到消息id，也为后续已读做铺垫
      * @author wangjinfei
      * @date 2025/6/6 21:02
      * @param chatMessageDTO
     */
-    private void sendChatMessageId2Sender(ChatMessageDTO chatMessageDTO){
+    private void ackHandle(ChatMessageDTO chatMessageDTO){
         String senderId = chatMessageDTO.getSenderId();
         // 获取发送人所在的节点信息
         String userInServer = centerService.onlineUser(senderId);
@@ -115,6 +115,8 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         // kv (k消息内容, v消息id)
         String json = JSONObject.of(chatMessageDTO.getMessage(), chatMessageDTO.getChatMessageId()).toJSONString();
         dto.setMessage(json);
+        // 客户端传过来时间戳，服务端不做处理直接回传
+        // 消息内容重复也能根据客户端时间戳 + 消息内容，找到消息并把消息id赋值
         dto.setCreateTime(chatMessageDTO.getCreateTime());
         centerService.sendMessage2Client(dto, client);
     }
