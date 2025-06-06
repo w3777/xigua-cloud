@@ -161,4 +161,17 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
 
         return result;
     }
+
+    /**
+     * 批量标记消息为已读
+     * @author wangjinfei
+     * @date 2025/6/4 21:58
+     * @param ids
+     * @param updateBy
+     * @return Integer
+     */
+    @Override
+    public Integer batchRead(List<String> ids, String updateBy) {
+        return baseMapper.batchRead(ids, updateBy);
+    }
 }

@@ -21,4 +21,14 @@
                ct.sender_id = #{receiverId} and ct.receiver_id = #{senderId})
         order by ct.create_time desc
     </select>
+
+    <update id="batchRead">
+        update xg_chat_message cm
+        set cm.is_read = 1, read_time = now(), cm.update_by = #{updateBy}, cm.update_time = now()
+        where cm.del_flag = 0
+          and cm.id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

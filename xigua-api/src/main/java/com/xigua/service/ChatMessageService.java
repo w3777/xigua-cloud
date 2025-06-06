@@ -8,6 +8,8 @@ import com.xigua.domain.result.BasePageVO;
 import com.xigua.domain.vo.ChatMessageVO;
 import com.xigua.domain.vo.LastChatVO;
 
+import java.util.List;
+
 /**
  * @ClassName ChatMessageService
  * @Description TODO
@@ -32,4 +34,14 @@ public interface ChatMessageService extends IService<ChatMessage> {
      * @return BasePageVO<ChatMessageVO>
     */
     BasePageVO<ChatMessageVO> getHistoryMes(GetHistoryMes dto);
+
+    /**
+     * 批量标记消息为已读
+     * @author wangjinfei
+     * @date 2025/6/4 21:58
+     * @param ids
+     * @param updateBy
+     * @return Integer
+    */
+    Integer batchRead(List<String> ids, String updateBy);
 }

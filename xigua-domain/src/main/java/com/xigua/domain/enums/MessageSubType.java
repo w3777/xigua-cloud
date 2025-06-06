@@ -14,6 +14,7 @@ public enum MessageSubType {
 
     // chat
     MES_SEND("mes_send", "消息发送"),
+    MES_SEND_ACK("mes_send_ack", "消息发送确认"),
     MES_RECEIVE("mes_receive", "消息接收"),
     MES_READ("mes_read", "消息已读"),
     ;

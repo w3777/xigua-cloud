@@ -52,6 +52,13 @@ public class ChatMessage implements Serializable {
     private Integer isRead;
 
     /**
+     * 已读时间
+     */
+    @Schema(name = "已读时间")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime readTime;
+
+    /**
      * 是否删除 （0：未删除；1：已删除）
      */
     @Schema(name = "是否删除 （0：未删除；1：已删除）")

@@ -38,4 +38,14 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
     */
     List<ChatMessageVO> getHistoryMes(Page<ChatMessageVO> page, @Param("senderId") String senderId,
                                       @Param("receiverId") String receiverId);
+
+    /**
+     * 批量标记消息为已读
+     * @author wangjinfei
+     * @date 2025/6/4 21:58
+     * @param ids
+     * @param updateBy
+     * @return Integer
+     */
+    Integer batchRead(@Param("ids") List<String> ids, @Param("updateBy")String updateBy);
 }

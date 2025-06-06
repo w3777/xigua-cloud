@@ -9,10 +9,7 @@ import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.entity.ChatMessage;
-import com.xigua.domain.enums.ChatMessageIsRead;
-import com.xigua.domain.enums.MessageSubType;
-import com.xigua.domain.enums.MessageType;
-import com.xigua.domain.enums.RedisEnum;
+import com.xigua.domain.enums.*;
 import com.xigua.service.CenterService;
 import com.xigua.service.ChatMessageService;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 /**
  * @ClassName MesSendHandler
@@ -60,7 +58,12 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String receiverId = chatMessageDTO.getReceiverId();
         // 判断接收者是否在线
         String userInServer = centerService.onlineUser(receiverId);
-        chatMessageDTO.setChatMessageId(sequence.nextNo());
+        String chatMessageId = sequence.nextNo();
+        chatMessageDTO.setChatMessageId(chatMessageId);
+
+        // 发送消息id给发送人
+        sendChatMessageId2Sender(chatMessageDTO);
+
         if(StringUtils.isEmpty(userInServer)){
             // 这里做离线消息存储
             // db处理 mysql持久化 redis缓存
@@ -84,6 +87,36 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
     @Override
     public String getMessageType() {
         return MessageType.CHAT.getType();
+    }
+
+    /**
+     * 发送消息id给发送人
+     * （id在服务端生成，客户端应该第一时间拿到消息id，也为后续已读做铺垫）
+     * @author wangjinfei
+     * @date 2025/6/6 21:02
+     * @param chatMessageDTO
+    */
+    private void sendChatMessageId2Sender(ChatMessageDTO chatMessageDTO){
+        String senderId = chatMessageDTO.getSenderId();
+        // 获取发送人所在的节点信息
+        String userInServer = centerService.onlineUser(senderId);
+        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
+                userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
+
+        String value = redisUtil.get(key);
+        Client client = JSONObject.parseObject(value, Client.class);
+
+        // 发送当前消息id到客户端 （id在服务端生成，客户端应该第一时间拿到消息id，也为后续已读做铺垫）
+        ChatMessageDTO dto = new ChatMessageDTO();
+        dto.setSenderId(Sender.SYSTEM.getSender());
+        dto.setReceiverId(senderId);
+        dto.setMessageType(MessageType.CHAT.getType());
+        dto.setSubType(MessageSubType.MES_SEND_ACK.getType());
+        // kv (k消息内容, v消息id)
+        String json = JSONObject.of(chatMessageDTO.getMessage(), chatMessageDTO.getChatMessageId()).toJSONString();
+        dto.setMessage(json);
+        dto.setCreateTime(chatMessageDTO.getCreateTime());
+        centerService.sendMessage2Client(dto, client);
     }
 
     /**
@@ -124,7 +157,7 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
             return;
         }
 
-        // 接收人打开的聊天窗口好友是发送人，发送已读通知
+        // 接收人打开的聊天窗口好友是发送人，发送已读通知  （对方在线 && 对方打开的聊天框是发送人）
         if(receiverActiveFriend.equals(senderId)){
             // 获取发送人所在的节点信息
             String userInServer = centerService.onlineUser(senderId);
@@ -135,11 +168,13 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
 
             // 系统推送已读通知
             ChatMessageDTO dto = new ChatMessageDTO();
-            dto.setSenderId("系统");
+            dto.setSenderId(Sender.SYSTEM.getSender());
             dto.setReceiverId(senderId);
-            dto.setMessageType(MessageType.NOTIFY.getType());
+            dto.setMessageType(MessageType.CHAT.getType());
             dto.setSubType(MessageSubType.MES_READ.getType());
-            String json = JSONObject.of("chatMessageId", chatMessageDTO.getChatMessageId()).toJSONString();
+            String readChatMessageIds = JSONObject.toJSONString(Arrays.asList(chatMessageDTO.getChatMessageId()));
+            String json = JSONObject.of("readChatMessageIds", readChatMessageIds).toJSONString();
+
             dto.setMessage(json);
             dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
             centerService.sendMessage2Client(dto, client);
@@ -148,6 +183,9 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setId(chatMessageDTO.getChatMessageId());
             chatMessage.setIsRead(ChatMessageIsRead.READ.getType());
+            chatMessage.setReadTime(LocalDateTime.now());
+            chatMessage.setUpdateBy(receiverId);
+            chatMessage.setUpdateTime(LocalDateTime.now());
             chatMessageService.updateById(chatMessage);
         }
     }

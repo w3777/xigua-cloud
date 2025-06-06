@@ -93,18 +93,6 @@ spring:
       # manual_immediate：手动调用Acknowledgment.acknowledge()后立即提交，一般推荐使用这种
       ack-mode: manual_immediate
 
-    # mybatis配置
-    # mybatis:
-    #     # 搜索指定包别名
-    #     typeAliasesPackage: com.honghao.fleet
-    #     typeEnumsPackage: com.honghao.fleet.enums
-    #     # 配置mapper的扫描，找到所有的mapper.xml映射文件
-    #     mapperLocations: classpath:mapper/**/*.xml
-
-    #pageSize可以为0，表示查全部
-    # pagehelper:
-    #   pageSizeZero: true
-
 dubbo:
   scan:
     base-packages: com.xigua
