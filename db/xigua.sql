@@ -65,6 +65,7 @@ create table xg_chat_message
     receiver_id    bigint            null comment '接收人',
     message     text              null comment '消息内容',
     is_read     tinyint           null comment '是否已读（0：未读；1：已读）',
+    read_time   datetime          null comment '已读时间',
     del_flag    tinyint default 0 null comment '是否删除 （0：未删除；1：已删除）',
     create_by   bigint            null comment '创建人',
     create_time datetime          null comment '创建时间',

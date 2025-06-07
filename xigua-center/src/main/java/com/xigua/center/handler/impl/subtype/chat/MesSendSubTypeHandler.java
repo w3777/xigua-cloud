@@ -54,15 +54,15 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
      */
     @Override
     public void handle(ChatMessageDTO chatMessageDTO) {
-        // ack处理 (回传消息id给发送人)
-        ackHandle(chatMessageDTO);
-
-        String receiverId = chatMessageDTO.getReceiverId();
-        // 判断接收者是否在线
-        String userInServer = centerService.onlineUser(receiverId);
         String chatMessageId = sequence.nextNo();
         chatMessageDTO.setChatMessageId(chatMessageId);
 
+        // ack处理 (回传消息id给发送人)
+        ackHandle(chatMessageDTO);
+
+        // 判断接收者是否在线
+        String receiverId = chatMessageDTO.getReceiverId();
+        String userInServer = centerService.onlineUser(receiverId);
         if(StringUtils.isEmpty(userInServer)){
             // 这里做离线消息存储
             // db处理 mysql持久化 redis缓存
