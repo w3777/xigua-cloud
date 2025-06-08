@@ -9,6 +9,7 @@ import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.TokenUtil;
 import com.xigua.common.core.util.UserContext;
+import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
@@ -39,6 +40,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     private final RedisUtil redisUtil;
+    private final Sequence sequence;
     @DubboReference
     private final EmailService emailService;
     @DubboReference
@@ -96,6 +98,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // md5加密
         user.setPassword(DigestUtils.md5Hex(user.getPassword()));
 
+        user.setId(sequence.nextNo());
         int insert = baseMapper.insert(user);
 
         // 缓存用户信息

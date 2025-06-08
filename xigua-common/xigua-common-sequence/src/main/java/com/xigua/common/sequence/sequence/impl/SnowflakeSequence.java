@@ -4,15 +4,20 @@ import com.xigua.common.sequence.exception.SeqException;
 import com.xigua.common.sequence.sequence.Sequence;
 
 /**
- * 使用雪花算法 一个long类型的数据，64位。以下是每位的具体含义。 <br>
- * snowflake的结构如下(每部分用-分开): <br>
- * 0 - 0000000000 0000000000 0000000000 0000000000 0 - 00000 - 00000 - 000000000000 <br>
+ * 使用雪花算法 一个long类型的数据，64位。以下是每位的具体含义。
+ * snowflake的结构如下(每部分用-分开):
+ * 0 - 0000000000 0000000000 0000000000 0000000000 0 - 00000 - 00000 - 000000000000
  * （1）最高位是符号位：第一位为未使用 （0 表示正，1 表示负，固定为 0，如果是 1 就是负数了）
  * （2）毫秒级时间戳：41位为毫秒级时间(41位的长度可以使用69年)
  * （3）数据中心id（机房id）：5位datacenterId
  * （4）工作机器id（应用机器id）：5位workerId
  * （5）序列号：最后12位是毫秒内的计数（12位的计数顺序号支持每个节点每毫秒产生4096个ID序号）
- * 一共加起来刚好64位，为一个Long型。(转换成字符串长度为18)
+ * 特别注意:
+ * 雪花id指的是一个 64bit 的 long 型的数值，可以参考to64BitBinaryString方法的打印结果
+ * 生成的id长度是不固定的，受twepoch、机器id、数据中心id、序列号等参数的影响
+ * 比如
+ * 较小的 twepoch 会导致时间差较大，分配给时间戳部分的位数更多，从而生成更长的 ID
+ * 较大的 twepoch 会导致时间差较小，分配给时间戳部分的位数较少，从而生成更短的 ID
  *
  * 注意：
  * 1. 标识位（存储机器码）：10bit，上面中的数据中心id（5bit）和工作机器id（5bit）统一叫作“标识位”，两个标识位组合起来最多可以支持部署 1024 个节点（32 * 32）。
@@ -34,9 +39,10 @@ import com.xigua.common.sequence.sequence.Sequence;
 public class SnowflakeSequence implements Sequence {
 
 	/**
-	 * 开始时间截 (北京时间 2025-01-01)
+	 * 开始时间截 (北京时间 2025-01-01 00:00:00.000)
+	 * 毫秒级时间戳
 	 */
-	private final long twepoch = 1735660800L;
+	private final long twepoch = 1735660800000L;
 
 	/**
 	 * 机器id所占的位数
@@ -133,8 +139,24 @@ public class SnowflakeSequence implements Sequence {
 		lastTimestamp = timestamp;
 
 		// 移位并通过或运算拼到一起组成64位的ID
-		return ((timestamp - twepoch) << timestampLeftShift) | (datacenterId << datacenterIdShift)
-				| (workerId << workerIdShift) | sequence;
+		long snowflakeId = ((timestamp - twepoch) << timestampLeftShift)
+				           | (datacenterId << datacenterIdShift)
+				           | (workerId << workerIdShift)
+				           | sequence;
+
+		/**
+		 * timestamp - twepoch为什么这里要减去twepoch？其他都是按照位运算左移
+		 * 1. 如果只用当前时间戳timestamp，会随着时间的推移而不断增长，导致生成的ID长度不断增加，可能会超过64位的限制
+		 * 2. 可以将当前时间戳减去一个固定的起始时间twepoch，这样可以将时间戳映射到一个相对较小的范围内，保证不会超过64位的限制
+		 * 3. 如果只用twepoch，会导致有人通过id反向推出生成规律，因为后12bit是递增的，可以分析出订单量、用户量、成交量等安全隐患
+		 * 雪花id要保证：唯一、趋势递增、趋势递增不能轻易被发现
+		*/
+
+
+		// 将 long 转成二进制字符串
+//		to64BitBinaryString(snowflakeId);
+
+		return snowflakeId;
 	}
 
 	/**
@@ -172,6 +194,21 @@ public class SnowflakeSequence implements Sequence {
 		}
 
 		this.datacenterId = datacenterId;
+	}
+
+	/**
+	 * 将 long 转成二进制字符串
+	 * @author wangjinfei
+	 * @date 2025/6/8 16:45
+	 * @param snowflakeId
+	*/
+	private void to64BitBinaryString(long snowflakeId) {
+		// 将 long 转成二进制字符串
+		String binaryString = Long.toBinaryString(snowflakeId);
+
+		// 不足64位的补齐左侧的0，保证显示完整64位
+		String full64bit = String.format("%64s", binaryString).replace(' ', '0');
+		System.out.println(full64bit);
 	}
 
 	/**
