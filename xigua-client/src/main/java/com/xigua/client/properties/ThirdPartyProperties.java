@@ -33,13 +33,13 @@ public class ThirdPartyProperties {
         if (StringUtils.isEmpty(locationApiUrl)) {
             log.error("--------->>>>>>> third-party.locationApiUrl 未配置！");
         }
-        if (!StringUtils.isEmpty(locationApiKey)) {
+        if (StringUtils.isEmpty(locationApiKey)) {
             log.error("--------->>>>>>> third-party.locationApiKey 未配置！");
         }
-        if (!StringUtils.isEmpty(weatherApiUrl)) {
+        if (StringUtils.isEmpty(weatherApiUrl)) {
             log.error("--------->>>>>>> third-party.weatherApiUrl 未配置！");
         }
-        if (!StringUtils.isEmpty(weatherApiKey)) {
+        if (StringUtils.isEmpty(weatherApiKey)) {
             log.error("--------->>>>>>> third-party.weatherApiKey 未配置！");
         }
     }

@@ -125,8 +125,23 @@ xigua-cloud (Root Project)
 </div>
 
 ### 【📖 已读/未读】
-支持实时消息的已读，以及留言消息打开聊天框口已读。
-[▶ 演示视频](doc/mp4s/read_demo.mp4)
+支持实时消息的已读，以及留言消息打开聊天框口已读，历史消息滑动已读。
+
+#### 实时消息已读
+<div align="center">
+  <img src="doc/images/online_read.gif"/>
+</div>
+
+#### 打开窗口已读
+<div align="center">
+  <img src="doc/images/open_window_read.gif"/>
+</div>
+
+#### 滑动窗口已读
+<div align="center">
+  <img src="doc/images/scroll_read.gif"/>
+</div>
+
 
 
 ## 关注⭐️

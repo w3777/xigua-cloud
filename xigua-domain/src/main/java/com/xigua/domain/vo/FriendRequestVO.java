@@ -15,6 +15,7 @@ public class FriendRequestVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private String requestId;
     private String userId;
     private String username;
     private String avatar;

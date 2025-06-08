@@ -11,6 +11,7 @@ import com.xigua.domain.entity.ChatMessage;
 import com.xigua.domain.enums.*;
 import com.xigua.service.CenterService;
 import com.xigua.service.ChatMessageService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,9 @@ public class MesReadSubTypeHandler implements SubTypeHandler {
             return;
         }
         List<String> chatMessageIdList = JSONArray.parseArray(message, String.class);
+        if(CollectionUtils.isEmpty(chatMessageIdList)){
+            return;
+        }
         // 批量更新消息为已读
         chatMessageService.batchRead(chatMessageIdList, senderId);
 
@@ -98,6 +102,10 @@ public class MesReadSubTypeHandler implements SubTypeHandler {
             dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
             centerService.sendMessage2Client(dto, client);
 
+
+            /**
+             * 如果要做群聊已读，需要拆出一张已读表，来做一对多的关系
+            */
             // 修改消息状态为已读
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setId(chatMessageDTO.getChatMessageId());

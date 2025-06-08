@@ -15,10 +15,7 @@ import com.xigua.domain.dto.sendFriendRequestDTO;
 import com.xigua.domain.entity.FriendRelation;
 import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.entity.User;
-import com.xigua.domain.enums.FriendRequestFlowStatus;
-import com.xigua.domain.enums.MessageType;
-import com.xigua.domain.enums.RedisEnum;
-import com.xigua.domain.enums.UserConnectStatus;
+import com.xigua.domain.enums.*;
 import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.FriendRequestVO;
@@ -68,6 +65,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
 
         // 添加好友申请
         FriendRequest friendRequest = new FriendRequest();
+        friendRequest.setId(sequence.nextNo());
         friendRequest.setSenderId(userId);
         friendRequest.setReceiverId(friendId);
         friendRequest.setApplyMsg(dto.getApplyMsg());
@@ -141,6 +139,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
                 continue;
             }
             FriendRequestVO friendRequestVO = new FriendRequestVO();
+            friendRequestVO.setRequestId(friendRequest.getId());
             friendRequestVO.setUserId(receiver.getId());
             friendRequestVO.setUsername(receiver.getUsername());
             friendRequestVO.setAvatar(receiver.getAvatar());
@@ -162,6 +161,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
                 continue;
             }
             FriendRequestVO friendRequestVO = new FriendRequestVO();
+            friendRequestVO.setRequestId(friendRequest.getId());
             friendRequestVO.setUserId(sender.getId());
             friendRequestVO.setUsername(sender.getUsername());
             friendRequestVO.setAvatar(sender.getAvatar());
@@ -320,6 +320,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         chatMessageDTO.setSenderId(userId);
         chatMessageDTO.setReceiverId(friendId);
         chatMessageDTO.setMessageType(MessageType.CHAT.getType());
+        chatMessageDTO.setSubType(MessageSubType.MES_SEND.getType());
         chatMessageDTO.setMessage("你已成为我的好友");
         chatMessageDTO.setCreateTime(String.valueOf(System.currentTimeMillis()));
         centerService.receiveMessage4Client(chatMessageDTO);
