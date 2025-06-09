@@ -140,6 +140,10 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
      * @param receiverInServer
     */
     private void receiverHande(ChatMessageDTO chatMessageDTO, String receiverInServer){
+        if(StringUtils.isEmpty(receiverInServer)){
+            // 如果接收人不在线，直接返回，不做后续处理
+            return;
+        }
         // 获取接收者所在的节点信息
         String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
                 receiverInServer.split(":")[1] + ":" + receiverInServer.split(":")[2];
@@ -258,39 +262,35 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String senderId = chatMessageDTO.getSenderId();
         String receiverId = chatMessageDTO.getReceiverId();
 
-        // 如果接收人不在线，直接返回，不做后续处理
-        if(StringUtils.isEmpty(receiverInServer)){
-            return;
-        }
-
         // 获取接收人打开的聊天窗口好友是谁
         String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + receiverId);
-        if(StringUtils.isEmpty(receiverActiveFriend)){
-            return;
-        }
-
-        // 如果是发送人退出
-        if(receiverActiveFriend.equals(senderId)){
-            return;
-        }
 
         // 存储redis 好友未读数量
         String friendUnreadCountKey = RedisEnum.FRIEND_UNREAD_COUNT.getKey() + receiverId;
-        Object friendUnreadCountValue = redisUtil.hashGet(friendUnreadCountKey, senderId);
-        Integer friendUnreadCount = null;
-        if(friendUnreadCountValue == null){
-            friendUnreadCount = 1;
-        }else{
-            friendUnreadCount = Integer.valueOf(friendUnreadCountValue.toString()) + 1;
-        }
-        redisUtil.hashPut(friendUnreadCountKey, senderId, friendUnreadCount);
 
-        // 对方在线 && 打开聊天框不是发送人
-        // 实时推送好友未读消息数量（小红点）
-        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
-                receiverInServer.split(":")[1] + ":" + receiverInServer.split(":")[2];
-        String value = redisUtil.get(key);
-        Client client = JSONObject.parseObject(value, Client.class);
+        // 接收人在线 && 打开聊天框是发送人
+        if(StringUtils.isNotEmpty(receiverInServer) && senderId.equals(receiverActiveFriend)){
+            // 未读消息清零
+            redisUtil.hashPut(friendUnreadCountKey, senderId, 0);
+        }else{
+            // 未读消息 + 1
+            Object friendUnreadCountValue = redisUtil.hashGet(friendUnreadCountKey, senderId);
+            Integer friendUnreadCount = null;
+            if(friendUnreadCountValue == null){
+                friendUnreadCount = 1;
+            }else{
+                friendUnreadCount = Integer.valueOf(friendUnreadCountValue.toString()) + 1;
+            }
+            redisUtil.hashPut(friendUnreadCountKey, senderId, friendUnreadCount);
+        }
+
+
+//        // 对方在线 && 打开聊天框不是发送人
+//        // 实时推送好友未读消息数量（小红点）
+//        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
+//                receiverInServer.split(":")[1] + ":" + receiverInServer.split(":")[2];
+//        String value = redisUtil.get(key);
+//        Client client = JSONObject.parseObject(value, Client.class);
 
         // 系统推送小红点
 //        ChatMessageDTO dto = new ChatMessageDTO();

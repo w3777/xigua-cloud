@@ -89,6 +89,10 @@ public class CenterServiceImpl implements CenterService {
         String onlineUserKey = RedisEnum.ONLINE_USER.getKey() + host + ":" + port;
         redisUtil.srem(onlineUserKey, userId);
 
+        // redis删除当前用户的活跃好友
+        String currentActiveFriendKey = RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + userId;
+        redisUtil.del(currentActiveFriendKey);
+
         // 如果当前节点没有在线用户了，移除节点信息
         String wsClientKey = RedisEnum.CLIENT_CONNECT_CENTER.getKey() + host + ":" + port;
         long wsClientSize = redisUtil.scard(onlineUserKey);
