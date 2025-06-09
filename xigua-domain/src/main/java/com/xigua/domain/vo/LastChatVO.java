@@ -20,4 +20,5 @@ public class LastChatVO implements Serializable {
     private String avatar;
     private String lastMessage;
     private Boolean isOnline;
+    private Integer friendUnreadCount;
 }

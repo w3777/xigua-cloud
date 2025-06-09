@@ -55,6 +55,9 @@ public class MesReadSubTypeHandler implements SubTypeHandler {
 
         // 接收人处理  todo 可以优化成异步处理，减少阻塞
         receiverHande(chatMessageDTO);
+
+        // 好友未读消息清零
+        friendUnreadHande(chatMessageDTO);
     }
 
     @Override
@@ -115,5 +118,23 @@ public class MesReadSubTypeHandler implements SubTypeHandler {
             chatMessage.setUpdateTime(LocalDateTime.now());
             chatMessageService.updateById(chatMessage);
         }
+    }
+
+    /**
+     * 好友未读消息清零
+     * @author wangjinfei
+     * @date 2025/6/9 21:36
+     * @param chatMessageDTO
+    */
+    private void friendUnreadHande(ChatMessageDTO chatMessageDTO){
+        String senderId = chatMessageDTO.getSenderId();
+        String receiverId = chatMessageDTO.getReceiverId();
+        String friendUnreadCountKey = RedisEnum.FRIEND_UNREAD_COUNT.getKey() + senderId;
+
+        /**
+         * todo 点开聊天框，清零，可以根据已读数据逐次 - 1
+         * 暂时直接清零
+        */
+        redisUtil.hashPut(friendUnreadCountKey, receiverId, 0);
     }
 }

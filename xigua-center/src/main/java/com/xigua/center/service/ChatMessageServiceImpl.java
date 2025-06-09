@@ -81,6 +81,10 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
             lastChatVO.setUsername(friend.getUsername());
             lastChatVO.setAvatar(friend.getAvatar());
 
+            // 好友是否在线
+            lastChatVO.setIsOnline(centerService.isOnline(lastFriend.toString()));
+
+            // 好友最后一条消息
             Object mesObj = redisUtil.hashGet(RedisEnum.LAST_MES.getKey() + userId, friendId);
             if (mesObj != null) {
                 JSONObject lastFriendMes = JSONObject.parseObject(mesObj.toString());
@@ -88,7 +92,14 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
             }else{
                 lastChatVO.setLastMessage("");
             }
-            lastChatVO.setIsOnline(centerService.isOnline(lastFriend.toString()));
+
+            // 好友未读消息数量
+            Object unreadCountObj = redisUtil.hashGet(RedisEnum.FRIEND_UNREAD_COUNT.getKey() + userId, friendId);
+            if(unreadCountObj == null){
+                lastChatVO.setFriendUnreadCount(0);
+            }else{
+                lastChatVO.setFriendUnreadCount(Integer.parseInt(unreadCountObj.toString()));
+            }
             lastChatList.add(lastChatVO);
         }
 

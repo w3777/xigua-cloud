@@ -38,9 +38,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @DubboService
 public class CenterServiceImpl implements CenterService {
-    private final Sequence sequence;
     private final RedisUtil redisUtil;
-    private final ChatMessageServiceImpl chatMessageService;
     private final MessageHandlerFactory messageHandlerFactory;
 
 

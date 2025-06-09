@@ -17,6 +17,7 @@ public enum RedisEnum {
     USER_ALL("user_all:", "所有用户"),
     FRIEND_RELATION("friend_relation:", "好友关系"),
     CURRENT_ACTIVE_FRIEND("current_active_friend:", "当前激活好友"),
+    FRIEND_UNREAD_COUNT("friend_unread_count:", "好友未读数量"),
     ;
 
     final String key;

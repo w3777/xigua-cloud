@@ -55,23 +55,34 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
     @Override
     public void handle(ChatMessageDTO chatMessageDTO) {
         String chatMessageId = sequence.nextNo();
+        String receiverId = chatMessageDTO.getReceiverId();
         chatMessageDTO.setChatMessageId(chatMessageId);
 
         // ack处理 (回传消息id给发送人)
         ackHandle(chatMessageDTO);
 
-        // 判断接收者是否在线
-        String receiverId = chatMessageDTO.getReceiverId();
-        String userInServer = centerService.onlineUser(receiverId);
-        if(StringUtils.isEmpty(userInServer)){
-            // 这里做离线消息存储
-            // db处理 mysql持久化 redis缓存
-            messageDbHandle(chatMessageDTO);
-            return;
-        }
+        // todo 下面所有逻辑处理都可以放到mq里做排队异步处理，提高系统吞吐量
+
+        // db处理 mysql持久化
+        messageDbHandle(chatMessageDTO);
+
+        // redis处理 (最后消息好友列表、好友最后消息)
+        redisHandle(chatMessageDTO);
+
+        // 获取接收人所在的节点信息
+        String receiverInServer = centerService.onlineUser(receiverId);
 
         // 接收人在线，处理消息
-        receiverHande(userInServer, chatMessageDTO);
+        receiverHande(chatMessageDTO, receiverInServer);
+
+        // 好友未读消息处理
+        friendUnreadHandle(chatMessageDTO, receiverInServer);
+
+        // 判断接收者是否在线
+        if(StringUtils.isEmpty(receiverInServer)){
+            // 如果接收人不在线，直接返回，不做后续处理
+            return;
+        }
 
         // 发送人在线，处理消息
         senderHande(chatMessageDTO);
@@ -125,22 +136,19 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
      * 接收人在线，处理消息
      * @author wangjinfei
      * @date 2025/6/3 20:55
-     * @param userInServer
      * @param chatMessageDTO
+     * @param receiverInServer
     */
-    private void receiverHande(String userInServer, ChatMessageDTO chatMessageDTO){
+    private void receiverHande(ChatMessageDTO chatMessageDTO, String receiverInServer){
         // 获取接收者所在的节点信息
         String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
-                userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
+                receiverInServer.split(":")[1] + ":" + receiverInServer.split(":")[2];
         String value = redisUtil.get(key);
         Client client = JSONObject.parseObject(value, Client.class);
 
         // 实时推送消息，发送到接收人所在节点
         chatMessageDTO.setSubType(MessageSubType.MES_RECEIVE.getType());
         centerService.sendMessage2Client(chatMessageDTO, client);
-
-        // db处理 mysql持久化 redis缓存
-        messageDbHandle(chatMessageDTO);
     }
 
     /**
@@ -159,41 +167,43 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
             return;
         }
 
-        // 接收人打开的聊天窗口好友是发送人，发送已读通知  （对方在线 && 对方打开的聊天框是发送人）
-        if(receiverActiveFriend.equals(senderId)){
-            // 获取发送人所在的节点信息
-            String userInServer = centerService.onlineUser(senderId);
-            String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
-                    userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
-            String value = redisUtil.get(key);
-            Client client = JSONObject.parseObject(value, Client.class);
-
-            // 系统推送已读通知
-            ChatMessageDTO dto = new ChatMessageDTO();
-            dto.setSenderId(Sender.SYSTEM.getSender());
-            dto.setReceiverId(senderId);
-            dto.setMessageType(MessageType.CHAT.getType());
-            dto.setSubType(MessageSubType.MES_READ.getType());
-            String readChatMessageIds = JSONObject.toJSONString(Arrays.asList(chatMessageDTO.getChatMessageId()));
-            String json = JSONObject.of("readChatMessageIds", readChatMessageIds).toJSONString();
-
-            dto.setMessage(json);
-            dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-            centerService.sendMessage2Client(dto, client);
-
-            // 修改消息状态为已读  todo 可以优化成异步处理，减少阻塞
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setId(chatMessageDTO.getChatMessageId());
-            chatMessage.setIsRead(ChatMessageIsRead.READ.getType());
-            chatMessage.setReadTime(LocalDateTime.now());
-            chatMessage.setUpdateBy(receiverId);
-            chatMessage.setUpdateTime(LocalDateTime.now());
-            chatMessageService.updateById(chatMessage);
+        if(!receiverActiveFriend.equals(senderId)){
+            return;
         }
+
+        // 接收人打开的聊天窗口好友是发送人，发送已读通知  （对方在线 && 对方打开的聊天框是发送人）
+        // 获取发送人所在的节点信息
+        String userInServer = centerService.onlineUser(senderId);
+        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
+                userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
+        String value = redisUtil.get(key);
+        Client client = JSONObject.parseObject(value, Client.class);
+
+        // 系统推送已读通知
+        ChatMessageDTO dto = new ChatMessageDTO();
+        dto.setSenderId(Sender.SYSTEM.getSender());
+        dto.setReceiverId(senderId);
+        dto.setMessageType(MessageType.CHAT.getType());
+        dto.setSubType(MessageSubType.MES_READ.getType());
+        String readChatMessageIds = JSONObject.toJSONString(Arrays.asList(chatMessageDTO.getChatMessageId()));
+        String json = JSONObject.of("readChatMessageIds", readChatMessageIds).toJSONString();
+
+        dto.setMessage(json);
+        dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
+        centerService.sendMessage2Client(dto, client);
+
+        // 修改消息状态为已读  todo 可以优化成异步处理，减少阻塞
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setId(chatMessageDTO.getChatMessageId());
+        chatMessage.setIsRead(ChatMessageIsRead.READ.getType());
+        chatMessage.setReadTime(LocalDateTime.now());
+        chatMessage.setUpdateBy(receiverId);
+        chatMessage.setUpdateTime(LocalDateTime.now());
+        chatMessageService.updateById(chatMessage);
     }
 
     /**
-     * db处理 mysql持久化 redis缓存最后聊天消息
+     * db处理 mysql持久化
      * @author wangjinfei
      * @date 2025/5/20 22:02
      * @param chatMessageDTO
@@ -215,11 +225,81 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         chatMessage.setIsRead(ChatMessageIsRead.UNREAD.getType());
         chatMessageService.save(chatMessage);
         // 注意 不采用双写同步es，后期用同步工具解决，减少侵入性
+    }
 
+
+    /**
+     * redis处理
+     * 最后消息好友列表 zset
+     * 好友最后消息 hash
+     * @author wangjinfei
+     * @date 2025/6/9 20:04
+     * @param chatMessageDTO
+    */
+    private void redisHandle(ChatMessageDTO chatMessageDTO){
+        String senderId = chatMessageDTO.getSenderId();
+        String receiverId = chatMessageDTO.getReceiverId();
         long timestamp = System.currentTimeMillis();
+
         // 存储redis 最后消息的好友（这样的key可以保证唯一）
         redisUtil.zsadd(RedisEnum.LAST_MES_FRIEND.getKey() + receiverId, senderId, timestamp);
         // 存储redis 最后消息
         redisUtil.hashPut(RedisEnum.LAST_MES.getKey() + receiverId, senderId, JSONObject.toJSONString(chatMessageDTO));
+    }
+
+    /**
+     * 好友未读消息处理
+     * @author wangjinfei
+     * @date 2025/6/9 20:44
+     * @param chatMessageDTO
+     * @param receiverInServer
+    */
+    private void friendUnreadHandle(ChatMessageDTO chatMessageDTO, String receiverInServer){
+        String senderId = chatMessageDTO.getSenderId();
+        String receiverId = chatMessageDTO.getReceiverId();
+
+        // 如果接收人不在线，直接返回，不做后续处理
+        if(StringUtils.isEmpty(receiverInServer)){
+            return;
+        }
+
+        // 获取接收人打开的聊天窗口好友是谁
+        String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + receiverId);
+        if(StringUtils.isEmpty(receiverActiveFriend)){
+            return;
+        }
+
+        // 如果是发送人退出
+        if(receiverActiveFriend.equals(senderId)){
+            return;
+        }
+
+        // 存储redis 好友未读数量
+        String friendUnreadCountKey = RedisEnum.FRIEND_UNREAD_COUNT.getKey() + receiverId;
+        Object friendUnreadCountValue = redisUtil.hashGet(friendUnreadCountKey, senderId);
+        Integer friendUnreadCount = null;
+        if(friendUnreadCountValue == null){
+            friendUnreadCount = 1;
+        }else{
+            friendUnreadCount = Integer.valueOf(friendUnreadCountValue.toString()) + 1;
+        }
+        redisUtil.hashPut(friendUnreadCountKey, senderId, friendUnreadCount);
+
+        // 对方在线 && 打开聊天框不是发送人
+        // 实时推送好友未读消息数量（小红点）
+        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
+                receiverInServer.split(":")[1] + ":" + receiverInServer.split(":")[2];
+        String value = redisUtil.get(key);
+        Client client = JSONObject.parseObject(value, Client.class);
+
+        // 系统推送小红点
+//        ChatMessageDTO dto = new ChatMessageDTO();
+//        dto.setSenderId(senderId);
+//        dto.setReceiverId(receiverId);
+//        dto.setMessageType(MessageType.UNREAD.getType());
+//        dto.setSubType(MessageSubType.FRIEND_UNREAD.getType());
+//        dto.setMessage(friendUnreadCount.toString());
+//        dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
+//        centerService.sendMessage2Client(dto, client);
     }
 }
