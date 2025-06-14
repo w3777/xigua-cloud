@@ -1,0 +1,76 @@
+# spring配置
+spring:
+  data:
+    redis:
+      # 数据库
+      database: 0
+      # 主机
+      host: 127.0.0.1
+      # 端口
+      port: 6379
+      # 密码
+      password: 123456
+      # 读超时
+      timeout: 5s
+      # 连接超时
+      connect-timeout: 5s
+      # redis连接池
+      lettuce:
+        pool:
+          # 最小空闲连接数
+          min-idle: 0
+          # 最大空闲连接数
+          max-idle: 8
+          # 获取连接的最大等待时间，-1 代表无限等待
+          max-wait: -1ms
+          # 最大连接数（总连接数）
+          max-active: 16
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/xigua?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+
+# #打印sql
+# logging:
+#   level:
+#     com.xigua.sso.mapper: debug
+#     com.xigua.sso.manager.mapper: debug
+
+dubbo:
+  scan:
+    base-packages: com.xigua
+  protocol:
+    name: dubbo
+    port: 20882
+  registry:
+    check: false
+    # 注册中心nacos
+    address: nacos://127.0.0.1:8848
+    # 指定nacos namespace命名空间
+    parameters:
+      namespace: xigua-dubbo
+  consumer:
+    check: false
+    # 重试为0
+    retries: 0
+    # 超时5秒
+    timeout: 5000
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id，异常处理，去除默认处理）
+    filter: userContextFilter, traceIdFilter, dubboExceptionFilter, -exception
+  provider:
+    check: false
+    # 重试为0
+    retries: 0
+    # 超时5秒
+    timeout: 5000
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id，异常处理，去除默认处理）
+    filter: userContextFilter, traceIdFilter, dubboExceptionFilter, -exception
+
+# swagger配置
+springdoc:
+  api-docs:
+    path: /sso/v3/api-docs
+  swagger-ui:
+    path: /sso/swagger-ui.html

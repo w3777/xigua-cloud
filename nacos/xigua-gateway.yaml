@@ -13,13 +13,6 @@ spring:
           filters:
             - StripPrefix=1
 
-        - id: xigua-user
-          uri: lb://xigua-user
-          predicates:
-            - Path=/user/**
-          filters:
-            - StripPrefix=1
-
         - id: xigua-client
           uri: lb://xigua-client
           predicates:
@@ -34,6 +27,14 @@ spring:
           filters:
             - StripPrefix=1
 
+
+        - id: xigua-sso
+          uri: lb://xigua-sso
+          predicates:
+            - Path=/sso/**
+          filters:
+            - StripPrefix=1
+
 springdoc:
   webjars:
     # 设置为空，不要前缀
@@ -42,5 +43,9 @@ springdoc:
     urls:
       - name: demo-api
         url: /demo/v3/api-docs
-      - name: user-api
-        url: /user/v3/api-docs
+      - name: client-api
+        url: /client/v3/api-docs
+      - name: center-api
+        url: /center/v3/api-docs
+      - name: sso-api
+        url: /sso/v3/api-docs

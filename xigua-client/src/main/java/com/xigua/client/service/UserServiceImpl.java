@@ -46,111 +46,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @DubboReference
     private final CenterService centerService;
 
-    @Override
-    public void testDubbo() {
-
-    }
-
-    @Override
-    public void testToken() {
-
-    }
-
-    @Override
-    public void testTraceId() {
-
-    }
-
-    /**
-     * 注册
-     * @author wangjinfei
-     * @date 2025/4/27 9:53
-     * @param dto
-     * @return Boolean
-     */
-    @Override
-    public Boolean register(RegisterUserDTO dto) {
-        String email = dto.getEmail();
-        String username = dto.getUsername();
-        String code = dto.getCode();
-
-        // 用户名是否存在
-        Long usernameCount = baseMapper.selectCount(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username));
-        if(usernameCount > 0){
-            throw new BusinessException("用户名已存在");
-        }
-
-        // 邮箱是否存在
-        Long emailCount = baseMapper.selectCount(new LambdaQueryWrapper<User>()
-                .eq(User::getEmail, email));
-        if(emailCount > 0){
-            throw new BusinessException("邮箱已存在");
-        }
-
-        // 校验邮箱
-        Boolean checkCode = emailService.checkCode(email, code);
-        redisUtil.del(RedisEnum.EMAIL_CODE.getKey() + email);
-
-        User user = new User();
-        BeanUtils.copyProperties(dto,user);
-
-        // md5加密
-        user.setPassword(DigestUtils.md5Hex(user.getPassword()));
-
-        user.setId(sequence.nextNo());
-        int insert = baseMapper.insert(user);
-
-        // 缓存用户信息
-        redisUtil.set(RedisEnum.USER_ALL.getKey() + user.getId(), JSONObject.toJSONString(user));
-        return insert > 0;
-    }
-
-    /**
-     * 登录
-     * @author wangjinfei
-     * @date 2025/5/7 13:40
-     * @param loginDTO
-     * @return Boolean
-     */
-    @Override
-    public String login(LoginDTO loginDTO) {
-        String username = loginDTO.getUsername();
-        String password = loginDTO.getPassword();
-        User user = baseMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username)
-                .or()
-                .eq(User::getEmail, username));
-        if(user == null){
-            throw new BusinessException("用户名不存在");
-        }
-        if(!user.getPassword().equals(DigestUtils.md5Hex(password))){
-            throw new BusinessException("密码错误");
-        }
-
-        // todo 登录成功，生成token
-        String token = createToken(user);
-
-        // todo 保存token到redis
-        return token;
-    }
-
-    /**
-     * 创建token
-     * @author wangjinfei
-     * @date 2025/5/10 12:20
-     * @param user
-     * @return String
-     */
-    @Override
-    public String createToken(User user) {
-        UserToken userToken = new UserToken();
-        userToken.setUserId(user.getId());
-        userToken.setUserName(user.getUsername());
-        userToken.setPhone(user.getPhone());
-        return TokenUtil.genToken(userToken);
-    }
-
     /**
      * 获取当前登录用户信息
      * @author wangjinfei
@@ -256,5 +151,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userList = baseMapper.selectList(new LambdaQueryWrapper<User>()
                 .in(User::getId, ids));
         return userList;
+    }
+
+    /**
+     * 根据用户名获取数量
+     * @author wangjinfei
+     * @date 2025/6/12 21:51
+     * @param username
+     * @return Long
+     */
+    @Override
+    public Long getCountByName(String username) {
+        Long count = baseMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
+        return count;
+    }
+
+    /**
+     * 根据邮箱获取数量
+     * @author wangjinfei
+     * @date 2025/6/12 21:53
+     * @param email
+     * @return Long
+     */
+    @Override
+    public Long getCountByEmail(String email) {
+        Long count = baseMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getEmail, email));
+        return count;
+    }
+
+    /**
+     * 根据用户名获取用户
+     * @author wangjinfei
+     * @date 2025/6/12 21:54
+     * @param username
+     * @return User
+     */
+    @Override
+    public User getByUsername(String username) {
+        User user = baseMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username)
+                .or()
+                .eq(User::getEmail, username));
+        return user;
     }
 }

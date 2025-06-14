@@ -42,7 +42,5 @@ public class TestServiceImpl implements TestService {
         System.out.println("testService, traceId = " + traceId);
 
         log.info("testService 测试");
-
-        userService.testTraceId();
     }
 }

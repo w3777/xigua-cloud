@@ -15,38 +15,6 @@ import java.util.List;
  * @Date 2025/3/18 20:44
  */
 public interface UserService extends IService<User> {
-    void testDubbo();
-
-    void testToken();
-
-    void testTraceId();
-
-    /**
-     * 注册
-     * @author wangjinfei
-     * @date 2025/4/27 9:53
-     * @param dto
-     * @return Boolean
-    */
-    Boolean register(RegisterUserDTO dto);
-
-    /**
-     * 登录
-     * @author wangjinfei
-     * @date 2025/5/7 13:40
-     * @param loginDTO
-     * @return Boolean
-    */
-    String login(LoginDTO loginDTO);
-
-    /**
-     * 创建token
-     * @author wangjinfei
-     * @date 2025/5/10 12:20
-     * @param user
-     * @return String
-    */
-    String createToken(User user);
 
     /**
      * 获取当前登录用户信息
@@ -91,4 +59,31 @@ public interface UserService extends IService<User> {
      * @return List<User>
     */
     List<User> getListByIds(List<String> ids);
+
+    /**
+     * 根据用户名获取数量
+     * @author wangjinfei
+     * @date 2025/6/12 21:51
+     * @param username
+     * @return Long
+    */
+    Long getCountByName(String username);
+
+    /**
+     * 根据邮箱获取数量
+     * @author wangjinfei
+     * @date 2025/6/12 21:53
+     * @param email
+     * @return Long
+    */
+    Long getCountByEmail(String email);
+
+    /**
+     * 根据用户名获取用户
+     * @author wangjinfei
+     * @date 2025/6/12 21:54
+     * @param username
+     * @return User
+    */
+    User getByUsername(String username);
 }

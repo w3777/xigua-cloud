@@ -39,15 +39,7 @@ public class OpenAPIConfig {
                 .build();
     }
 
-    @Bean
-    public RouteLocator userRoute(RouteLocatorBuilder builder) {
-        return builder.routes()
-                .route("user-api", r -> r.path("/user/v3/api-docs")
-                        .filters(f -> f.rewritePath("/user/(?<segment>.*)", "/user/${segment}"))
-                        .uri("http://127.0.0.1:8082"))
-                .build();
-    }
-
+    // client的swagger路由转发配置
     @Bean
     public RouteLocator clientRoute(RouteLocatorBuilder builder) {
         return builder.routes()
@@ -57,12 +49,23 @@ public class OpenAPIConfig {
                 .build();
     }
 
+    // center的swagger路由转发配置
     @Bean
     public RouteLocator centerRoute(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("center-api", r -> r.path("/center/v3/api-docs")
                         .filters(f -> f.rewritePath("/center/(?<segment>.*)", "/center/${segment}"))
                         .uri("http://127.0.0.1:8083"))
+                .build();
+    }
+
+    // sso的swagger路由转发配置
+    @Bean
+    public RouteLocator ssoRoute(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("sso-api", r -> r.path("/sso/v3/api-docs")
+                        .filters(f -> f.rewritePath("/sso/(?<segment>.*)", "/sso/${segment}"))
+                        .uri("http://127.0.0.1:8082"))
                 .build();
     }
 }

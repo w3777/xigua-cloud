@@ -34,44 +34,6 @@ public class UserController {
     private UserService userService;
 
     /**
-     * 注册
-     * @author wangjinfei
-     * @date 2025/4/27 9:53
-     * @param dto
-     * @return Boolean
-     */
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "注册成功", content =
-            { @Content(mediaType = "application/json") })})
-    @Operation(summary = "注册用户")
-    @PostMapping("/register")
-    public R register(@Validated @RequestBody RegisterUserDTO dto){
-        Boolean register = userService.register(dto);
-        if(!register){
-            return R.fail("注册失败");
-        }
-        return R.ok(null,"注册成功");
-    }
-
-    /**
-     * 登录
-     * @author wangjinfei
-     * @date 2025/5/7 13:40
-     * @param loginDTO
-     * @return Boolean
-     */
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "登录成功", content =
-            { @Content(mediaType = "application/json") })})
-    @Operation(summary = "登录")
-    @PostMapping("/login")
-    public R login(@Validated @RequestBody LoginDTO loginDTO){
-        String token = userService.login(loginDTO);
-        if(StringUtils.isEmpty(token)){
-            return R.fail("登录失败");
-        }
-        return R.ok(token,"登录成功");
-    }
-
-    /**
      * 获取当前登录用户信息
      * @author wangjinfei
      * @date 2025/5/10 12:52
