@@ -310,4 +310,30 @@ public class RedisUtil {
         Object o = redisTemplate.opsForHash().get(key, hashKey);
         return o;
     }
+
+    /**
+     * 自增 Hash 中的字段值（类似 HINCRBY）
+     * @author wangjinfei
+     * @date 2025/6/15 20:13
+     * @param key
+     * @param field
+     * @param delta
+     * @return Long
+    */
+    public Long hincrby(String key, String field, long delta) {
+        return redisTemplate.opsForHash().increment(key, field, delta);
+    }
+
+    /**
+     * 获取 Hash 中字段的值（默认为 Long 类型）
+     * @author wangjinfei
+     * @date 2025/6/15 20:14
+     * @param key
+     * @param field
+     * @return Long
+    */
+    public Long hincrget(String key, String field) {
+        Object value = redisTemplate.opsForHash().get(key, field);
+        return value == null ? 0L : Long.parseLong(value.toString());
+    }
 }

@@ -273,15 +273,14 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
             // 未读消息清零
             redisUtil.hashPut(friendUnreadCountKey, senderId, 0);
         }else{
-            // 未读消息 + 1
-            Object friendUnreadCountValue = redisUtil.hashGet(friendUnreadCountKey, senderId);
-            Integer friendUnreadCount = null;
-            if(friendUnreadCountValue == null){
-                friendUnreadCount = 1;
-            }else{
-                friendUnreadCount = Integer.valueOf(friendUnreadCountValue.toString()) + 1;
-            }
-            redisUtil.hashPut(friendUnreadCountKey, senderId, friendUnreadCount);
+            /**
+             * 如果使用hash先获取，再put +1，时间复杂度是O(1) + O(1)
+             * hincrby 是原子操作，时间复杂度是O(1)
+             * 时间复杂度：O(1) > O(1) + O(1)
+            */
+
+            // 使用redis中的hincrby命令  未读消息 + 1
+            redisUtil.hincrby(friendUnreadCountKey, senderId, 1);
         }
 
 
