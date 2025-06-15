@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.xigua.common.core.model.UserToken;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -19,14 +20,11 @@ public class TokenUtil {
     //密钥盐
     public static final String TOKEN_SECRET="xigua";
 
-    // 过期时间1天
-    private static final Long EXPIRE_TIME = 24 * 60 * 60 * 1000L;
-
     public static String genToken(UserToken userToken) {
         String token = null;
 
         // 过期时间
-        Date expiresAt = new Date(System.currentTimeMillis() + EXPIRE_TIME);
+        Date expiresAt = Date.from(userToken.getExpireAt().atZone(ZoneId.systemDefault()).toInstant());
         try {
             token = JWT.create()
                     .withClaim("userName", userToken.getUserName())

@@ -35,8 +35,18 @@ public class LoginInterceptor implements HandlerInterceptor {
         String traceId = sequence.nextNo();
         MDC.put("traceId", traceId);
 
+        String token = "";
+        String uri = request.getRequestURI();
+
         // 拦截请求 获取token
-        String token = request.getHeader("XG-Token");
+        if(uri.contains("getTicket") || uri.contains("redeemToken")){
+            token = request.getHeader("sso-token");
+        }else{
+            token = request.getHeader("xigua-token");
+        }
+
+        // todo 强制用户下线、踢人，要把redis存入redis中，判断redis中是否存在token
+
         if (StringUtils.isEmpty(token)) {
             try {
                 // 返回401未授权状态码

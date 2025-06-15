@@ -1,5 +1,6 @@
 package com.xigua.sso.controller;
 
+import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.result.R;
@@ -12,10 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @ClassName AuthController
@@ -61,10 +59,32 @@ public class AuthController {
     @Operation(summary = "登录")
     @PostMapping("/login")
     public R login(@Validated @RequestBody LoginDTO loginDTO){
-        String token = authService.login(loginDTO);
-        if(StringUtils.isEmpty(token)){
-            return R.fail("登录失败");
-        }
-        return R.ok(token,"登录成功");
+        return R.ok(authService.login(loginDTO),"登录成功");
+    }
+
+    /**
+     * 获取一次性ticket
+     * @author wangjinfei
+     * @date 2025/6/14 16:07
+     * @return String
+     */
+    @Operation(summary = "获取一次性ticket")
+    @GetMapping("/getTicket")
+    public R getTicket(){
+        String userId = UserContext.get().getUserId();
+        return R.ok(authService.createTicket(userId));
+    }
+
+    /**
+     * ticket兑换token
+     * @author wangjinfei
+     * @date 2025/6/14 21:46
+     * @param ticket
+     * @return String
+     */
+    @Operation(summary = "ticket兑换token")
+    @GetMapping("/redeemToken")
+    public R redeemToken(@RequestParam("ticket") String ticket){
+        return R.ok(authService.redeemToken(ticket));
     }
 }

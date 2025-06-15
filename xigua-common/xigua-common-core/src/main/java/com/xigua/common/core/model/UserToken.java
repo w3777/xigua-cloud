@@ -40,5 +40,5 @@ public class UserToken implements Serializable {
      * 过期时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime expireTime;
+    private LocalDateTime expireAt;
 }

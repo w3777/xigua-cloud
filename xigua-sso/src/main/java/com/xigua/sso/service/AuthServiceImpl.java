@@ -10,6 +10,7 @@ import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
+import com.xigua.domain.vo.LoginVO;
 import com.xigua.service.AuthService;
 import com.xigua.service.EmailService;
 import com.xigua.service.UserService;
@@ -18,6 +19,10 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * @ClassName AuthServiceImpl
@@ -89,7 +94,8 @@ public class AuthServiceImpl implements AuthService {
      * @return Boolean
      */
     @Override
-    public String login(LoginDTO loginDTO) {
+    public LoginVO login(LoginDTO loginDTO) {
+        LoginVO loginVO = new LoginVO();
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
         User user = userService.getByUsername(username);
@@ -100,11 +106,14 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException("密码错误");
         }
 
-        // todo 登录成功，生成token
+        // 生成token
         String token = createToken(user);
+        loginVO.setToken(token);
+        LocalDateTime expireAt = LocalDate.now().atTime(LocalTime.MAX);
+        loginVO.setExpireAt(expireAt);
 
         // todo 保存token到redis
-        return token;
+        return loginVO;
     }
 
     /**
@@ -120,6 +129,49 @@ public class AuthServiceImpl implements AuthService {
         userToken.setUserId(user.getId());
         userToken.setUserName(user.getUsername());
         userToken.setPhone(user.getPhone());
+        LocalDateTime expireAt = LocalDate.now().atTime(LocalTime.MAX);
+        userToken.setExpireAt(expireAt);
         return TokenUtil.genToken(userToken);
+    }
+
+    /**
+     * 创建一次性ticket
+     * @author wangjinfei
+     * @date 2025/6/14 16:07
+     * @param userId
+     * @return String
+     */
+    @Override
+    public String createTicket(String userId) {
+        String ticket = sequence.nextNo();
+        // redis存储一次性ticket，有效期1分钟
+        redisUtil.set(RedisEnum.TICKET.getKey() + ticket, userId, 60);
+
+        return ticket;
+    }
+
+    /**
+     * ticket兑换token
+     * @author wangjinfei
+     * @date 2025/6/14 21:46
+     * @param ticket
+     * @return String
+     */
+    @Override
+    public String redeemToken(String ticket) {
+        String key = RedisEnum.TICKET.getKey() + ticket;
+        String userId = redisUtil.get(key);
+        if(userId == null){
+            throw new BusinessException("ticket已失效或不存在");
+        }
+
+        redisUtil.del(key);
+
+        User user = userService.getById(userId);
+        if(user == null){
+            throw new BusinessException("用户不存在");
+        }
+
+        return createToken(user);
     }
 }
