@@ -8,7 +8,8 @@ import lombok.ToString;
 public enum MessageType {
     CHAT("chat","聊天消息"),
     NOTIFY("notify","通知消息"),
-    UNREAD("unread", "未读消息")
+    UNREAD("unread", "未读消息"),
+    HEART_BEAT("heart_beat", "心跳"),
     ;
 
     final String type;

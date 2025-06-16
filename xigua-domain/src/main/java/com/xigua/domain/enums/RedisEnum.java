@@ -18,6 +18,7 @@ public enum RedisEnum {
     FRIEND_RELATION("friend_relation:", "好友关系"),
     CURRENT_ACTIVE_FRIEND("current_active_friend:", "当前激活好友"),
     FRIEND_UNREAD_COUNT("friend_unread_count:", "好友未读数量"),
+    LAST_PING_TIME("last_ping_time:", "最后心跳时间"),
     ;
 
     final String key;

@@ -2,6 +2,7 @@ package com.xigua.common.core.util;
 
 import com.xigua.common.core.config.RedisConfig;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName RedisUtil
@@ -335,5 +337,30 @@ public class RedisUtil {
     public Long hincrget(String key, String field) {
         Object value = redisTemplate.opsForHash().get(key, field);
         return value == null ? 0L : Long.parseLong(value.toString());
+    }
+
+    /**
+     * 根据模糊key获取所有set集合中的值
+     * @author wangjinfei
+     * @date 2025/6/16 20:58
+     * @param keyPattern
+     * @return Set<String>
+    */
+    public Set<String> getSetsByPattern(String keyPattern){
+        Set<String> values = new HashSet<>();
+        Set<String> keys = redisTemplate.keys(keyPattern);
+        if(CollectionUtils.isEmpty(keys)){
+            return values;
+        }
+
+        for (String key : keys) {
+            Set<Object> members = redisTemplate.opsForSet().members(key);
+            if(CollectionUtils.isNotEmpty(members)){
+                Set<String> collect = members.stream().map(Object::toString).collect(Collectors.toSet());
+                values.addAll(collect);
+            }
+        }
+
+        return values;
     }
 }
