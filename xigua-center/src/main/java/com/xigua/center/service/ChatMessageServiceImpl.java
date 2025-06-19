@@ -94,11 +94,11 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
             }
 
             // 好友未读消息数量
-            Object unreadCountObj = redisUtil.hashGet(RedisEnum.FRIEND_UNREAD_COUNT.getKey() + userId, friendId);
+            Long unreadCountObj = redisUtil.hincrget(RedisEnum.FRIEND_UNREAD_COUNT.getKey() + userId, friendId);
             if(unreadCountObj == null){
-                lastChatVO.setFriendUnreadCount(0);
+                lastChatVO.setFriendUnreadCount(0L);
             }else{
-                lastChatVO.setFriendUnreadCount(Integer.parseInt(unreadCountObj.toString()));
+                lastChatVO.setFriendUnreadCount(unreadCountObj);
             }
             lastChatList.add(lastChatVO);
         }

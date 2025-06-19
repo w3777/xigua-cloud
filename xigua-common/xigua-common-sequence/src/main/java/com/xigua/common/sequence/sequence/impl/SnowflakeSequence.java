@@ -3,6 +3,9 @@ package com.xigua.common.sequence.sequence.impl;
 import com.xigua.common.sequence.exception.SeqException;
 import com.xigua.common.sequence.sequence.Sequence;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * 使用雪花算法 一个long类型的数据，64位。以下是每位的具体含义。
  * snowflake的结构如下(每部分用-分开):
@@ -153,8 +156,8 @@ public class SnowflakeSequence implements Sequence {
 		*/
 
 
-		// 将 long 转成二进制字符串
-//		to64BitBinaryString(snowflakeId);
+		// 解析雪花id
+//		parseSnowflakeId(snowflakeId);
 
 		return snowflakeId;
 	}
@@ -197,21 +200,6 @@ public class SnowflakeSequence implements Sequence {
 	}
 
 	/**
-	 * 将 long 转成二进制字符串
-	 * @author wangjinfei
-	 * @date 2025/6/8 16:45
-	 * @param snowflakeId
-	*/
-	private void to64BitBinaryString(long snowflakeId) {
-		// 将 long 转成二进制字符串
-		String binaryString = Long.toBinaryString(snowflakeId);
-
-		// 不足64位的补齐左侧的0，保证显示完整64位
-		String full64bit = String.format("%64s", binaryString).replace(' ', '0');
-		System.out.println(full64bit);
-	}
-
-	/**
 	 * 生成下一个序列号 （string）
 	 * @author wangjinfei
 	 * @date 2025/4/6 10:29
@@ -220,5 +208,45 @@ public class SnowflakeSequence implements Sequence {
 	@Override
 	public String nextNo() {
 		return String.valueOf(nextValue());
+	}
+
+	/**
+	 * 解析雪花id
+	 * @author wangjinfei
+	 * @date 2025/6/8 16:45
+	 * @param snowflakeId
+	*/
+	public void parseSnowflakeId(long snowflakeId) {
+		long sequence = snowflakeId & sequenceMask;
+		long workerId = (snowflakeId >> workerIdShift) & maxWorkerId;
+		long datacenterId = (snowflakeId >> datacenterIdShift) & maxDatacenterId;
+		long timestampDelta = snowflakeId >> timestampLeftShift;
+		long timestamp = timestampDelta + twepoch;
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		String formattedTime = sdf.format(new Date(timestamp));
+
+		// 按位宽格式化二进制字符串，左边补0
+		String binaryTimestamp = String.format("%41s", Long.toBinaryString(timestampDelta)).replace(' ', '0');
+		String binaryDatacenterId = String.format("%5s", Long.toBinaryString(datacenterId)).replace(' ', '0');
+		String binaryWorkerId = String.format("%5s", Long.toBinaryString(workerId)).replace(' ', '0');
+		String binarySequence = String.format("%12s", Long.toBinaryString(sequence)).replace(' ', '0');
+
+		// 拼接成完整64位二进制字符串，最高位符号位默认为0
+		String fullBinary = "0" + binaryTimestamp + binaryDatacenterId + binaryWorkerId + binarySequence;
+
+		System.out.println("原始雪花ID: " + snowflakeId);
+		System.out.println("二进制: " + String.format("%64s", Long.toBinaryString(snowflakeId)).replace(' ', '0'));
+		System.out.println("二进制: " + fullBinary);
+		System.out.println("时间戳: " + timestamp + " (" + formattedTime + ")");
+		System.out.println("数据中心ID: " + datacenterId);
+		System.out.println("机器ID: " + workerId);
+		System.out.println("序列号: " + sequence);
+	}
+
+	public void matchSnowflakeId(long snowflakeId, long timestmap) {
+		long sequence = snowflakeId & sequenceMask;
+		long workerId = (snowflakeId >> workerIdShift) & maxWorkerId;
+		long datacenterId = (snowflakeId >> datacenterIdShift) & maxDatacenterId;
 	}
 }

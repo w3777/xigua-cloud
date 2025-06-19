@@ -2,6 +2,7 @@ package com.xigua.common.core.util;
 
 import com.xigua.common.core.config.RedisConfig;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName RedisUtil
@@ -309,5 +311,56 @@ public class RedisUtil {
     public Object hashGet(String key, String hashKey) {
         Object o = redisTemplate.opsForHash().get(key, hashKey);
         return o;
+    }
+
+    /**
+     * 自增 Hash 中的字段值（类似 HINCRBY）
+     * @author wangjinfei
+     * @date 2025/6/15 20:13
+     * @param key
+     * @param field
+     * @param delta
+     * @return Long
+    */
+    public Long hincrby(String key, String field, long delta) {
+        return redisTemplate.opsForHash().increment(key, field, delta);
+    }
+
+    /**
+     * 获取 Hash 中字段的值（默认为 Long 类型）
+     * @author wangjinfei
+     * @date 2025/6/15 20:14
+     * @param key
+     * @param field
+     * @return Long
+    */
+    public Long hincrget(String key, String field) {
+        Object value = redisTemplate.opsForHash().get(key, field);
+        return value == null ? 0L : Long.parseLong(value.toString());
+    }
+
+    /**
+     * 根据模糊key获取所有set集合中的值
+     * @author wangjinfei
+     * @date 2025/6/16 20:58
+     * @param keyPattern
+     * @return Set<String>
+    */
+    public Set<String> getSetsByPattern(String keyPattern){
+        Set<String> values = new HashSet<>();
+        Set<String> keys = redisTemplate.keys(keyPattern);
+        if(CollectionUtils.isEmpty(keys)){
+            return values;
+        }
+
+        for (String key : keys) {
+            Set<Object> members = redisTemplate.opsForSet().members(key);
+            if(CollectionUtils.isNotEmpty(members)){
+                Set<String> collect = members.stream().map(Object::toString).collect(Collectors.toSet());
+                values.addAll(collect);
+            }
+        }
+
+        return values;
     }
 }

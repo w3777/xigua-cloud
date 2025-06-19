@@ -20,6 +20,10 @@ public enum MessageSubType {
 
     // unread
     FRIEND_UNREAD("friend_unread", "好友未读消息"),
+
+    // heart_beat
+    PING("ping", "心跳发送（客户端发送）"),
+    PONG("pong", "心跳回复（服务端响应）"),
     ;
 
     final String type;
