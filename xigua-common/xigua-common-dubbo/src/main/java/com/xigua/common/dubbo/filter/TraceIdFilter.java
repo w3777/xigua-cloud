@@ -1,4 +1,4 @@
-package com.xigua.filter;
+package com.xigua.common.dubbo.filter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.common.URL;

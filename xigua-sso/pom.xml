@@ -9,8 +9,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xigua</groupId>
     <artifactId>xigua-sso</artifactId>
-    <name>sso</name>
-    <description>sso</description>
+    <name>xigua-sso</name>
+    <description>xigua-sso</description>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -33,12 +33,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-loadbalancer</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
-            <version>${dubbo.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->

@@ -1,4 +1,4 @@
-package com.xigua.filter;
+package com.xigua.common.dubbo.filter;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.common.core.util.UserContext;

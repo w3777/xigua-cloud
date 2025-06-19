@@ -17,9 +17,10 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>xigua-common-sequence</module>
         <module>xigua-common-core</module>
+        <module>xigua-common-sequence</module>
         <module>xigua-common-mybatis</module>
+        <module>xigua-common-dubbo</module>
     </modules>
 
 </project>

@@ -1,0 +1,3 @@
+userContextFilter=com.xigua.common.dubbo.filter.UserContextFilter
+traceIdFilter=com.xigua.common.dubbo.filter.TraceIdFilter
+dubboExceptionFilter=com.xigua.common.dubbo.filter.DubboExceptionFilter

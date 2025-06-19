@@ -1,4 +1,4 @@
-package com.xigua.filter;
+package com.xigua.common.dubbo.filter;
 
 import com.xigua.common.core.exception.BusinessException;
 import org.apache.dubbo.common.constants.CommonConstants;
