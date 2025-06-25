@@ -12,24 +12,21 @@
 	<artifactId>xigua-common-mybatis</artifactId>
 	<packaging>jar</packaging>
 
-	<description>mybatis扩展</description>
+	<description>
+		mybatis扩展
+		只引用xigua-common-core,做到最小业务引用
+	</description>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.xigua</groupId>
-			<artifactId>xigua-common-sequence</artifactId>
-			<version>${xigua.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.xigua</groupId>
 			<artifactId>xigua-common-core</artifactId>
 			<version>${xigua.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
@@ -76,7 +73,7 @@
 			<dependency>
 				<groupId>com.baomidou</groupId>
 				<artifactId>mybatis-plus-bom</artifactId>
-				<version>3.5.9</version>
+				<version>${mybatis-plus.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

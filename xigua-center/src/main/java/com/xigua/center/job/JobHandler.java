@@ -1,6 +1,6 @@
-package com.xigua.center.task;
+package com.xigua.center.job;
 
-import com.xigua.service.TimerTaskService;
+import com.xigua.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
  * @Date 2025/6/16 21:08
  */
 @Component
-public class TaskHandler {
+public class JobHandler {
     @Autowired
-    private TimerTaskService timerTaskService;
+    private JobService jobService;
 
     /**
      * 每隔2分钟检查一次在线连接
@@ -24,6 +24,6 @@ public class TaskHandler {
     */
     @Scheduled(fixedRate = 120000)
     public void checkOnlineConnection() {
-        timerTaskService.checkOnlineConnection();
+        jobService.checkOnlineConnection();
     }
 }

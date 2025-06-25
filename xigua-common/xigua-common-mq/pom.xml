@@ -9,50 +9,43 @@
 		<version>1.0</version>
 	</parent>
 
-	<artifactId>xigua-common-dubbo</artifactId>
+	<artifactId>xigua-common-mq</artifactId>
 	<packaging>jar</packaging>
 
 	<description>
-		dubbo模块
-		只引用xigua-common-core,做到最小业务引用
+		分布式消息队列
+		不引用任何业务，是为了解耦
 	</description>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.xigua</groupId>
-			<artifactId>xigua-common-core</artifactId>
-			<version>${xigua.version}</version>
-		</dependency>
+	<properties>
+		<fastjson2.version>2.0.53</fastjson2.version>
+	</properties>
 
+	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2 -->
 		<dependency>
-			<groupId>org.apache.dubbo</groupId>
-			<artifactId>dubbo-spring-boot-starter</artifactId>
-			<version>${dubbo.version}</version>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2</artifactId>
+			<version>${fastjson2.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.dubbo</groupId>
-			<artifactId>dubbo-nacos-spring-boot-starter</artifactId>
-			<version>${dubbo.version}</version>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
 		</dependency>
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.apache.dubbo</groupId>
-				<artifactId>dubbo-bom</artifactId>
-				<version>${dubbo.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>

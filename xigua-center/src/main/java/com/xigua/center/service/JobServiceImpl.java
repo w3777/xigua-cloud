@@ -3,7 +3,7 @@ package com.xigua.center.service;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.service.CenterService;
-import com.xigua.service.TimerTaskService;
+import com.xigua.service.JobService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -21,7 +21,7 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 @DubboService
-public class TimerTaskServiceImpl implements TimerTaskService {
+public class JobServiceImpl implements JobService {
     private final RedisUtil redisUtil;
     private final CenterService centerService;
 

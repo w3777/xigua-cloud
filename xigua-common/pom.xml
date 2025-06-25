@@ -21,6 +21,7 @@
         <module>xigua-common-sequence</module>
         <module>xigua-common-mybatis</module>
         <module>xigua-common-dubbo</module>
+        <module>xigua-common-mq</module>
     </modules>
 
 </project>
