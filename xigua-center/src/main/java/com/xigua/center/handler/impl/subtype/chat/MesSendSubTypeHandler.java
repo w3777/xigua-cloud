@@ -58,13 +58,10 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String receiverId = chatMessageDTO.getReceiverId();
         chatMessageDTO.setChatMessageId(chatMessageId);
 
-        // ack处理 (回传消息id给发送人)
+        // ack处理 (1.数据持久化  2.回传消息id给发送人)
         ackHandle(chatMessageDTO);
 
         // todo 下面所有逻辑处理都可以放到mq里做排队异步处理，提高系统吞吐量
-
-        // db处理 mysql持久化
-        messageDbHandle(chatMessageDTO);
 
         // redis处理 (最后消息好友列表、好友最后消息)
         redisHandle(chatMessageDTO);
@@ -108,6 +105,9 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
      * @param chatMessageDTO
     */
     private void ackHandle(ChatMessageDTO chatMessageDTO){
+        // db处理 mysql持久化
+        messageDbHandle(chatMessageDTO);
+
         String senderId = chatMessageDTO.getSenderId();
         // 获取发送人所在的节点信息
         String userInServer = centerService.onlineUser(senderId);
@@ -228,7 +228,12 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         // 消息默认全部未读，已读状态由前端主动修改
         chatMessage.setIsRead(ChatMessageIsRead.UNREAD.getType());
         chatMessageService.save(chatMessage);
-        // 注意 不采用双写同步es，后期用同步工具解决，减少侵入性
+
+        /**
+         * todo 注意同步es
+         * 1.不采用双写同步es，后期用同步工具解决，减少侵入性  (企业级项目可以采用这种方式，但需要额外搭建实时流)
+         * 2.用kafka异步写入es，减少阻塞  (简单，但有代码侵入性)  后续可能会采用这种方式
+        */
     }
 
 
