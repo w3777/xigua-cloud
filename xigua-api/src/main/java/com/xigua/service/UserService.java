@@ -86,4 +86,21 @@ public interface UserService extends IService<User> {
      * @return User
     */
     User getByUsername(String username);
+
+    /**
+     * 根据id获取用户
+     * @author wangjinfei
+     * @date 2025/7/6 11:50
+     * @param id
+     * @return User
+    */
+    User getById(String id);
+
+    /**
+     * 添加用户到redis
+     * @author wangjinfei
+     * @date 2025/7/6 16:02
+     * @param userId
+    */
+    Boolean addUser2Redis(String userId);
 }

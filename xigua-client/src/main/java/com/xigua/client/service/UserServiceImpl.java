@@ -23,6 +23,7 @@ import com.xigua.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.dubbo.common.utils.CollectionUtils;
+import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
@@ -75,7 +76,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 缓存用户信息
         User user = baseMapper.selectById(userId);
-        redisUtil.set(RedisEnum.USER_ALL.getKey() + userId, JSONObject.toJSONString(user));
+        redisUtil.set(RedisEnum.USER.getKey() + userId, JSONObject.toJSONString(user));
         return true;
     }
 
@@ -107,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         int i = baseMapper.updateById(user);
 
         // 更新缓存
-        redisUtil.set(RedisEnum.USER_ALL.getKey() + user.getId(), JSONObject.toJSONString(user));
+        redisUtil.set(RedisEnum.USER.getKey() + user.getId(), JSONObject.toJSONString(user));
         return i > 0;
     }
 
@@ -193,5 +194,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .or()
                 .eq(User::getEmail, username));
         return user;
+    }
+
+    /**
+     * 根据id获取用户
+     * @author wangjinfei
+     * @date 2025/7/6 11:50
+     * @param id
+     * @return User
+     */
+    @Override
+    public User getById(String id) {
+        return baseMapper.selectById(id);
+    }
+
+    /**
+     * 添加用户到redis
+     * @author wangjinfei
+     * @date 2025/7/6 16:02
+     * @param userId
+     */
+    @Override
+    public Boolean addUser2Redis(String userId) {
+        if(StringUtils.isNotEmpty(userId)){
+            User user = baseMapper.selectById(userId);
+            if(user != null){
+                redisUtil.set(RedisEnum.USER.getKey() + userId, JSONObject.toJSONString(user));
+            }
+            return true;
+        }
+
+        List<User> users = baseMapper.selectList(null);
+        if(CollectionUtils.isNotEmpty(users)){
+            for (User user : users) {
+                redisUtil.set(RedisEnum.USER.getKey() + user.getId(), JSONObject.toJSONString(user));
+            }
+            return true;
+        }
+
+        return false;
     }
 }

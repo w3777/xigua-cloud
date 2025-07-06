@@ -14,7 +14,7 @@ public enum RedisEnum {
     WEATHER_CITY("weather_city:", "城市天气信息"),
     LAST_MES_FRIEND("last_mes_friend:", "最后消息好友"),
     LAST_MES("last_mes:", "好友最后的消息"),
-    USER_ALL("user_all:", "所有用户"),
+    USER("user:", "用户"),
     FRIEND_RELATION("friend_relation:", "好友关系"),
     CURRENT_ACTIVE_FRIEND("current_active_friend:", "当前激活好友"),
     FRIEND_UNREAD_COUNT("friend_unread_count:", "好友未读数量"),

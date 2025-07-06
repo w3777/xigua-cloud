@@ -82,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         boolean insert = userService.save(user);
 
         // 缓存用户信息
-        redisUtil.set(RedisEnum.USER_ALL.getKey() + user.getId(), JSONObject.toJSONString(user));
+        redisUtil.set(RedisEnum.USER.getKey() + user.getId(), JSONObject.toJSONString(user));
         return insert;
     }
 
