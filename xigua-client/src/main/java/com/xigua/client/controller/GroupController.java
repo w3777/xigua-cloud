@@ -1,11 +1,13 @@
 package com.xigua.client.controller;
 
+import com.xigua.common.core.exception.BusinessException;
 import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.result.R;
 import com.xigua.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * @Date 2025/7/6 15:30
  */
 @Tag(name = "群组接口")
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/group")
 @RestController
@@ -33,7 +36,15 @@ public class GroupController {
     @Operation(summary = "创建群组")
     @PostMapping("/createGroup")
     public R<String> createGroup(@RequestBody GroupDTO dto){
-        Boolean b = groupService.createGroup(dto);
+        Boolean b = null;
+        try {
+            b = groupService.createGroup(dto);
+        } catch (BusinessException e){
+            log.error("创建群组失败：{}", e.getMessage(), e);
+            throw new BusinessException(e.getMessage());
+        }catch (Exception e) {
+            throw new BusinessException("创建群组失败");
+        }
         if (!b){
             return R.fail("创建失败");
         }

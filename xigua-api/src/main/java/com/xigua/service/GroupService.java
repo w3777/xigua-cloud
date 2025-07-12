@@ -19,5 +19,5 @@ public interface GroupService extends IService<Group> {
      * @param dto
      * @return Boolean
     */
-    Boolean createGroup(GroupDTO dto);
+    Boolean createGroup(GroupDTO dto) throws Exception;
 }
