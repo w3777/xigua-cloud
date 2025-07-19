@@ -5,9 +5,12 @@ import com.xigua.center.handler.base.SubTypeHandler;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
+import com.xigua.domain.bo.LastMessageBO;
+import com.xigua.domain.bo.LastMessageContentBO;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.*;
 import com.xigua.service.CenterService;
 import com.xigua.service.ChatMessageService;
@@ -250,10 +253,46 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String receiverId = chatMessageDTO.getReceiverId();
         long timestamp = System.currentTimeMillis();
 
-        // 存储redis 最后消息的好友（这样的key可以保证唯一）
-        redisUtil.zsadd(RedisEnum.LAST_MES_FRIEND.getKey() + receiverId, senderId, timestamp);
         // 存储redis 最后消息
-        redisUtil.hashPut(RedisEnum.LAST_MES.getKey() + receiverId, senderId, JSONObject.toJSONString(chatMessageDTO));
+        redisUtil.zsadd(RedisEnum.LAST_MES.getKey() + receiverId, senderId, timestamp);
+        // 存储redis 最后消息内容
+        LastMessageBO lastMessageBO = chatMessageDTO2LastMessageBO(chatMessageDTO);
+        redisUtil.hashPut(RedisEnum.LAST_MES_CONTENT.getKey() + receiverId, senderId, JSONObject.toJSONString(lastMessageBO));
+    }
+
+    /**
+     * 封装最后消息内容
+     * @author wangjinfei
+     * @date 2025/7/18 13:46
+     * @param chatMessageDTO
+     * @return LastMessageBO
+    */
+    private LastMessageBO chatMessageDTO2LastMessageBO(ChatMessageDTO chatMessageDTO){
+        LastMessageBO lastMessageBO = new LastMessageBO();
+        LastMessageContentBO lastMessageContent = new LastMessageContentBO();
+        String senderId = chatMessageDTO.getSenderId();
+
+        lastMessageBO.setChatId(senderId);
+        lastMessageBO.setChatType(ChatType.ONE.getType());
+        lastMessageBO.setUpdateTime(System.currentTimeMillis());
+
+        // 用户信息
+        String userCache = redisUtil.get(RedisEnum.USER.getKey() + senderId);
+        if(StringUtils.isNotEmpty(userCache)){
+            User user = JSONObject.parseObject(userCache, User.class);
+            lastMessageBO.setChatName(user.getUsername());
+            lastMessageBO.setAvatar(user.getAvatar());
+        }else{
+            // 从数据库获取用户信息
+            lastMessageBO.setAvatar("");
+            lastMessageBO.setChatName("");
+        }
+
+        // 封装 最后消息内容
+        lastMessageContent.setContent(chatMessageDTO.getMessage());
+        lastMessageBO.setLastMessageContent(lastMessageContent);
+
+        return lastMessageBO;
     }
 
     /**

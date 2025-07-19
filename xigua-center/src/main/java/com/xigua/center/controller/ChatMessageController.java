@@ -1,11 +1,11 @@
 package com.xigua.center.controller;
 
-import com.xigua.domain.dto.GetFriendLastMesDTO;
+import com.xigua.domain.dto.GetLastMesDTO;
 import com.xigua.domain.dto.GetHistoryMes;
 import com.xigua.domain.result.BasePageVO;
 import com.xigua.domain.result.R;
 import com.xigua.domain.vo.ChatMessageVO;
-import com.xigua.domain.vo.LastChatVO;
+import com.xigua.domain.vo.LastMessageVO;
 import com.xigua.service.ChatMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,16 +28,16 @@ public class ChatMessageController {
     private ChatMessageService chatMessageService;
 
     /**
-     * 获取好友最后一条消息
+     * 获取最后一条消息
      * @author wangjinfei
      * @date 2025/5/17 19:25
      * @param dto
      * @return List<LastChatVO>
      */
-    @Operation(summary = "获取好友最后一条消息")
-    @PostMapping("/getFriendLastMes")
-    public R<BasePageVO<LastChatVO>> getFriendLastMes(@RequestBody GetFriendLastMesDTO dto){
-        BasePageVO<LastChatVO> lastChat = chatMessageService.getFriendLastMes(dto);
+    @Operation(summary = "获取最后一条消息")
+    @PostMapping("/getLastMes")
+    public R<BasePageVO<LastMessageVO>> getLastMes(@RequestBody GetLastMesDTO dto){
+        BasePageVO<LastMessageVO> lastChat = chatMessageService.getLastMes(dto);
         return R.ok(lastChat, "获取成功");
     }
 

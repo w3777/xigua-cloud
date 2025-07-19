@@ -32,9 +32,14 @@ public class DubboExceptionFilter extends ExceptionFilter {
             // 如果是指定自定义异常直接抛出
             if (classname.startsWith("com.xigua.common.core.exception") && exception instanceof Exception) {
                 return;
+            } else if(classname.startsWith("java.lang.RuntimeException") == false) {
+                return;
+            }else if(classname.startsWith("java.lang.RuntimeException")){
+                return;
+            }else {
+                // 如果是其他异常，使用Dubbo的业务进行处理 (它会把异常包装成RuntimeException再抛出)
+                super.onResponse(appResponse, invoker, invocation);
             }
-            // 如果是其他异常，使用Dubbo的业务进行处理 (它会把异常包装成RuntimeException再抛出)
-            super.onResponse(appResponse, invoker, invocation);
         }
     }
 }

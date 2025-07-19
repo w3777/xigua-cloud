@@ -12,8 +12,7 @@ import java.io.Serializable;
  * @Date 2025/5/19 21:52
  */
 @Data
-public class GetFriendLastMesDTO extends BasePageDTO implements Serializable {
+public class GetLastMesDTO extends BasePageDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String topUserId;
 }
