@@ -9,7 +9,8 @@ public enum MessageSubType {
     // notify
     FRIEND_ONLINE("friend_online", "好友上线通知"),
     FRIEND_OFFLINE("friend_offline", "好友下线通知"),
-    SWITCH_FRIEND("switch_friend", "切换好友通知"),
+    SWITCH_CHAT_WINDOW("switch_chat_window", "切换聊天窗口"),
+    REMOVE_FRIEND("close_chat_window", "关闭聊天窗口"),
 
 
     // chat

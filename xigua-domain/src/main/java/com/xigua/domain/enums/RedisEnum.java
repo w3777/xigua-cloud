@@ -16,7 +16,7 @@ public enum RedisEnum {
     LAST_MES_CONTENT("last_mes_content:", "好友最后的消息"),
     USER("user:", "用户"),
     FRIEND_RELATION("friend_relation:", "好友关系"),
-    CURRENT_ACTIVE_FRIEND("current_active_friend:", "当前激活好友"),
+    CURRENT_CHAT_WINDOW("current_chat_window:", "当前聊天窗口"),
     FRIEND_UNREAD_COUNT("friend_unread_count:", "好友未读数量"),
     TICKET("ticket:", "一次性ticket"),
     LAST_PING_TIME("last_ping_time:", "最后心跳时间"),

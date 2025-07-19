@@ -2,13 +2,9 @@ package com.xigua.center.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.center.factory.MessageHandlerFactory;
-import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
-import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
-import com.xigua.domain.entity.ChatMessage;
-import com.xigua.domain.enums.ChatMessageIsRead;
 import com.xigua.domain.enums.MessageSubType;
 import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.RedisEnum;
@@ -16,17 +12,14 @@ import com.xigua.service.ClientService;
 import com.xigua.service.CenterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.rpc.cluster.specifyaddress.Address;
 import org.apache.dubbo.rpc.cluster.specifyaddress.UserSpecifiedAddressUtil;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @ClassName CenterServiceImpl
@@ -90,7 +83,7 @@ public class CenterServiceImpl implements CenterService {
         redisUtil.srem(onlineUserKey, userId);
 
         // redis删除当前用户的活跃好友
-        String currentActiveFriendKey = RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + userId;
+        String currentActiveFriendKey = RedisEnum.CURRENT_CHAT_WINDOW.getKey() + userId;
         redisUtil.del(currentActiveFriendKey);
 
         // 如果当前节点没有在线用户了，移除节点信息

@@ -169,7 +169,7 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String receiverId = chatMessageDTO.getReceiverId();
 
         // 获取接收人打开的聊天窗口好友是谁
-        String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + receiverId);
+        String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + receiverId);
         if(StringUtils.isEmpty(receiverActiveFriend)){
             return;
         }
@@ -307,7 +307,7 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String receiverId = chatMessageDTO.getReceiverId();
 
         // 获取接收人打开的聊天窗口好友是谁
-        String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + receiverId);
+        String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + receiverId);
 
         // 存储redis 好友未读数量
         String friendUnreadCountKey = RedisEnum.FRIEND_UNREAD_COUNT.getKey() + receiverId;

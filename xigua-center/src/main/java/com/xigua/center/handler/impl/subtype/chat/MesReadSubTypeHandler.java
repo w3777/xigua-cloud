@@ -81,7 +81,7 @@ public class MesReadSubTypeHandler implements SubTypeHandler {
         }
 
         // 获取接收人打开的聊天窗口好友是谁
-        String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + receiverId);
+        String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + receiverId);
         if(StringUtils.isEmpty(receiverActiveFriend)){
             return;
         }

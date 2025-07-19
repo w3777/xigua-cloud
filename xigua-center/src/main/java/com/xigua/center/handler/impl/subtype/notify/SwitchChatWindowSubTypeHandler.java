@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
  * @Date 2025/6/3 20:34
  */
 @Component
-public class SwitchFriendSubTypeHandler implements SubTypeHandler {
+public class SwitchChatWindowSubTypeHandler implements SubTypeHandler {
     @Autowired
     private RedisUtil redisUtil;
 
     @Override
     public String getSubType() {
-        return MessageSubType.SWITCH_FRIEND.getType();
+        return MessageSubType.SWITCH_CHAT_WINDOW.getType();
     }
 
     @Override
@@ -30,8 +30,8 @@ public class SwitchFriendSubTypeHandler implements SubTypeHandler {
         String userId = chatMessageDTO.getSenderId();
         String receiverId = chatMessageDTO.getReceiverId();
 
-        // 更新当前激活的好友
-        redisUtil.set(RedisEnum.CURRENT_ACTIVE_FRIEND.getKey() + userId, receiverId);
+        // 更新当前聊天窗口
+        redisUtil.set(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + userId, receiverId);
     }
 
     @Override
