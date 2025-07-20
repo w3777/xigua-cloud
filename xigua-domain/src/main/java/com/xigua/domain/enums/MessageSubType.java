@@ -17,6 +17,7 @@ public enum MessageSubType {
     MES_SEND("mes_send", "消息发送"),
     MES_SEND_ACK("mes_send_ack", "消息发送确认"),
     MES_RECEIVE("mes_receive", "消息接收"),
+    SUBMIT_UNREAD("submit_unread", "提交未读消息"),
     MES_READ("mes_read", "消息已读"),
 
     // unread

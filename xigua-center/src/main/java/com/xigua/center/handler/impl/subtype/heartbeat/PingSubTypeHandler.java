@@ -59,25 +59,25 @@ public class PingSubTypeHandler implements SubTypeHandler {
      * 发送心跳回复
      * @author wangjinfei
      * @date 2025/6/16 20:33
-     * @param receiverId
+     * @param senderId
     */
-    private void resPong(String receiverId){
+    private void resPong(String senderId){
         // 获取接收者所在节点
-        String friendInServer = centerService.onlineUser(receiverId);
-        if(StringUtils.isEmpty(friendInServer)){
+        String userInServer = centerService.onlineUser(senderId);
+        if(StringUtils.isEmpty(userInServer)){
             return;
         }
 
         // 获取接收者所在的节点信息
         String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
-                friendInServer.split(":")[1] + ":" + friendInServer.split(":")[2];
+                userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
         String value = redisUtil.get(key);
         Client client = JSONObject.parseObject(value, Client.class);
 
         // 发送心跳回复
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
         chatMessageDTO.setSenderId(Sender.SYSTEM.getSender());
-        chatMessageDTO.setReceiverId(receiverId);
+        chatMessageDTO.setReceiverId(senderId);
         chatMessageDTO.setMessageType(MessageType.HEART_BEAT.getType());
         chatMessageDTO.setSubType(MessageSubType.PONG.getType());
         chatMessageDTO.setMessage("pong");

@@ -26,7 +26,7 @@ import java.util.List;
  * @Date 2025/6/4 21:50
  */
 @Component
-public class MesReadSubTypeHandler implements SubTypeHandler {
+public class SubmitUnreadSubTypeHandler implements SubTypeHandler {
     @Autowired
     private ChatMessageService chatMessageService;
     @Autowired
@@ -36,7 +36,7 @@ public class MesReadSubTypeHandler implements SubTypeHandler {
 
     @Override
     public String getSubType() {
-        return MessageSubType.MES_READ.getType();
+        return MessageSubType.SUBMIT_UNREAD.getType();
     }
 
     @Override
