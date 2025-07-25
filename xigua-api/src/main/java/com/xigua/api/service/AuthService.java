@@ -1,4 +1,4 @@
-package com.xigua.service;
+package com.xigua.api.service;
 
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;

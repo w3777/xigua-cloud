@@ -3,7 +3,7 @@ package com.xigua.client.controller;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.domain.dto.MultipartFileDTO;
 import com.xigua.domain.result.R;
-import com.xigua.service.FileService;
+import com.xigua.api.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

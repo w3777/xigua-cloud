@@ -1,7 +1,7 @@
 package com.xigua.center.controller;
 
 import com.xigua.domain.result.R;
-import com.xigua.service.CenterService;
+import com.xigua.api.service.CenterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

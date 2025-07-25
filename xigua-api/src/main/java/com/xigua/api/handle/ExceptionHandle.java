@@ -1,4 +1,4 @@
-package com.xigua.handle;
+package com.xigua.api.handle;
 
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.domain.result.R;

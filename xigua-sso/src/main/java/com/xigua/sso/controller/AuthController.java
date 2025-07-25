@@ -4,13 +4,13 @@ import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.result.R;
-import com.xigua.service.AuthService;
+import com.xigua.api.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +23,11 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "认证接口")
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 @RestController
 public class AuthController {
     @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
     /**
      * 注册

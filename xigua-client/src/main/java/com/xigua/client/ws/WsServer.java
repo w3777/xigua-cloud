@@ -3,7 +3,7 @@ package com.xigua.client.ws;
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.client.helper.SessionHelper;
 import com.xigua.domain.dto.ChatMessageDTO;
-import com.xigua.service.ClientService;
+import com.xigua.api.service.ClientService;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;

@@ -1,6 +1,6 @@
 package com.xigua.center.job;
 
-import com.xigua.service.JobService;
+import com.xigua.api.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

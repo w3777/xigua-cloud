@@ -4,7 +4,7 @@ import com.xigua.client.utils.IpUtil;
 import com.xigua.domain.result.R;
 import com.xigua.domain.thirdparty.GetLocationRes;
 import com.xigua.domain.thirdparty.GetWeatherRes;
-import com.xigua.service.ThirdPartyService;
+import com.xigua.api.service.ThirdPartyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

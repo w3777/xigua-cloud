@@ -1,6 +1,6 @@
 package com.xigua.demo.trace;
 
-import com.xigua.service.TestService;
+import com.xigua.api.service.TestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;

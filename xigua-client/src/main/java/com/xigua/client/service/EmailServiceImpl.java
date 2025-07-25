@@ -3,7 +3,7 @@ package com.xigua.client.service;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.enums.RedisEnum;
-import com.xigua.service.EmailService;
+import com.xigua.api.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;

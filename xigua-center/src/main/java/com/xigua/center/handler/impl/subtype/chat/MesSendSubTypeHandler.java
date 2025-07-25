@@ -12,8 +12,8 @@ import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.entity.ChatMessage;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.*;
-import com.xigua.service.CenterService;
-import com.xigua.service.ChatMessageService;
+import com.xigua.api.service.CenterService;
+import com.xigua.api.service.ChatMessageService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,7 +61,10 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String receiverId = chatMessageDTO.getReceiverId();
         chatMessageDTO.setChatMessageId(chatMessageId);
 
-        // ack处理 (1.数据持久化  2.回传消息id给发送人)
+        // db处理 mysql持久化
+        messageDbHandle(chatMessageDTO);
+
+        // ack处理 (回传消息id给发送人)
         ackHandle(chatMessageDTO);
 
         // todo 下面所有逻辑处理都可以放到mq里做排队异步处理，提高系统吞吐量
@@ -78,14 +81,11 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         // 好友未读消息处理
         friendUnreadHandle(chatMessageDTO, receiverInServer);
 
-        // 判断接收者是否在线
-        if(StringUtils.isEmpty(receiverInServer)){
-            // 如果接收人不在线，直接返回，不做后续处理
-            return;
+        // 接收人在线
+        if(StringUtils.isNotEmpty(receiverInServer)){
+            // 发送人消息处理（消息直接已读）
+            senderHande(chatMessageDTO);
         }
-
-        // 发送人在线，处理消息
-        senderHande(chatMessageDTO);
     }
 
     /**
@@ -108,9 +108,6 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
      * @param chatMessageDTO
     */
     private void ackHandle(ChatMessageDTO chatMessageDTO){
-        // db处理 mysql持久化
-        messageDbHandle(chatMessageDTO);
-
         String senderId = chatMessageDTO.getSenderId();
         // 获取发送人所在的节点信息
         String userInServer = centerService.onlineUser(senderId);

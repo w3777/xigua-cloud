@@ -9,7 +9,7 @@ import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.enums.MessageSubType;
 import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.RedisEnum;
-import com.xigua.service.CenterService;
+import com.xigua.api.service.CenterService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

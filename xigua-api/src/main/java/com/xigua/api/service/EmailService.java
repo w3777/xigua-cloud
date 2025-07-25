@@ -1,4 +1,4 @@
-package com.xigua.service;
+package com.xigua.api.service;
 
 /**
  * @ClassName EmailService

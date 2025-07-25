@@ -1,4 +1,4 @@
-package com.xigua.service;
+package com.xigua.api.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xigua.domain.dto.LoginDTO;

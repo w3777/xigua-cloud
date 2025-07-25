@@ -1,7 +1,7 @@
 package com.xigua.client.utils;
 
 import com.xigua.domain.dto.MultipartFileDTO;
-import com.xigua.service.FileService;
+import com.xigua.api.service.FileService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

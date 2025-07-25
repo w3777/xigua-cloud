@@ -6,7 +6,7 @@ import com.xigua.domain.result.BasePageVO;
 import com.xigua.domain.result.R;
 import com.xigua.domain.vo.ChatMessageVO;
 import com.xigua.domain.vo.LastMessageVO;
-import com.xigua.service.ChatMessageService;
+import com.xigua.api.service.ChatMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -6,7 +6,7 @@ import com.xigua.domain.result.R;
 import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.FriendRequestVO;
-import com.xigua.service.FriendRelationService;
+import com.xigua.api.service.FriendRelationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

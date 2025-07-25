@@ -2,8 +2,8 @@ package com.xigua.demo.service;
 
 import com.xigua.common.core.util.UserContext;
 import com.xigua.common.core.model.UserToken;
-import com.xigua.service.TestService;
-import com.xigua.service.UserService;
+import com.xigua.api.service.TestService;
+import com.xigua.api.service.UserService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

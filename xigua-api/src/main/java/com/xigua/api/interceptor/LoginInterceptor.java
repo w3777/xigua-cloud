@@ -1,4 +1,4 @@
-package com.xigua.interceptor;
+package com.xigua.api.interceptor;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

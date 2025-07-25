@@ -11,14 +11,15 @@ import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.vo.LoginVO;
-import com.xigua.service.AuthService;
-import com.xigua.service.EmailService;
-import com.xigua.service.UserService;
+import com.xigua.api.service.AuthService;
+import com.xigua.api.service.EmailService;
+import com.xigua.api.service.UserService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import java.time.LocalTime;
  * @Author wangjinfei
  * @Date 2025/6/12 21:05
  */
+@Service
 @DubboService
 public class AuthServiceImpl implements AuthService {
     @Autowired

@@ -1,6 +1,6 @@
 package com.xigua.client.controller;
 
-import com.xigua.service.FriendRequestService;
+import com.xigua.api.service.FriendRequestService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;

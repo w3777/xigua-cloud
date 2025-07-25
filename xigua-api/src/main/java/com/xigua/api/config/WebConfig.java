@@ -1,9 +1,7 @@
-package com.xigua.config;
+package com.xigua.api.config;
 
+import com.xigua.api.interceptor.LoginInterceptor;
 import com.xigua.common.sequence.SequenceAutoConfiguration;
-import com.xigua.common.sequence.sequence.Sequence;
-import com.xigua.common.sequence.sequence.impl.SnowflakeSequence;
-import com.xigua.interceptor.LoginInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Configuration;

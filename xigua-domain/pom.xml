@@ -24,12 +24,6 @@
             <groupId>com.xigua</groupId>
             <artifactId>xigua-common-mybatis</artifactId>
             <version>${xigua.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.xigua</groupId>
-                    <artifactId>xigua-domain</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->

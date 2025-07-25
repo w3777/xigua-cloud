@@ -4,7 +4,7 @@ import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.dto.MultipartFileDTO;
 import com.xigua.domain.enums.MediaTypeEnum;
-import com.xigua.service.FileService;
+import com.xigua.api.service.FileService;
 import io.minio.MinioClient;
 import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;

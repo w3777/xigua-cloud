@@ -6,7 +6,7 @@ import com.xigua.client.mapper.FriendRequestMapper;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.enums.FriendRequestStatus;
-import com.xigua.service.FriendRequestService;
+import com.xigua.api.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboService;
 

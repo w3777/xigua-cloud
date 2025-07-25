@@ -2,8 +2,8 @@ package com.xigua.center.service;
 
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.enums.RedisEnum;
-import com.xigua.service.CenterService;
-import com.xigua.service.JobService;
+import com.xigua.api.service.CenterService;
+import com.xigua.api.service.JobService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
