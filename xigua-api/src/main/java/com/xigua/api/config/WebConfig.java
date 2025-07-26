@@ -1,9 +1,7 @@
 package com.xigua.api.config;
 
 import com.xigua.api.interceptor.LoginInterceptor;
-import com.xigua.common.sequence.SequenceAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -17,7 +15,6 @@ import java.util.List;
  * @Author wangjinfei
  * @Date 2025/3/28 16:41
  */
-@ConditionalOnBean({SequenceAutoConfiguration.class})
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
