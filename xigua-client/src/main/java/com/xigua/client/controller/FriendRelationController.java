@@ -60,18 +60,6 @@ public class FriendRelationController {
     }
 
     /**
-     * 获取好友列表
-     * @author wangjinfei
-     * @date 2025/5/14 20:56
-     * @return List<FriendVO>
-     */
-    @Operation(summary = "获取好友列表")
-    @GetMapping("/getFriendList")
-    public R<List<FriendVO>> getFriendList(){
-        return R.ok(friendRelationService.getFriendList());
-    }
-
-    /**
      * 好友验证
      * @author wangjinfei
      * @date 2025/5/14 22:00

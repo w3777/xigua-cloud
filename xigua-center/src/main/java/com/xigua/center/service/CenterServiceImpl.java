@@ -17,6 +17,7 @@ import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.rpc.cluster.specifyaddress.Address;
 import org.apache.dubbo.rpc.cluster.specifyaddress.UserSpecifiedAddressUtil;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,8 +29,9 @@ import java.util.Set;
  * @Date 2025/4/20 10:12
  */
 @Slf4j
-@RequiredArgsConstructor
+@Service
 @DubboService
+@RequiredArgsConstructor
 public class CenterServiceImpl implements CenterService {
     private final RedisUtil redisUtil;
     private final MessageHandlerFactory messageHandlerFactory;

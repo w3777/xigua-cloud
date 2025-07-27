@@ -59,4 +59,13 @@ public interface FriendRequestService extends IService<FriendRequest> {
      * @return FriendRequest
     */
     FriendRequest getLastOne(String senderId, String receiverId);
+
+    /**
+     * 获取好友请求数量
+     * @author wangjinfei
+     * @date 2025/7/27 9:42
+     * @param userId
+     * @return Integer
+     */
+    Integer getCountByUserId(String userId);
 }

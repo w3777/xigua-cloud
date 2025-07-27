@@ -2,6 +2,7 @@ package com.xigua.common.core.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -26,6 +27,17 @@ public class DateUtil {
             return "";
         }
         return formatter.format(date);
+    }
+
+    /**
+     * LocalDateTime 转 时间戳
+     * @author wangjinfei
+     * @date 2025/7/27 12:16
+     * @param localDateTime
+     * @return long
+    */
+    public static long toEpochMilli(LocalDateTime localDateTime) {
+        return localDateTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.xigua.client.controller;
 
 import com.xigua.common.core.exception.BusinessException;
+import com.xigua.domain.dto.AddGroup2RedisDTO;
 import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.result.R;
 import com.xigua.api.service.GroupService;
@@ -49,5 +50,18 @@ public class GroupController {
             return R.fail("创建失败");
         }
         return R.ok("创建成功");
+    }
+
+    /**
+     * 群组添加到缓存
+     * @author wangjinfei
+     * @date 2025/7/27 11:31
+     * @param dto
+     * @return R<Boolean>
+     */
+    @Operation(summary = "群组添加到缓存")
+    @PostMapping("/addGroup2Redis")
+    public R<Boolean> addGroup2Redis(@RequestBody AddGroup2RedisDTO dto){
+        return R.ok(groupService.addGroup2Redis(dto.getGroupIds()));
     }
 }

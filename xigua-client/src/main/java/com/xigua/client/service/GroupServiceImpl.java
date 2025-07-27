@@ -6,11 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.GroupMapper;
 import com.xigua.client.utils.NineCellImageUtil;
 import com.xigua.common.core.exception.BusinessException;
+import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.entity.Group;
+import com.xigua.domain.entity.GroupMember;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.GroupMemberService;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -81,7 +84,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             groupAvatar = future.get();
             dto.setGroupAvatar(groupAvatar);
         }
-        Boolean addGroup = addGroup(dto);
+        Group group = addGroup(dto);
 
         // 4.添加群成员
         Boolean addGroupMember = groupMemberService.addGroupMember(groupId, memberIds);
@@ -95,6 +98,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
 
         // todo 异步设置群组缓存
+//        redisUtil.set(RedisEnum.GROUP.getKey() + groupId, JSONObject.toJSONString(group));
+//        for (String memberId : memberIds) {
+//            redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + "_" + memberId, memberId);
+//        }
 
         return true;
     }
@@ -159,7 +166,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
      * @param dto
      * @return Boolean
     */
-    private Boolean addGroup(GroupDTO dto){
+    private Group addGroup(GroupDTO dto){
         String userId = UserContext.get().getUserId();
 
         Group group = new Group();
@@ -172,7 +179,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         group.setCurrentMember(dto.getMemberIds().size());
         int insert = baseMapper.insert(group);
 
-        return insert > 0;
+        return group;
     }
 
     /**
@@ -224,5 +231,42 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
                 .set(Group::getGroupAvatar, groupAvatar));
 
         return update > 0;
+    }
+
+    /**
+     * 群组添加到缓存
+     * @author wangjinfei
+     * @date 2025/7/27 11:17
+     * @param groupIds
+     * @return Boolean
+     */
+    @Override
+    public Boolean addGroup2Redis(List<String> groupIds){
+        List<Group> groups = new ArrayList<>();
+
+        if(CollectionUtils.isNotEmpty(groupIds)){
+            groups = baseMapper.selectBatchIds(groupIds);
+        }else {
+            groups = baseMapper.selectList(null);
+        }
+
+        for (Group group : groups) {
+            String groupId = group.getId();
+            // 群聊信息添加缓存
+            redisUtil.set(RedisEnum.GROUP.getKey() + groupId, JSONObject.toJSONString(group));
+
+            // 群成员添加缓存
+            List<GroupMember> groupMembers = groupMemberService.getGroupMembersByGroupId(groupId);
+            if(CollectionUtils.isNotEmpty(groupMembers)){
+                for (GroupMember groupMember : groupMembers) {
+                    String userId = groupMember.getUserId();
+                    LocalDateTime createTime = groupMember.getCreateTime();
+                    redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + "_" + userId, JSONObject.toJSONString(groupMember));
+                    redisUtil.zsadd(RedisEnum.GROUP_MEMBER_ID.getKey() + groupId, userId, DateUtil.toEpochMilli(createTime));
+                }
+            }
+        }
+
+        return true;
     }
 }

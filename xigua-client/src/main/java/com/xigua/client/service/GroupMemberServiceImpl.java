@@ -1,6 +1,7 @@
 package com.xigua.client.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.GroupMemberMapper;
 import com.xigua.common.core.util.RedisUtil;
@@ -12,13 +13,17 @@ import com.xigua.domain.enums.GroupRole;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.GroupMemberService;
 import com.xigua.api.service.UserService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName GroupMemberServiceImpl
@@ -26,6 +31,7 @@ import java.util.List;
  * @Author wangjinfei
  * @Date 2025/7/6 11:14
  */
+@Service
 @DubboService
 public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements GroupMemberService {
     @Autowired
@@ -113,5 +119,57 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         }
 
         return null;
+    }
+
+    /**
+     * 获取群成员数量
+     * @author wangjinfei
+     * @date 2025/7/27 9:42
+     * @param userId
+     * @return Integer
+     */
+    @Override
+    public Integer getCountByUserId(String userId) {
+        Integer count = baseMapper.getCountByUserId(userId);
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 获取加入的群列表
+     * @author wangjinfei
+     * @date 2025/7/27 11:08
+     * @param userId
+     * @return Set<String>
+     */
+    @Override
+    public Set<String> getGroupIdsByUserId(String userId) {
+        Set<String> groupIdKeys = redisUtil.scanZSetKeysInMember(userId, RedisEnum.GROUP_MEMBER_ID.getKey() + "*");
+        if (CollectionUtils.isEmpty(groupIdKeys)) {
+            return Set.of();
+        }
+
+        Set<String> groupIds = groupIdKeys.stream()
+                .map(key -> key.replace(RedisEnum.GROUP_MEMBER_ID.getKey(), "")) // 去除前缀
+                .collect(Collectors.toSet());
+
+        return groupIds;
+    }
+
+    /**
+     * 获取群成员列表
+     * @author wangjinfei
+     * @date 2025/7/27 11:21
+     * @param groupId
+     * @return List<GroupMember>
+     */
+    @Override
+    public List<GroupMember> getGroupMembersByGroupId(String groupId) {
+        List<GroupMember> groupMembers = baseMapper.selectList(new LambdaQueryWrapper<GroupMember>()
+                .eq(GroupMember::getGroupId, groupId));
+        if(CollectionUtils.isEmpty(groupMembers)){
+            return List.of();
+        }
+
+        return groupMembers;
     }
 }

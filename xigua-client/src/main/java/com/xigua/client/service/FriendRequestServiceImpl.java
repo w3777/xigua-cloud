@@ -9,6 +9,7 @@ import com.xigua.domain.enums.FriendRequestStatus;
 import com.xigua.api.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
  * @Author wangjinfei
  * @Date 2025/5/13 21:22
  */
+@Service
 @DubboService
 @RequiredArgsConstructor
 public class FriendRequestServiceImpl extends ServiceImpl<FriendRequestMapper, FriendRequest> implements FriendRequestService {
@@ -111,5 +113,18 @@ public class FriendRequestServiceImpl extends ServiceImpl<FriendRequestMapper, F
                 .orderByDesc(FriendRequest::getCreateTime)
                 .last("limit 1"));
         return friendRequest;
+    }
+
+    /**
+     * 获取好友请求数量
+     * @author wangjinfei
+     * @date 2025/7/27 9:42
+     * @param userId
+     * @return Integer
+     */
+    @Override
+    public Integer getCountByUserId(String userId) {
+        Integer count = baseMapper.getCountByUserId(userId);
+        return count == null ? 0 : count;
     }
 }

@@ -33,14 +33,6 @@ public interface FriendRelationService {
     List<FriendRequestVO> friendRequest();
 
     /**
-     * 获取好友列表
-     * @author wangjinfei
-     * @date 2025/5/14 20:56
-     * @return List<FriendVO>
-    */
-    List<FriendVO> getFriendList();
-
-    /**
      * 好友验证
      * @author wangjinfei
      * @date 2025/5/14 22:00
@@ -64,4 +56,22 @@ public interface FriendRelationService {
      * @date 2025/6/2 20:58
     */
     void allFriendRelationToRedis();
+
+    /**
+     * 获取好友数量
+     * @author wangjinfei
+     * @date 2025/7/27 9:42
+     * @param userId
+     * @return Integer
+     */
+    Integer getCountByUserId(String userId);
+
+    /**
+     * 获取好友id列表
+     * @author wangjinfei
+     * @date 2025/7/27 10:50
+     * @param userId
+     * @return List<String>
+    */
+    List<String> getFriendIdsByUserId(String userId);
 }

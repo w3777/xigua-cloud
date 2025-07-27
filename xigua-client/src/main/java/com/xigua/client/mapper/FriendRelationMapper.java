@@ -22,4 +22,12 @@ public interface FriendRelationMapper extends BaseMapper<FriendRelation> {
      * @return FriendDetailVO
      */
     FriendDetailVO getFriendDetail(@Param("userId") String userId, @Param("friendId") String friendId);
+
+    /**
+     * 获取好友数量
+     * @author wangjinfei
+     * @date 2025/7/27 9:42
+     * @return Integer
+     */
+    Integer getCountByUserId(@Param("userId") String userId);
 }

@@ -20,6 +20,9 @@ public enum RedisEnum {
     FRIEND_UNREAD_COUNT("friend_unread_count:", "好友未读数量"),
     TICKET("ticket:", "一次性ticket"),
     LAST_PING_TIME("last_ping_time:", "最后心跳时间"),
+    GROUP("group:", "群聊信息"),
+    GROUP_MEMBER("group_member:", "群成员"),
+    GROUP_MEMBER_ID("group_member_id:", "群成员id"),
     ;
 
     final String key;

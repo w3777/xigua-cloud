@@ -26,6 +26,7 @@ import com.xigua.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
  * @Author wangjinfei
  * @Date 2025/5/13 21:24
  */
+@Service
 @DubboService
 @RequiredArgsConstructor
 public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper, FriendRelation> implements FriendRelationService {
@@ -172,46 +174,6 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
             friendRequestVO.setCreateTime(DateUtil.formatDateTime(friendRequest.getCreateTime(),
                     DateUtil.DATE_TIME_FORMATTER));
             voList.add(friendRequestVO);
-        }
-        return voList;
-    }
-
-    /**
-     * 获取好友列表
-     * @author wangjinfei
-     * @date 2025/5/14 20:56
-     * @return List<FriendVO>
-     */
-    @Override
-    public List<FriendVO> getFriendList() {
-        String userId = UserContext.get().getUserId();
-        List<FriendVO> voList = new ArrayList<>();
-
-        // 查询好友请求
-        List<FriendRelation> friendRelationList = baseMapper.selectList(new LambdaUpdateWrapper<FriendRelation>()
-                .eq(FriendRelation::getUserId,userId));
-        if(CollectionUtils.isEmpty(friendRelationList)){
-            return voList;
-        }
-
-        // 查询用户信息
-        List<String> senderIdList = friendRelationList.stream()
-                .map(friend -> friend.getFriendId())
-                .collect(Collectors.toList());
-        List<User> userList = userService.getListByIds(senderIdList);
-
-        // 映射vo字段
-        for (User user : userList) {
-            String userId2 = user.getId();
-            FriendVO friendVO = new FriendVO();
-            friendVO.setUserId(userId2);
-            friendVO.setUsername(user.getUsername());
-            friendVO.setAvatar(user.getAvatar());
-            friendVO.setSignature(user.getSignature());
-
-            // 判断是否在线
-            friendVO.setIsOnline(centerService.isOnline(userId2));
-            voList.add(friendVO);
         }
         return voList;
     }
@@ -412,5 +374,44 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
                 redisUtil.zsadd(RedisEnum.FRIEND_RELATION.getKey() + userId, friendId, System.currentTimeMillis());
             }
         }
+    }
+
+    /**
+     * 获取好友数量
+     * @author wangjinfei
+     * @date 2025/7/27 9:42
+     * @param userId
+     * @return Integer
+     */
+    @Override
+    public Integer getCountByUserId(String userId) {
+        Integer count = baseMapper.getCountByUserId(userId);
+
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 获取好友id列表
+     * @author wangjinfei
+     * @date 2025/7/27 10:50
+     * @param userId
+     * @return List<String>
+     */
+    @Override
+    public List<String> getFriendIdsByUserId(String userId) {
+        List<String> friendIds = new ArrayList<>();
+
+        // todo 从缓存中获取好友id列表
+        List<FriendRelation> friendRelations = baseMapper.selectList(new LambdaUpdateWrapper<FriendRelation>()
+                .eq(FriendRelation::getUserId, userId));
+        if(CollectionUtils.isEmpty(friendRelations)){
+            return friendIds;
+        }
+
+        friendIds = friendRelations.stream()
+                .map(friendRelation -> friendRelation.getFriendId())
+                .collect(Collectors.toList());
+
+        return friendIds;
     }
 }

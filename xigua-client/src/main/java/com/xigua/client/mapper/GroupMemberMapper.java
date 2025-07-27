@@ -12,4 +12,13 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface GroupMemberMapper extends BaseMapper<GroupMember> {
+
+    /**
+     * 根据用户ID查询用户加入的群组数量
+     * @author wangjinfei
+     * @date 2025/7/27 9:44
+     * @param userId
+     * @return Integer
+     */
+    Integer getCountByUserId(String userId);
 }
