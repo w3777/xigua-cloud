@@ -7,6 +7,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public enum TopicEnum {
     TEST_TOPIC("test_topic", "测试"),
+    GROUP_CACHE("group_cache", "群组缓存"),
     ;
 
     final String topic;

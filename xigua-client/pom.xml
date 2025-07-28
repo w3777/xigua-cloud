@@ -83,6 +83,12 @@
             <artifactId>xigua-api</artifactId>
             <version>${xigua.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.xigua</groupId>
+            <artifactId>xigua-common-mq</artifactId>
+            <version>${xigua.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

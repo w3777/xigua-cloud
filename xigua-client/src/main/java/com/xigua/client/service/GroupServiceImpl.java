@@ -6,9 +6,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.GroupMapper;
 import com.xigua.client.utils.NineCellImageUtil;
 import com.xigua.common.core.exception.BusinessException;
+import com.xigua.common.core.transaction.TransactionSyncMgr;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
+import com.xigua.common.mq.constant.TopicEnum;
+import com.xigua.common.mq.producer.MessageQueueProducer;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.entity.Group;
@@ -23,13 +26,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -39,6 +42,7 @@ import java.util.concurrent.CompletableFuture;
  * @Date 2025/7/6 11:07
  */
 @Slf4j
+@Service
 @DubboService
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements GroupService {
     @Autowired
@@ -49,6 +53,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private GroupMemberService groupMemberService;
     @Autowired
     private NineCellImageUtil nineCellImageUtil;
+    @Autowired
+    private MessageQueueProducer messageQueueProducer;
 
     /**
      * 创建群组
@@ -97,11 +103,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             }
         }
 
-        // todo 异步设置群组缓存
-//        redisUtil.set(RedisEnum.GROUP.getKey() + groupId, JSONObject.toJSONString(group));
-//        for (String memberId : memberIds) {
-//            redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + "_" + memberId, memberId);
-//        }
+        // mq设置群组缓存
+        TransactionSyncMgr.executeAfterCommit(() -> {
+            Map<String, String> map = new HashMap<>();
+            map.put("groupId", groupId);
+            messageQueueProducer.syncSend(TopicEnum.GROUP_CACHE, JSONObject.toJSONString(map));
+        });
 
         return true;
     }
@@ -236,6 +243,22 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     /**
      * 群组添加到缓存
      * @author wangjinfei
+     * @date 2025/7/28 15:28
+     * @param groupId
+     * @return Boolean
+     */
+    @Override
+    public Boolean addGroup2Redis(String groupId) {
+        if(StringUtils.isEmpty(groupId)){
+            return false;
+        }
+
+        return addGroup2Redis(Arrays.asList(groupId));
+    }
+
+    /**
+     * 群组添加到缓存
+     * @author wangjinfei
      * @date 2025/7/27 11:17
      * @param groupIds
      * @return Boolean
@@ -250,6 +273,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             groups = baseMapper.selectList(null);
         }
 
+        if(CollectionUtils.isEmpty(groups)){
+            return false;
+        }
+
         for (Group group : groups) {
             String groupId = group.getId();
             // 群聊信息添加缓存
@@ -261,7 +288,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
                 for (GroupMember groupMember : groupMembers) {
                     String userId = groupMember.getUserId();
                     LocalDateTime createTime = groupMember.getCreateTime();
+
+                    // set 缓存群成员信息
                     redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + "_" + userId, JSONObject.toJSONString(groupMember));
+
+                    // zset 缓存群成员id
                     redisUtil.zsadd(RedisEnum.GROUP_MEMBER_ID.getKey() + groupId, userId, DateUtil.toEpochMilli(createTime));
                 }
             }
