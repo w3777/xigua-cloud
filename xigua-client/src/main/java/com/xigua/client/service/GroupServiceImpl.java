@@ -27,6 +27,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -104,11 +105,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
 
         // mq设置群组缓存
-        TransactionSyncMgr.executeAfterCommit(() -> {
-            Map<String, String> map = new HashMap<>();
-            map.put("groupId", groupId);
-            messageQueueProducer.syncSend(TopicEnum.GROUP_CACHE, JSONObject.toJSONString(map));
-        });
+        Map<String, String> map = new HashMap<>();
+        map.put("groupId", groupId);
+        messageQueueProducer.syncSend(TopicEnum.GROUP_CACHE, map);
 
         return true;
     }

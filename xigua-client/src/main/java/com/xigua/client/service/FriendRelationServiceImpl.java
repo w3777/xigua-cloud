@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -401,7 +402,13 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     public List<String> getFriendIdsByUserId(String userId) {
         List<String> friendIds = new ArrayList<>();
 
-        // todo 从缓存中获取好友id列表
+        // 从缓存中获取好友id列表
+        friendIds = getFriendIdsByUserIdFromRedis(userId);
+        if(CollectionUtils.isNotEmpty(friendIds)){
+            return friendIds;
+        }
+
+        // 从数据库中获取好友id列表
         List<FriendRelation> friendRelations = baseMapper.selectList(new LambdaUpdateWrapper<FriendRelation>()
                 .eq(FriendRelation::getUserId, userId));
         if(CollectionUtils.isEmpty(friendRelations)){
@@ -411,6 +418,26 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         friendIds = friendRelations.stream()
                 .map(friendRelation -> friendRelation.getFriendId())
                 .collect(Collectors.toList());
+
+        return friendIds;
+    }
+
+    /**
+     * 从redis中获取好友id列表
+     * @author wangjinfei
+     * @date 2025/7/28 20:44
+     * @param userId
+     * @return List<String>
+    */
+    private List<String> getFriendIdsByUserIdFromRedis(String userId) {
+        List<String> friendIds = new ArrayList<>();
+
+        Set<Object> friendIdsInRedis = redisUtil.zsReverseRange(RedisEnum.FRIEND_RELATION.getKey() + userId, 0, -1);
+        if(CollectionUtils.isNotEmpty(friendIdsInRedis)){
+            friendIds = friendIdsInRedis.stream()
+                    .map(friendId -> friendId.toString())
+                    .collect(Collectors.toList());
+        }
 
         return friendIds;
     }

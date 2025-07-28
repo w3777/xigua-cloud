@@ -72,7 +72,7 @@ spring:
     # 消费者
     consumer:
       # 消费者组
-      group-id: test-group
+      group-id: xi_gua
       # 是否自动提交
       enable-auto-commit: false
       # 消费偏移配置

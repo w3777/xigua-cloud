@@ -44,6 +44,7 @@ public class GroupController {
             log.error("创建群组失败：{}", e.getMessage(), e);
             throw new BusinessException(e.getMessage());
         }catch (Exception e) {
+            log.error("创建群组失败：{}", e.getMessage(), e);
             throw new BusinessException("创建群组失败");
         }
         if (!b){
