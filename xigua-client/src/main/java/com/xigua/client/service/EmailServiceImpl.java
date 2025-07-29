@@ -12,6 +12,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
 
 /**
  * @ClassName EmailServiceImpl
@@ -20,6 +21,7 @@ import org.springframework.mail.javamail.JavaMailSender;
  * @Date 2025/5/7 14:42
  */
 @Slf4j
+@Service
 @RequiredArgsConstructor
 @DubboService
 public class EmailServiceImpl implements EmailService {

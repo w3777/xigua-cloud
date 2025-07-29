@@ -17,10 +17,11 @@ import com.xigua.api.service.CenterService;
 import com.xigua.api.service.EmailService;
 import com.xigua.api.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.dubbo.common.utils.CollectionUtils;
-import org.apache.dubbo.common.utils.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.List;
  * @Author wangjinfei
  * @Date 2025/4/27 9:53
  */
+@Service
 @DubboService
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -210,22 +212,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Boolean addUser2Redis(String userId) {
-        if(StringUtils.isNotEmpty(userId)){
-            User user = baseMapper.selectById(userId);
-            if(user != null){
-                redisUtil.set(RedisEnum.USER.getKey() + userId, JSONObject.toJSONString(user));
-            }
-            return true;
+        if(StringUtils.isEmpty(userId)){
+            return false;
         }
 
-        List<User> users = baseMapper.selectList(null);
-        if(CollectionUtils.isNotEmpty(users)){
-            for (User user : users) {
-                redisUtil.set(RedisEnum.USER.getKey() + user.getId(), JSONObject.toJSONString(user));
-            }
-            return true;
+        User user = baseMapper.selectById(userId);
+        if(user == null){
+            return false;
         }
 
-        return false;
+        redisUtil.set(RedisEnum.USER.getKey() + userId, JSONObject.toJSONString(user));
+        return true;
+    }
+
+    /**
+     * 获取所有用户id
+     * @author wangjinfei
+     * @date 2025/7/29 17:40
+     * @return List<String>
+     */
+    @Override
+    public List<String> getAllUserId() {
+        return baseMapper.getAllUserId();
     }
 }

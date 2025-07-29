@@ -87,20 +87,4 @@ public class UserController {
     public R<List<UserSearchVO>> getListByName(@RequestParam("username") String username){
         return R.ok(userService.getListByName(username),"查询成功");
     }
-
-    /**
-     * 添加用户到redis
-     * @author wangjinfei
-     * @date 2025/7/6 16:02
-     * @param userId
-     */
-    @Operation(summary = "添加用户到redis")
-    @PostMapping("/addUser2Redis")
-    public R<String> addUser2Redis(@RequestParam(value = "userId", required = false) String userId){
-        Boolean b = userService.addUser2Redis(userId);
-        if(!b){
-            return R.fail("添加失败");
-        }
-        return R.ok("添加成功");
-    }
 }

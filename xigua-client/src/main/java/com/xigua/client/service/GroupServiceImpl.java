@@ -252,51 +252,40 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             return false;
         }
 
-        return addGroup2Redis(Arrays.asList(groupId));
-    }
-
-    /**
-     * 群组添加到缓存
-     * @author wangjinfei
-     * @date 2025/7/27 11:17
-     * @param groupIds
-     * @return Boolean
-     */
-    @Override
-    public Boolean addGroup2Redis(List<String> groupIds){
-        List<Group> groups = new ArrayList<>();
-
-        if(CollectionUtils.isNotEmpty(groupIds)){
-            groups = baseMapper.selectBatchIds(groupIds);
-        }else {
-            groups = baseMapper.selectList(null);
-        }
-
-        if(CollectionUtils.isEmpty(groups)){
+        Group group = baseMapper.selectById(groupId);
+        if(group == null){
             return false;
         }
 
-        for (Group group : groups) {
-            String groupId = group.getId();
-            // 群聊信息添加缓存
-            redisUtil.set(RedisEnum.GROUP.getKey() + groupId, JSONObject.toJSONString(group));
+        // 群聊信息添加缓存
+        redisUtil.set(RedisEnum.GROUP.getKey() + groupId, JSONObject.toJSONString(group));
 
-            // 群成员添加缓存
-            List<GroupMember> groupMembers = groupMemberService.getGroupMembersByGroupId(groupId);
-            if(CollectionUtils.isNotEmpty(groupMembers)){
-                for (GroupMember groupMember : groupMembers) {
-                    String userId = groupMember.getUserId();
-                    LocalDateTime createTime = groupMember.getCreateTime();
+        // 群成员添加缓存
+        List<GroupMember> groupMembers = groupMemberService.getGroupMembersByGroupId(groupId);
+        if(CollectionUtils.isNotEmpty(groupMembers)){
+            for (GroupMember groupMember : groupMembers) {
+                String userId = groupMember.getUserId();
+                LocalDateTime createTime = groupMember.getCreateTime();
 
-                    // set 缓存群成员信息
-                    redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + "_" + userId, JSONObject.toJSONString(groupMember));
+                // set 缓存群成员信息
+                redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + ":" + userId, JSONObject.toJSONString(groupMember));
 
-                    // zset 缓存群成员id
-                    redisUtil.zsadd(RedisEnum.GROUP_MEMBER_ID.getKey() + groupId, userId, DateUtil.toEpochMilli(createTime));
-                }
+                // zset 缓存群成员id
+                redisUtil.zsadd(RedisEnum.GROUP_MEMBER_ID.getKey() + groupId, userId, DateUtil.toEpochMilli(createTime));
             }
         }
 
         return true;
+    }
+
+    /**
+     * 获取所有群组id
+     * @author wangjinfei
+     * @date 2025/7/29 17:50
+     * @return List<String>
+     */
+    @Override
+    public List<String> getAllGroupId() {
+        return baseMapper.getAllGroupId();
     }
 }

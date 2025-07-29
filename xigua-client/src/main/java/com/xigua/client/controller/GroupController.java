@@ -52,17 +52,4 @@ public class GroupController {
         }
         return R.ok("创建成功");
     }
-
-    /**
-     * 群组添加到缓存
-     * @author wangjinfei
-     * @date 2025/7/27 11:31
-     * @param dto
-     * @return R<Boolean>
-     */
-    @Operation(summary = "群组添加到缓存")
-    @PostMapping("/addGroup2Redis")
-    public R<Boolean> addGroup2Redis(@RequestBody AddGroup2RedisDTO dto){
-        return R.ok(groupService.addGroup2Redis(dto.getGroupIds()));
-    }
 }

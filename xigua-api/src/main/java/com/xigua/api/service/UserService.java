@@ -103,4 +103,12 @@ public interface UserService extends IService<User> {
      * @param userId
     */
     Boolean addUser2Redis(String userId);
+
+    /**
+     * 获取所有用户id
+     * @author wangjinfei
+     * @date 2025/7/29 17:40
+     * @return List<String>
+    */
+    List<String> getAllUserId();
 }

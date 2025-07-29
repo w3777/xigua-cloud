@@ -33,11 +33,10 @@ public interface GroupService extends IService<Group> {
     Boolean addGroup2Redis(String groupId);
 
     /**
-     * 群组批量添加到缓存
+     * 获取所有群组id
      * @author wangjinfei
-     * @date 2025/7/27 11:17
-     * @param groupIds
-     * @return Boolean
-    */
-    Boolean addGroup2Redis(List<String> groupIds);
+     * @date 2025/7/29 17:50
+     * @return List<String>
+     */
+    List<String> getAllGroupId();
 }
