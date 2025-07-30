@@ -4,6 +4,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.GroupMemberMapper;
+import com.xigua.common.core.exception.BusinessException;
+import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.common.sequence.sequence.Sequence;
@@ -20,6 +22,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -171,5 +174,55 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         }
 
         return groupMembers;
+    }
+
+    /**
+     * 获取加入时间
+     * @author wangjinfei
+     * @date 2025/7/30 19:46
+     * @param groupId
+     * @param userId
+     * @return LocalDateTime
+     */
+    @Override
+    public LocalDateTime getJoinTime(String groupId, String userId) {
+        if(StringUtils.isEmpty(groupId) || StringUtils.isEmpty(userId)){
+            throw new BusinessException("群ID或用户ID不能为空");
+        }
+
+        long score = redisUtil.getScore(RedisEnum.GROUP_MEMBER_ID.getKey() + groupId, userId);
+        if(score == 0){
+            throw new BusinessException("用户未加入群聊");
+        }
+
+        LocalDateTime localDateTime = DateUtil.toLocalDateTime(score);
+        return localDateTime;
+    }
+
+    /**
+     * 获取群角色
+     * @author wangjinfei
+     * @date 2025/7/30 19:59
+     * @param groupId
+     * @param userId
+     * @return Integer
+     */
+    @Override
+    public Integer getGroupRole(String groupId, String userId) {
+        if(StringUtils.isEmpty(groupId) || StringUtils.isEmpty(userId)){
+            throw new BusinessException("群ID或用户ID不能为空");
+        }
+
+        String groupMemberCache = redisUtil.get(RedisEnum.GROUP_MEMBER.getKey() + groupId + "_" + userId);
+        if(StringUtils.isEmpty(groupMemberCache)){
+            throw new BusinessException("用户未加入群聊");
+        }
+
+        GroupMember groupMember = JSONObject.parseObject(groupMemberCache, GroupMember.class);
+        if(groupMember == null){
+            throw new BusinessException("用户未加入群聊");
+        }
+
+        return groupMember.getRole();
     }
 }

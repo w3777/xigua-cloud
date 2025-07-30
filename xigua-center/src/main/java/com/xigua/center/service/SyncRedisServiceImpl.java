@@ -6,6 +6,7 @@ import com.xigua.api.service.UserService;
 import com.xigua.common.core.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +24,9 @@ import java.util.List;
 public class SyncRedisServiceImpl implements SyncRedisService {
     @Autowired
     private RedisUtil redisUtil;
-    @Autowired
+    @DubboReference
     private UserService userService;
-    @Autowired
+    @DubboReference
     private GroupService groupService;
 
     /**

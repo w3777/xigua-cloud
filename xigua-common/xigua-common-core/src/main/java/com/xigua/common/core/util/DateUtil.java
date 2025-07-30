@@ -1,5 +1,6 @@
 package com.xigua.common.core.util;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -38,6 +39,20 @@ public class DateUtil {
     */
     public static long toEpochMilli(LocalDateTime localDateTime) {
         return localDateTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
+    }
+
+    /**
+     * 时间戳 转 LocalDateTime
+     * @author wangjinfei
+     * @date 2025/7/30 20:34
+     * @param epochMilli
+     * @return LocalDateTime
+    */
+    public static LocalDateTime toLocalDateTime(long epochMilli) {
+        LocalDateTime localDateTime = Instant.ofEpochMilli(epochMilli)  // 使用毫秒
+                .atZone(ZoneOffset.ofHours(8))  // 指定时区（如东八区）
+                .toLocalDateTime();
+        return localDateTime;
     }
 
 }

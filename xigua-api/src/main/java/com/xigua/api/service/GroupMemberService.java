@@ -3,6 +3,7 @@ package com.xigua.api.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xigua.domain.entity.GroupMember;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -50,4 +51,24 @@ public interface GroupMemberService extends IService<GroupMember> {
      * @return List<GroupMember>
     */
     List<GroupMember> getGroupMembersByGroupId(String groupId);
+
+    /**
+     * 获取加入时间
+     * @author wangjinfei
+     * @date 2025/7/30 19:46
+     * @param groupId
+     * @param userId
+     * @return LocalDateTime
+    */
+    LocalDateTime getJoinTime(String groupId, String userId);
+
+    /**
+     * 获取群角色
+     * @author wangjinfei
+     * @date 2025/7/30 19:59
+     * @param groupId
+     * @param userId
+     * @return Integer
+    */
+    Integer getGroupRole(String groupId, String userId);
 }

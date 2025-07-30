@@ -363,4 +363,17 @@ public class RedisUtil {
 
         return values;
     }
+
+    /**
+     * 获取zset中的score
+     * @author wangjinfei
+     * @date 2025/7/30 19:53
+     * @param key
+     * @param member
+     * @return long
+    */
+    public long getScore(String key, String member) {
+        Double score = redisTemplate.opsForZSet().score(key, member);
+        return score != null ? score.longValue() : 0L;
+    }
 }

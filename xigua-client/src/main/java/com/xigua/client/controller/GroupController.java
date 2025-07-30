@@ -5,6 +5,7 @@ import com.xigua.domain.dto.AddGroup2RedisDTO;
 import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.result.R;
 import com.xigua.api.service.GroupService;
+import com.xigua.domain.vo.GroupDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,18 @@ public class GroupController {
             return R.fail("创建失败");
         }
         return R.ok("创建成功");
+    }
+
+    /**
+     * 获取群组详情
+     * @author wangjinfei
+     * @date 2025/7/30 19:35
+     * @param groupId
+     * @return GroupDetailVO
+     */
+    @Operation(summary = "获取群组详情")
+    @GetMapping("/getGroupDetail")
+    public R<GroupDetailVO> getGroupDetail(@RequestParam String groupId){
+        return R.ok(groupService.getGroupDetail(groupId));
     }
 }

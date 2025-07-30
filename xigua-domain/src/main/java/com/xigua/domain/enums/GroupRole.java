@@ -15,4 +15,13 @@ public enum GroupRole {
 
     final Integer type;
     final String desc;
+
+    public static GroupRole getByType(Integer type) {
+        for (GroupRole groupRole : GroupRole.values()) {
+            if (groupRole.type.equals(type)) {
+                return groupRole;
+            }
+        }
+        return null;
+    }
 }

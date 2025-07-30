@@ -3,6 +3,7 @@ package com.xigua.api.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.entity.Group;
+import com.xigua.domain.vo.GroupDetailVO;
 
 import java.util.List;
 
@@ -39,4 +40,13 @@ public interface GroupService extends IService<Group> {
      * @return List<String>
      */
     List<String> getAllGroupId();
+
+    /**
+     * 获取群组详情
+     * @author wangjinfei
+     * @date 2025/7/30 19:35
+     * @param groupId
+     * @return GroupDetailVO
+    */
+    GroupDetailVO getGroupDetail(String groupId);
 }

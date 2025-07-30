@@ -201,7 +201,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getById(String id) {
-        return baseMapper.selectById(id);
+        // 先查询缓存
+        String userCache = redisUtil.get(RedisEnum.USER.getKey() + id);
+        if(StringUtils.isNotEmpty(userCache)){
+            User user = JSONObject.parseObject(userCache, User.class);
+            return user;
+        }
+
+        // 缓存不存在查询数据库
+        User user = baseMapper.selectById(id);
+        return user;
     }
 
     /**

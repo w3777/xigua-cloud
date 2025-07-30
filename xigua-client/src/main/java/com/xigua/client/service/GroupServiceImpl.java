@@ -3,6 +3,7 @@ package com.xigua.client.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xigua.api.service.UserService;
 import com.xigua.client.mapper.GroupMapper;
 import com.xigua.client.utils.NineCellImageUtil;
 import com.xigua.common.core.exception.BusinessException;
@@ -17,9 +18,11 @@ import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.entity.Group;
 import com.xigua.domain.entity.GroupMember;
 import com.xigua.domain.entity.User;
+import com.xigua.domain.enums.GroupRole;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.GroupMemberService;
 import com.xigua.api.service.GroupService;
+import com.xigua.domain.vo.GroupDetailVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,6 +59,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private NineCellImageUtil nineCellImageUtil;
     @Autowired
     private MessageQueueProducer messageQueueProducer;
+    @Autowired
+    private UserService userService;
 
     /**
      * 创建群组
@@ -287,5 +292,69 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public List<String> getAllGroupId() {
         return baseMapper.getAllGroupId();
+    }
+
+    /**
+     * 获取群组详情
+     * @author wangjinfei
+     * @date 2025/7/30 19:35
+     * @param groupId
+     * @return GroupDetailVO
+     */
+    @Override
+    public GroupDetailVO getGroupDetail(String groupId) {
+        String userId = UserContext.get().getUserId();
+
+        if(StringUtils.isEmpty(groupId)){
+            throw new BusinessException("群组id不能为空");
+        }
+
+        // 从缓存中获取群组信息
+        String groupCache = redisUtil.get(RedisEnum.GROUP.getKey() + groupId);
+        if(StringUtils.isEmpty(groupCache)){
+            throw new BusinessException("群组不存在");
+        }
+
+        Group group = JSONObject.parseObject(groupCache, Group.class);
+        if(group == null){
+            throw new BusinessException("群组不存在");
+        }
+
+        GroupDetailVO groupDetailVO = new GroupDetailVO();
+        groupDetailVO.setGroupId(group.getId());
+        groupDetailVO.setGroupName(group.getGroupName());
+        groupDetailVO.setGroupAvatar(group.getGroupAvatar());
+        groupDetailVO.setDescription(group.getDescription());
+        groupDetailVO.setCurrentMember(group.getCurrentMember());
+
+        // 格式化时间
+        if(group.getCreateTime() != null){
+            groupDetailVO.setCreateTime(DateUtil.formatDateTime(group.getCreateTime(), DateUtil.DATE_FORMATTER));
+        }
+
+        // 获取群主名称
+        if(StringUtils.isNotEmpty(group.getOwnerId())){
+            User user = userService.getById(group.getOwnerId());
+            if(user != null){
+                groupDetailVO.setGroupOwner(user.getUsername());
+            }
+        }
+
+        // 获取加入时间
+        LocalDateTime joinTime = groupMemberService.getJoinTime(groupId, userId);
+        if(joinTime != null){
+            groupDetailVO.setJoinTime(DateUtil.formatDateTime(joinTime, DateUtil.DATE_FORMATTER));
+        }
+
+        // 获取我的角色
+        Integer role = groupMemberService.getGroupRole(groupId, userId);
+        if(role != null){
+            GroupRole groupRoleE = GroupRole.getByType(role);
+            if(groupRoleE != null){
+                groupDetailVO.setRoleName(groupRoleE.getDesc());
+            }
+        }
+
+        return groupDetailVO;
     }
 }
