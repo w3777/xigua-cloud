@@ -3,6 +3,7 @@ package com.xigua.client.controller;
 import com.xigua.api.service.ContactService;
 import com.xigua.domain.result.R;
 import com.xigua.domain.vo.ContactCountVO;
+import com.xigua.domain.vo.FriendRequestVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.GroupVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,6 +66,30 @@ public class ContactController {
     @GetMapping("/getGroupList")
     public R<List<GroupVO>> getGroupList(){
         return R.ok(contactService.getGroupList());
+    }
+
+    /**
+     * 获取发送好友申请列表
+     * @author wangjinfei
+     * @date 2025/8/2 12:35
+     * @return List<FriendRequestVO>
+     */
+    @Operation(summary = "获取发送好友申请列表")
+    @GetMapping("/getSendFriendRequestList")
+    public R<List<FriendRequestVO>> getSendFriendRequestList(){
+        return R.ok(contactService.getSendFriendRequestList());
+    }
+
+    /**
+     * 获取接收好友申请列表
+     * @author wangjinfei
+     * @date 2025/8/2 12:35
+     * @return List<FriendRequestVO>
+     */
+    @Operation(summary = "获取接收好友申请列表")
+    @GetMapping("/getReceiveFriendRequestList")
+    public R<List<FriendRequestVO>> getReceiveFriendRequestList(){
+        return R.ok(contactService.getReceiveFriendRequestList());
     }
 
 }

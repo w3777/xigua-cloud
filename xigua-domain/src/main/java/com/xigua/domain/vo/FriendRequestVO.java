@@ -19,7 +19,7 @@ public class FriendRequestVO implements Serializable {
     private String userId;
     private String username;
     private String avatar;
-    private String signature;
+    private String applyMsg;
     private String createTime;
     private String source;
     private Integer flowStatus;

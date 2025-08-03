@@ -47,19 +47,6 @@ public class FriendRelationController {
     }
 
     /**
-     * 好友请求(包含已发送和已接收)
-     * @author wangjinfei
-     * @date 2025/5/13 23:10
-     * @return ReceiveFriendRequestVO
-     */
-    @Operation(summary = "好友请求(包含已发送和已接收)")
-    @GetMapping("/friendRequest")
-    public R<List<FriendRequestVO>> friendRequest(){
-        List<FriendRequestVO> receiveFriendRequest = friendRelationService.friendRequest();
-        return R.ok(receiveFriendRequest);
-    }
-
-    /**
      * 好友验证
      * @author wangjinfei
      * @date 2025/5/14 22:00

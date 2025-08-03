@@ -25,14 +25,6 @@ public interface FriendRelationService {
     Boolean sendFriendRequest(sendFriendRequestDTO dto);
 
     /**
-     * 好友请求(包含已发送和已接收)
-     * @author wangjinfei
-     * @date 2025/5/13 23:10
-     * @return ReceiveFriendRequestVO
-    */
-    List<FriendRequestVO> friendRequest();
-
-    /**
      * 好友验证
      * @author wangjinfei
      * @date 2025/5/14 22:00

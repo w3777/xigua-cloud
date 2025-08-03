@@ -1,6 +1,7 @@
 package com.xigua.api.service;
 
 import com.xigua.domain.vo.ContactCountVO;
+import com.xigua.domain.vo.FriendRequestVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.GroupVO;
 
@@ -37,4 +38,20 @@ public interface ContactService {
      * @return List<GroupVO>
      */
     List<GroupVO> getGroupList();
+
+    /**
+     * 获取发送好友申请列表
+     * @author wangjinfei
+     * @date 2025/8/2 12:35
+     * @return List<FriendRequestVO>
+    */
+    List<FriendRequestVO> getSendFriendRequestList();
+
+    /**
+     * 获取接收好友申请列表
+     * @author wangjinfei
+     * @date 2025/8/2 12:35
+     * @return List<FriendRequestVO>
+    */
+    List<FriendRequestVO> getReceiveFriendRequestList();
 }

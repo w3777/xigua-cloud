@@ -2,6 +2,7 @@ package com.xigua.api.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xigua.domain.entity.FriendRequest;
+import com.xigua.domain.enums.FriendRequestFlowStatus;
 
 import java.util.List;
 
@@ -32,23 +33,13 @@ public interface FriendRequestService extends IService<FriendRequest> {
     List<FriendRequest> getListByReceiverId(String userId);
 
     /**
-     * 检查好友请求
-     * @author wangjinfei
-     * @date 2025/5/14 21:52
-     * @param userId
-     * @param friendId
-    */
-    void checkFriendRequest(String userId, String friendId);
-
-    /**
      * 修改好友请求流程状态为失效
      * @author wangjinfei
      * @date 2025/5/14 22:13
-     * @param senderId
-     * @param receiverId
+     * @param requestId
      * @return Boolean
      */
-    Boolean updateFlowStatus2Invalid(String senderId, String receiverId);
+    Boolean updateFlowStatus(String requestId, FriendRequestFlowStatus flowStatus);
 
     /**
      * 根据发送者ID、接收者ID获取最后一条好友请求
@@ -61,11 +52,20 @@ public interface FriendRequestService extends IService<FriendRequest> {
     FriendRequest getLastOne(String senderId, String receiverId);
 
     /**
-     * 获取好友请求数量
+     * 获取我发送的好友申请
      * @author wangjinfei
      * @date 2025/7/27 9:42
      * @param userId
      * @return Integer
      */
-    Integer getCountByUserId(String userId);
+    Integer getSendCountByUserId(String userId);
+
+    /**
+     * 获取我接收的好友申请
+     * @author wangjinfei
+     * @date 2025/8/2 12:16
+     * @param userId
+     * @return Integer
+    */
+    Integer getReceiveCountByUserId(String userId);
 }

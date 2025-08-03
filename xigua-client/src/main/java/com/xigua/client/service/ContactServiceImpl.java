@@ -2,12 +2,15 @@ package com.xigua.client.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.api.service.*;
+import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
+import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.entity.Group;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.vo.ContactCountVO;
+import com.xigua.domain.vo.FriendRequestVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.GroupVO;
 import org.apache.commons.collections4.CollectionUtils;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName ContactServiceImpl
@@ -54,8 +58,10 @@ public class ContactServiceImpl implements ContactService {
         contactCountVO.setFriendCount(friendRelationService.getCountByUserId(userId));
         // 群数量
         contactCountVO.setGroupCount(groupMemberService.getCountByUserId(userId));
-        // 好友请求数量
-        contactCountVO.setFriendRequestCount(friendRequestService.getCountByUserId(userId));
+        // 发送好友申请数量
+        contactCountVO.setSendCount(friendRequestService.getSendCountByUserId(userId));
+        // 接收好友申请数量
+        contactCountVO.setReceiveCount(friendRequestService.getReceiveCountByUserId(userId));
 
         return contactCountVO;
     }
@@ -134,6 +140,100 @@ public class ContactServiceImpl implements ContactService {
             voList.add(groupVO);
         }
 
+        return voList;
+    }
+
+    /**
+     * 获取发送好友申请列表
+     * @author wangjinfei
+     * @date 2025/8/2 12:35
+     * @return List<FriendRequestVO>
+     */
+    @Override
+    public List<FriendRequestVO> getSendFriendRequestList() {
+        String userId = UserContext.get().getUserId();
+        List<FriendRequestVO> voList = new ArrayList<>();
+
+        // 查询发送的好友请求
+        List<FriendRequest> senderFriendReqList = friendRequestService.getListBySenderId(userId);
+        if(CollectionUtils.isEmpty(senderFriendReqList)){
+            return voList;
+        }
+
+        // 映射发送好友请求vo字段
+        for (FriendRequest friendRequest : senderFriendReqList) {
+            String receiverId = friendRequest.getReceiverId();
+
+            // 从redis获取用户信息
+            String friendCache = redisUtil.get(RedisEnum.USER.getKey() + receiverId);
+            if(StringUtils.isEmpty(friendCache)){
+                continue;
+            }
+            User receiver = JSONObject.parseObject(friendCache, User.class);
+            if(receiver == null){
+                continue;
+            }
+
+            // 映射vo字段
+            FriendRequestVO friendRequestVO = new FriendRequestVO();
+            friendRequestVO.setRequestId(friendRequest.getId());
+            friendRequestVO.setUserId(receiver.getId());
+            friendRequestVO.setUsername(receiver.getUsername());
+            friendRequestVO.setAvatar(receiver.getAvatar());
+            friendRequestVO.setApplyMsg(friendRequest.getApplyMsg());
+            friendRequestVO.setSource("send");
+
+            friendRequestVO.setFlowStatus(friendRequest.getFlowStatus());
+            friendRequestVO.setCreateTime(DateUtil.formatDateTime(friendRequest.getCreateTime(),
+                    DateUtil.DATE_TIME_FORMATTER));
+            voList.add(friendRequestVO);
+        }
+
+        return voList;
+    }
+
+    /**
+     * 获取接收好友申请列表
+     * @author wangjinfei
+     * @date 2025/8/2 12:35
+     * @return List<FriendRequestVO>
+     */
+    @Override
+    public List<FriendRequestVO> getReceiveFriendRequestList() {
+        String userId = UserContext.get().getUserId();
+        List<FriendRequestVO> voList = new ArrayList<>();
+
+        // 查询接收的好友请求
+        List<FriendRequest> receiverFriendReqList = friendRequestService.getListByReceiverId(userId);
+        if(CollectionUtils.isEmpty(receiverFriendReqList)){
+            return voList;
+        }
+
+        // 映射接收好友请求vo字段
+        for (FriendRequest friendRequest : receiverFriendReqList) {
+            String senderId = friendRequest.getSenderId();
+            // 从redis获取用户信息
+            String friendCache = redisUtil.get(RedisEnum.USER.getKey() + senderId);
+            if(StringUtils.isEmpty(friendCache)){
+                continue;
+            }
+            User sender = JSONObject.parseObject(friendCache, User.class);
+            if(sender == null){
+                continue;
+            }
+            FriendRequestVO friendRequestVO = new FriendRequestVO();
+            friendRequestVO.setRequestId(friendRequest.getId());
+            friendRequestVO.setUserId(sender.getId());
+            friendRequestVO.setUsername(sender.getUsername());
+            friendRequestVO.setAvatar(sender.getAvatar());
+            friendRequestVO.setApplyMsg(friendRequest.getApplyMsg());
+            friendRequestVO.setSource("receive");
+
+            friendRequestVO.setFlowStatus(friendRequest.getFlowStatus());
+            friendRequestVO.setCreateTime(DateUtil.formatDateTime(friendRequest.getCreateTime(),
+                    DateUtil.DATE_TIME_FORMATTER));
+            voList.add(friendRequestVO);
+        }
         return voList;
     }
 }

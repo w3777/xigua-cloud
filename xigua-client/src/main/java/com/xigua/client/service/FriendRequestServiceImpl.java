@@ -1,16 +1,19 @@
 package com.xigua.client.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.FriendRequestMapper;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.domain.entity.FriendRequest;
+import com.xigua.domain.enums.FriendRequestFlowStatus;
 import com.xigua.domain.enums.FriendRequestStatus;
 import com.xigua.api.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -34,8 +37,7 @@ public class FriendRequestServiceImpl extends ServiceImpl<FriendRequestMapper, F
     @Override
     public List<FriendRequest> getListBySenderId(String userId) {
         List<FriendRequest> friendRequestList = baseMapper.selectList(new LambdaQueryWrapper<FriendRequest>()
-                .eq(FriendRequest::getSenderId, userId)
-                .eq(FriendRequest::getStatus, FriendRequestStatus.ONE.getStatus()));
+                .eq(FriendRequest::getSenderId, userId));
         return friendRequestList;
     }
 
@@ -49,50 +51,23 @@ public class FriendRequestServiceImpl extends ServiceImpl<FriendRequestMapper, F
     @Override
     public List<FriendRequest> getListByReceiverId(String userId) {
         List<FriendRequest> friendRequestList = baseMapper.selectList(new LambdaQueryWrapper<FriendRequest>()
-                .eq(FriendRequest::getReceiverId, userId)
-                .eq(FriendRequest::getStatus, FriendRequestStatus.ONE.getStatus()));
+                .eq(FriendRequest::getReceiverId, userId));
         return friendRequestList;
-    }
-
-    /**
-     * 检查好友请求
-     * @author wangjinfei
-     * @date 2025/5/14 21:52
-     * @param userId
-     * @param friendId
-     */
-    @Override
-    public void checkFriendRequest(String userId, String friendId) {
-        Long friendRequestCount = baseMapper.selectCount(new LambdaQueryWrapper<FriendRequest>()
-                .eq(FriendRequest::getSenderId, userId)
-                .eq(FriendRequest::getStatus, FriendRequestStatus.ONE.getStatus())
-                .eq(FriendRequest::getReceiverId, friendId));
-        if(friendRequestCount > 0){
-            throw new BusinessException("您已经发送过好友请求，等待对方验证");
-        }
     }
 
     /**
      * 修改好友请求流程状态为失效
      * @author wangjinfei
      * @date 2025/5/14 22:13
-     * @param senderId
-     * @param receiverId
+     * @param requestId
      * @return Boolean
      */
     @Override
-    public Boolean updateFlowStatus2Invalid(String senderId, String receiverId) {
-        FriendRequest friendRequest = getLastOne(senderId, receiverId);
-
-        if(friendRequest == null){
-            throw new BusinessException("好友请求不存在");
-        }
-        if(friendRequest.getStatus() == FriendRequestStatus.ZERO.getStatus()){
-            throw new BusinessException("好友请求异常");
-        }
-
-        friendRequest.setStatus(FriendRequestStatus.ZERO.getStatus());
-        int i = baseMapper.updateById(friendRequest);
+    public Boolean updateFlowStatus(String requestId, FriendRequestFlowStatus flowStatus) {
+        int i = baseMapper.update(new LambdaUpdateWrapper<FriendRequest>()
+                .eq(FriendRequest::getId, requestId)
+                .set(FriendRequest::getFlowStatus, flowStatus.getStatus())
+                .set(FriendRequest::getUpdateTime, LocalDateTime.now()));
         return i > 0;
     }
 
@@ -109,22 +84,34 @@ public class FriendRequestServiceImpl extends ServiceImpl<FriendRequestMapper, F
         FriendRequest friendRequest = baseMapper.selectOne(new LambdaQueryWrapper<FriendRequest>()
                 .eq(FriendRequest::getSenderId, senderId)
                 .eq(FriendRequest::getReceiverId, receiverId)
-                .eq(FriendRequest::getStatus, FriendRequestStatus.ONE.getStatus())
                 .orderByDesc(FriendRequest::getCreateTime)
                 .last("limit 1"));
         return friendRequest;
     }
 
     /**
-     * 获取好友请求数量
+     * 获取我发送的好友申请
      * @author wangjinfei
      * @date 2025/7/27 9:42
      * @param userId
      * @return Integer
      */
     @Override
-    public Integer getCountByUserId(String userId) {
-        Integer count = baseMapper.getCountByUserId(userId);
+    public Integer getSendCountByUserId(String userId) {
+        Integer count = baseMapper.getSendCountByUserId(userId);
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 获取我接收的好友申请
+     * @author wangjinfei
+     * @date 2025/8/2 12:16
+     * @param userId
+     * @return Integer
+     */
+    @Override
+    public Integer getReceiveCountByUserId(String userId) {
+        Integer count = baseMapper.getReceiveCountByUserId(userId);
         return count == null ? 0 : count;
     }
 }

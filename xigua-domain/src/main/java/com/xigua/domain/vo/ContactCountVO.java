@@ -18,5 +18,7 @@ public class ContactCountVO implements Serializable {
 
     private Integer groupCount;
 
-    private Integer friendRequestCount;
+    private Integer sendCount;
+
+    private Integer receiveCount;
 }

@@ -41,12 +41,6 @@ public class FriendRequest implements Serializable {
     private String receiverId;
 
     /**
-     * 状态（0：失效；1：有效）
-     */
-    @Schema(name = "状态（0：失效；1：有效）")
-    private Integer status;
-
-    /**
      * 流程状态（0：待处理；1：同意；2：拒绝）
      */
     @Schema(name = "状态（0：待处理；1：同意；2：拒绝）")

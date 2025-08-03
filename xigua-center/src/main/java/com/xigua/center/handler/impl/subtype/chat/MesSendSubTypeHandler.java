@@ -111,6 +111,9 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String senderId = chatMessageDTO.getSenderId();
         // 获取发送人所在的节点信息
         String userInServer = centerService.onlineUser(senderId);
+        if(StringUtils.isEmpty(userInServer)){
+            return;
+        }
         String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
                 userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
 
@@ -178,6 +181,9 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         // 接收人打开的聊天窗口好友是发送人，发送已读通知  （对方在线 && 对方打开的聊天框是发送人）
         // 获取发送人所在的节点信息
         String userInServer = centerService.onlineUser(senderId);
+        if(StringUtils.isEmpty(userInServer)){
+            return;
+        }
         String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
                 userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
         String value = redisUtil.get(key);
