@@ -14,11 +14,14 @@ import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.vo.LoginVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,6 +34,7 @@ import java.time.LocalTime;
  * @Author wangjinfei
  * @Date 2025/6/12 21:05
  */
+@Slf4j
 @Service
 @DubboService
 public class AuthServiceImpl implements AuthService {
@@ -44,6 +48,9 @@ public class AuthServiceImpl implements AuthService {
 
     @DubboReference
     private EmailService emailService;
+
+    @Value("${default.avatar}")
+    private String defaultAvatar;
 
     /**
      * 注册
@@ -76,6 +83,13 @@ public class AuthServiceImpl implements AuthService {
 
         User user = new User();
         BeanUtils.copyProperties(dto,user);
+
+        // 设置默认头像
+        if(StringUtils.isNotEmpty(defaultAvatar)){
+            user.setAvatar(defaultAvatar);
+        }else {
+            log.error("----------->>>>>>> 默认头像未配置");
+        }
 
         // md5加密
         user.setPassword(DigestUtils.md5Hex(user.getPassword()));
