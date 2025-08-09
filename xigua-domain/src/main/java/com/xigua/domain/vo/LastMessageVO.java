@@ -18,7 +18,9 @@ public class LastMessageVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 聊天id（单聊id、群聊id）
+     * 聊天id
+     * 单聊：好友id
+     * 群聊：群id
     */
     private String chatId;
 

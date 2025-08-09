@@ -48,4 +48,14 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @return Integer
      */
     Integer batchRead(@Param("ids") List<String> ids, @Param("updateBy")String updateBy);
+
+    /**
+     * 获取好友最后一条消息
+     * @author wangjinfei
+     * @date 2025/8/9 12:11
+     * @param senderId
+     * @param receiverId
+     * @return ChatMessage
+     */
+    ChatMessage getLastMessage(@Param("senderId") String senderId, @Param("receiverId") String receiverId);
 }

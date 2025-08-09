@@ -2,6 +2,7 @@ package com.xigua.api.service;
 
 import com.xigua.domain.dto.FriendVerifyDTO;
 import com.xigua.domain.dto.sendFriendRequestDTO;
+import com.xigua.domain.entity.User;
 import com.xigua.domain.vo.FriendDetailVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.FriendRequestVO;
@@ -66,4 +67,13 @@ public interface FriendRelationService {
      * @return List<String>
     */
     List<String> getFriendIdsByUserId(String userId);
+
+    /**
+     * 从数据库获取好友列表
+     * @author wangjinfei
+     * @date 2025/8/9 11:59
+     * @param userId
+     * @return List<User>
+    */
+    List<User> getFriendsByUserId4Db(String userId);
 }

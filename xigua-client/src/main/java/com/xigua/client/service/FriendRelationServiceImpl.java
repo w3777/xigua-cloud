@@ -291,7 +291,7 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         }
 
         // 从数据库中获取好友id列表
-        List<FriendRelation> friendRelations = baseMapper.selectList(new LambdaUpdateWrapper<FriendRelation>()
+        List<FriendRelation> friendRelations = baseMapper.selectList(new LambdaQueryWrapper<FriendRelation>()
                 .eq(FriendRelation::getUserId, userId));
         if(CollectionUtils.isEmpty(friendRelations)){
             return friendIds;
@@ -322,5 +322,26 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         }
 
         return friendIds;
+    }
+
+    /**
+     * 从数据库获取好友列表
+     * @author wangjinfei
+     * @date 2025/8/9 11:59
+     * @param userId
+     * @return List<User>
+     */
+    @Override
+    public List<User> getFriendsByUserId4Db(String userId) {
+        List<FriendRelation> friendRelations = baseMapper.selectList(new LambdaQueryWrapper<FriendRelation>()
+                .eq(FriendRelation::getUserId, userId)
+                .select(FriendRelation::getFriendId));
+        if(CollectionUtils.isEmpty(friendRelations)){
+            return List.of();
+        }
+
+        List<String> friendIds = friendRelations.stream().map(FriendRelation::getFriendId).collect(Collectors.toList());
+        List<User> friends = userService.listByIds(friendIds);
+        return friends;
     }
 }

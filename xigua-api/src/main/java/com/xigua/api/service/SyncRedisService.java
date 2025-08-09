@@ -27,4 +27,13 @@ public interface SyncRedisService {
      * @return Boolean
     */
     Boolean syncGroup2Redis(List<String> groupIds);
+
+    /**
+     * 同步聊天列表到redis
+     * @author wangjinfei
+     * @date 2025/8/9 11:48
+     * @param userIds
+     * @return Boolean
+    */
+    Boolean syncChatList2Redis(List<String> userIds);
 }

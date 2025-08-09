@@ -340,6 +340,26 @@ public class RedisUtil {
     }
 
     /**
+     * 获取 Hash 中所有字段的值并求和（默认为 Long 类型）
+     * @author wangjinfei
+     * @date 2025/8/9 11:20
+     * @param key
+     * @return Long
+    */
+    public Long hincrget(String key){
+        List<Object> values = redisTemplate.opsForHash()
+                .values(key);
+        if(CollectionUtils.isEmpty(values)){
+            return 0L;
+        }
+
+        long total = values.stream()
+                .mapToLong(v -> Long.parseLong(v.toString()))
+                .sum();
+        return total;
+    }
+
+    /**
      * 根据模糊key获取所有set集合中的值
      * @author wangjinfei
      * @date 2025/6/16 20:58

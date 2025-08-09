@@ -44,4 +44,14 @@ public interface ChatMessageService extends IService<ChatMessage> {
      * @return Integer
     */
     Integer batchRead(List<String> ids, String updateBy);
+
+    /**
+     * 获取好友最后一条消息
+     * @author wangjinfei
+     * @date 2025/8/9 12:11
+     * @param senderId
+     * @param receiverId
+     * @return ChatMessage
+    */
+    ChatMessage getLastMessage(String senderId, String receiverId);
 }

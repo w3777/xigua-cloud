@@ -31,4 +31,15 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="getLastMessage" resultType="com.xigua.domain.entity.ChatMessage">
+        select cm.id, cm.sender_id, cm.receiver_id, cm.message, cm.is_read, cm.read_time, cm.del_flag,
+               cm.create_by, cm.create_time, cm.update_by, cm.update_time
+        from xg_chat_message cm
+        where cm.del_flag = 0
+          and cm.sender_id = #{senderId}
+          and cm.receiver_id = #{receiverId}
+        order by cm.create_time desc
+            limit 1
+    </select>
 </mapper>

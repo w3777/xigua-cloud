@@ -1,9 +1,16 @@
 package com.xigua.center.service;
 
-import com.xigua.api.service.GroupService;
-import com.xigua.api.service.SyncRedisService;
-import com.xigua.api.service.UserService;
+import com.alibaba.fastjson2.JSONObject;
+import com.xigua.api.service.*;
+import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
+import com.xigua.domain.bo.LastMessageBO;
+import com.xigua.domain.bo.LastMessageContentBO;
+import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.entity.User;
+import com.xigua.domain.enums.ChatType;
+import com.xigua.domain.enums.RedisEnum;
+import com.xigua.domain.vo.LastMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -28,6 +35,10 @@ public class SyncRedisServiceImpl implements SyncRedisService {
     private UserService userService;
     @DubboReference
     private GroupService groupService;
+    @DubboReference
+    private FriendRelationService friendRelationService;
+    @Autowired
+    private ChatMessageService chatMessageService;
 
     /**
      * 同步用户到redis
@@ -57,7 +68,7 @@ public class SyncRedisServiceImpl implements SyncRedisService {
             userService.addUser2Redis(userId);
         }
 
-        return null;
+        return true;
     }
 
     /**
@@ -88,6 +99,66 @@ public class SyncRedisServiceImpl implements SyncRedisService {
             groupService.addGroup2Redis(groupId);
         }
 
-        return null;
+        return true;
+    }
+
+    /**
+     * 同步聊天列表到redis
+     * @author wangjinfei
+     * @date 2025/8/9 11:48
+     * @param userIds
+     * @return Boolean
+     */
+    @Override
+    public Boolean syncChatList2Redis(List<String> userIds) {
+        List<String> needSyncUserIds = new ArrayList<>();
+
+        // 有用户id列表，直接同步
+        if(CollectionUtils.isNotEmpty(userIds)){
+            needSyncUserIds = userIds;
+        }else{
+            // 没有用户id列表，查询所有用户id
+            needSyncUserIds = userService.getAllUserId();
+        }
+
+        if(CollectionUtils.isEmpty(needSyncUserIds)){
+            return false;
+        }
+
+        // 遍历用户
+        for (String userId : needSyncUserIds) {
+            List<User> friends = friendRelationService.getFriendsByUserId4Db(userId);
+            if(CollectionUtils.isEmpty(friends)){
+                continue;
+            }
+
+            for (User friend : friends) {
+                String friendId = friend.getId();
+
+                // 获取好友最后一条消息
+                ChatMessage lastMessage = chatMessageService.getLastMessage(friendId, userId);
+                if(lastMessage == null){
+                    continue;
+                }
+
+                // 映射vo
+                LastMessageVO lastMessageVO = new LastMessageVO();
+                lastMessageVO.setChatId(friendId);
+                lastMessageVO.setChatType(ChatType.ONE.getType());
+                lastMessageVO.setChatName(friend.getUsername());
+                lastMessageVO.setAvatar(friend.getAvatar());
+                LastMessageContentBO lastMessageContentBO = new LastMessageContentBO();
+                lastMessageContentBO.setContent(lastMessage.getMessage());
+                lastMessageVO.setLastMessageContent(lastMessageContentBO);
+                lastMessageVO.setUpdateTime(DateUtil.toEpochMilli(lastMessage.getCreateTime()));
+
+                // 同步redis 最后消息
+                redisUtil.zsadd(RedisEnum.LAST_MES.getKey() + userId, friendId, DateUtil.toEpochMilli(lastMessage.getCreateTime()));
+                // 同步redis 最后消息内容
+                redisUtil.hashPut(RedisEnum.LAST_MES_CONTENT.getKey() + userId, friendId, JSONObject.toJSONString(lastMessageVO));
+            }
+        }
+
+        return true;
     }
 }

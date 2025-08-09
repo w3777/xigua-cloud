@@ -21,6 +21,7 @@ import com.xigua.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import java.util.Set;
  * @Author wangjinfei
  * @Date 2025/5/17 19:19
  */
+@Service
 @DubboService
 @RequiredArgsConstructor
 public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatMessage> implements ChatMessageService {
@@ -172,5 +174,18 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
     @Override
     public Integer batchRead(List<String> ids, String updateBy) {
         return baseMapper.batchRead(ids, updateBy);
+    }
+
+    /**
+     * 获取好友最后一条消息
+     * @author wangjinfei
+     * @date 2025/8/9 12:11
+     * @param senderId
+     * @param receiverId
+     * @return ChatMessage
+     */
+    @Override
+    public ChatMessage getLastMessage(String senderId, String receiverId) {
+        return baseMapper.getLastMessage(senderId, receiverId);
     }
 }
