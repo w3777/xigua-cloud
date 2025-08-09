@@ -42,14 +42,12 @@
 
     <!-- 模块   -->
     <modules>
-        <module>demo-test</module>
         <module>xigua-gateway</module>
         <module>xigua-api</module>
         <module>xigua-common</module>
         <module>xigua-domain</module>
         <module>xigua-client</module>
         <module>xigua-center</module>
-        <module>xigua-sso</module>
     </modules>
 
     <profiles>

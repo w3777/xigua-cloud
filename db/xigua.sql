@@ -44,7 +44,6 @@ create table xg_friend_request
         primary key,
     sender_id   bigint            null comment '发起人',
     receiver_id bigint            null comment '接收人',
-    status      tinyint default 1 null comment '状态（0：失效；1：有效）',
     flow_status tinyint           null comment '流程状态（0：待处理；1：同意；2：拒绝）',
     apply_msg   varchar(300)      null comment '验证消息',
     del_flag    tinyint default 0 null comment '是否删除 （0：未删除；1：已删除）',

@@ -1,10 +1,10 @@
-package com.xigua.sso.controller;
+package com.xigua.client.controller;
 
+import com.xigua.api.service.AuthService;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.dto.LoginDTO;
 import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.result.R;
-import com.xigua.api.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

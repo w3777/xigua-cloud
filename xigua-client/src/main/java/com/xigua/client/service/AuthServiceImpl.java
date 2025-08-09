@@ -1,6 +1,9 @@
-package com.xigua.sso.service;
+package com.xigua.client.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.api.service.AuthService;
+import com.xigua.api.service.EmailService;
+import com.xigua.api.service.UserService;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.model.UserToken;
 import com.xigua.common.core.util.RedisUtil;
@@ -11,9 +14,6 @@ import com.xigua.domain.dto.RegisterUserDTO;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.vo.LoginVO;
-import com.xigua.api.service.AuthService;
-import com.xigua.api.service.EmailService;
-import com.xigua.api.service.UserService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
