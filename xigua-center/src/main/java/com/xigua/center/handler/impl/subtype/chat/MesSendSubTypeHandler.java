@@ -2,6 +2,7 @@ package com.xigua.center.handler.impl.subtype.chat;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.center.handler.base.SubTypeHandler;
+import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
@@ -17,6 +18,10 @@ import com.xigua.api.service.ChatMessageService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -37,6 +42,8 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
     private CenterService centerService;
     @Autowired
     private ChatMessageService chatMessageService;
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     /**
      * 获取子消息类型
@@ -61,11 +68,21 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         String receiverId = chatMessageDTO.getReceiverId();
         chatMessageDTO.setChatMessageId(chatMessageId);
 
+        // 定义事务
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+
+        // 开启事务
+        TransactionStatus status = transactionManager.getTransaction(def);
+
         // db处理 mysql持久化
         messageDbHandle(chatMessageDTO);
 
-        // ack处理 (回传消息id给发送人)
-        ackHandle(chatMessageDTO);
+        // ack处理 (回传消息id给发送人、超时回滚)
+        ackHandle(chatMessageDTO, status);
+
+        // 执行到这里没有异常 提交事务（保证mysql入库）
+        transactionManager.commit(status);
 
         // todo 下面所有逻辑处理都可以放到mq里做排队异步处理，提高系统吞吐量
 
@@ -103,11 +120,12 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
      * ack处理
      * 回传消息id给发送人
      * id在服务端生成，客户端应该第一时间拿到消息id，也为后续已读做铺垫
+     * 超时回滚
      * @author wangjinfei
      * @date 2025/6/6 21:02
      * @param chatMessageDTO
     */
-    private void ackHandle(ChatMessageDTO chatMessageDTO){
+    private void ackHandle(ChatMessageDTO chatMessageDTO, TransactionStatus status){
         String senderId = chatMessageDTO.getSenderId();
         // 获取发送人所在的节点信息
         String userInServer = centerService.onlineUser(senderId);
@@ -132,7 +150,53 @@ public class MesSendSubTypeHandler implements SubTypeHandler {
         // 客户端传过来时间戳，服务端不做处理直接回传
         // 消息内容重复也能根据客户端时间戳 + 消息内容，找到消息并把消息id赋值
         dto.setCreateTime(chatMessageDTO.getCreateTime());
+
+        // 发送ack之前，判断是否需要发送ack
+        sendAckBefore(chatMessageDTO, status);
+
         centerService.sendMessage2Client(dto, client);
+    }
+
+    /**
+     * 发送ack之前，判断是否需要发送ack
+     * @author wangjinfei
+     * @date 2025/8/12 21:29
+    */
+    private void sendAckBefore(ChatMessageDTO chatMessageDTO, TransactionStatus status){
+        if(chatMessageDTO.getServerReceiveTime() == null){
+            transactionManager.rollback(status);
+            throw new BusinessException("--------->>>>>>> 服务端收到消息的时间不能为空");
+        }
+
+        // 模拟超时，可以验证客户端1500毫秒未收到ack导致的消息发送失败
+//        mockTimeout(status);
+
+        // 前端发送消息后1500毫秒没有接收到服务端的ack，认为发送失败
+        long sendAckBeforeTime = System.currentTimeMillis();
+        if(sendAckBeforeTime - chatMessageDTO.getServerReceiveTime() > 1400){ // 服务端要判断1400毫秒
+            transactionManager.rollback(status);
+            // 系统报错，不往下进行任何处理
+            throw new BusinessException("--------->>>>>>> 服务端收到消息的时间与当前时间差不能超过1400毫秒");
+        }
+    }
+
+    /**
+     * 模拟超时
+     * @author wangjinfei
+     * @date 2025/8/13 8:10
+     * @param status
+    */
+    private void mockTimeout(TransactionStatus status){
+        try{
+            // 假标志 控制是否阻塞
+            String flag = redisUtil.get("flag");
+            if(StringUtils.isEmpty(flag)){
+                Thread.sleep(1800);
+            }
+        }catch (Exception e){
+            transactionManager.rollback(status);
+            e.printStackTrace();
+        }
     }
 
     /**

@@ -273,7 +273,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
                 LocalDateTime createTime = groupMember.getCreateTime();
 
                 // set 缓存群成员信息
-                redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + ":" + userId, JSONObject.toJSONString(groupMember));
+                redisUtil.set(RedisEnum.GROUP_MEMBER.getKey() + groupId + "_" + userId, JSONObject.toJSONString(groupMember));
 
                 // zset 缓存群成员id
                 redisUtil.zsadd(RedisEnum.GROUP_MEMBER_ID.getKey() + groupId, userId, DateUtil.toEpochMilli(createTime));

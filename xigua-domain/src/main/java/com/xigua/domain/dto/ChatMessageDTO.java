@@ -49,4 +49,9 @@ public class ChatMessageDTO implements Serializable {
      * 聊天消息id
      */
     private String chatMessageId;
+
+    /**
+     * 服务端收到消息的时间
+     */
+    private Long serverReceiveTime;
 }

@@ -8,7 +8,8 @@ spring:
   # 邮箱
   mail:
     host: smtp.qq.com
-    protocol: smtp
+    # 开始ssl 使用smtps而不是smtp
+    protocol: smtps
     username: xxx@qq.com
     password: xxxxxx
     properties:
