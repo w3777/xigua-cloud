@@ -13,8 +13,11 @@ import com.xigua.domain.vo.ContactCountVO;
 import com.xigua.domain.vo.FriendRequestVO;
 import com.xigua.domain.vo.FriendVO;
 import com.xigua.domain.vo.GroupVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +32,9 @@ import java.util.stream.Collectors;
  * @Author wangjinfei
  * @Date 2025/7/27 9:38
  */
+@Slf4j
 @Service
+@DubboService
 public class ContactServiceImpl implements ContactService {
     @Autowired
     private FriendRelationService friendRelationService;
@@ -38,9 +43,9 @@ public class ContactServiceImpl implements ContactService {
     @Autowired
     private GroupMemberService groupMemberService;
     @Autowired
-    private CenterService centerService;
-    @Autowired
     private RedisUtil redisUtil;
+    @DubboReference
+    private CenterService centerService;
 
 
     /**

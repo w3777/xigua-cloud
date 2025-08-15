@@ -24,8 +24,11 @@ import com.xigua.api.service.FriendRelationService;
 import com.xigua.api.service.FriendRequestService;
 import com.xigua.api.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,15 +42,20 @@ import java.util.stream.Collectors;
  * @Author wangjinfei
  * @Date 2025/5/13 21:24
  */
+@Slf4j
 @Service
 @DubboService
-@RequiredArgsConstructor
 public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper, FriendRelation> implements FriendRelationService {
-    private final Sequence sequence;
-    private final FriendRequestService friendRequestService;
-    private final UserService userService;
-    private final CenterService centerService;
-    private final RedisUtil redisUtil;
+    @Autowired
+    private Sequence sequence;
+    @Autowired
+    private FriendRequestService friendRequestService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private RedisUtil redisUtil;
+    @DubboReference
+    private CenterService centerService;
 
     /**
      * 发送好友请求

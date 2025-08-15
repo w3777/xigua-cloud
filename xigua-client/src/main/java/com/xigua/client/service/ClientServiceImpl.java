@@ -11,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.stereotype.Service;
 
 /**
  * @ClassName ClientServiceImpl
@@ -21,12 +23,13 @@ import org.springframework.boot.web.servlet.context.ServletWebServerApplicationC
  * @Date 2025/4/20 15:33
  */
 @Slf4j
-@RequiredArgsConstructor
+@Service
 @DubboService
 public class ClientServiceImpl implements ClientService {
-    private final ServletWebServerApplicationContext webServerAppContext;
+    @Autowired
+    private ServletWebServerApplicationContext webServerAppContext;
     @DubboReference
-    private final CenterService centerService;
+    private CenterService centerService;
 
     @Value("${dubbo.protocol.port}")
     private Integer dubboPort;

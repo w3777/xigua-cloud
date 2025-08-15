@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -20,11 +21,10 @@ import org.springframework.web.bind.annotation.*;
  * @Date 2025/5/17 19:38
  */
 @Tag(name = "消息接口")
-@RequiredArgsConstructor
 @RequestMapping("/chat/message")
 @RestController
 public class ChatMessageController {
-    @DubboReference
+    @Autowired
     private ChatMessageService chatMessageService;
 
     /**

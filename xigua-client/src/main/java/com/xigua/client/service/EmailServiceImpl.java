@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -22,15 +23,14 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @DubboService
 public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String from;
-
-    private final JavaMailSender javaMailSender;
-
-    private final RedisUtil redisUtil;
+    @Autowired
+    private JavaMailSender javaMailSender;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 发送邮件

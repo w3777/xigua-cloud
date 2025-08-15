@@ -17,10 +17,12 @@ import com.xigua.api.service.CenterService;
 import com.xigua.api.service.EmailService;
 import com.xigua.api.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,16 +34,18 @@ import java.util.List;
  * @Author wangjinfei
  * @Date 2025/4/27 9:53
  */
+@Slf4j
 @Service
 @DubboService
-@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-    private final RedisUtil redisUtil;
-    private final Sequence sequence;
+    @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private Sequence sequence;
     @DubboReference
-    private final EmailService emailService;
+    private EmailService emailService;
     @DubboReference
-    private final CenterService centerService;
+    private CenterService centerService;
 
     /**
      * 获取当前登录用户信息

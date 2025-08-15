@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +23,10 @@ import java.util.List;
  * @Date 2025/4/27 11:48
  */
 @Tag(name = "用户接口")
-@RequiredArgsConstructor
 @RequestMapping("/user")
 @RestController
 public class UserController {
-    @DubboReference
+    @Autowired
     private UserService userService;
 
     /**

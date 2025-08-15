@@ -10,6 +10,7 @@ import com.xigua.domain.enums.FriendRequestFlowStatus;
 import com.xigua.domain.enums.FriendRequestStatus;
 import com.xigua.api.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +23,9 @@ import java.util.List;
  * @Author wangjinfei
  * @Date 2025/5/13 21:22
  */
+@Slf4j
 @Service
 @DubboService
-@RequiredArgsConstructor
 public class FriendRequestServiceImpl extends ServiceImpl<FriendRequestMapper, FriendRequest> implements FriendRequestService {
 
     /**

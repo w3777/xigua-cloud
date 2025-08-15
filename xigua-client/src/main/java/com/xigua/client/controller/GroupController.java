@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,11 +22,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "群组接口")
 @Slf4j
-@RequiredArgsConstructor
 @RequestMapping("/group")
 @RestController
 public class GroupController {
-    @DubboReference
+    @Autowired
     private GroupService groupService;
 
     /**

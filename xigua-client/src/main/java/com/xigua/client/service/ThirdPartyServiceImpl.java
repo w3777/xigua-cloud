@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,12 +28,15 @@ import static org.springframework.boot.actuate.autoconfigure.security.servlet.En
  * @Date 2025/5/11 14:06
  */
 @Slf4j
+@Service
 @DubboService
-@RequiredArgsConstructor
 public class ThirdPartyServiceImpl implements ThirdPartyService {
-    private final RedisUtil redisUtil;
     private final OkHttpClient client = new OkHttpClient();
-    private final ThirdPartyProperties thirdPartyProperties;
+
+    @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private ThirdPartyProperties thirdPartyProperties;
 
     /**
      * 根据ip获取地址

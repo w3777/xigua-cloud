@@ -14,6 +14,7 @@ import com.xigua.domain.vo.LastMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,17 +29,18 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@DubboService
 public class SyncRedisServiceImpl implements SyncRedisService {
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private ChatMessageService chatMessageService;
     @DubboReference
     private UserService userService;
     @DubboReference
     private GroupService groupService;
     @DubboReference
     private FriendRelationService friendRelationService;
-    @Autowired
-    private ChatMessageService chatMessageService;
 
     /**
      * 同步用户到redis

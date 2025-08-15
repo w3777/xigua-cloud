@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,11 +23,10 @@ import java.util.Set;
  * @Date 2025/4/23 20:15
  */
 @Tag(name = "长连接中心接口")
-@RequiredArgsConstructor
 @RequestMapping("/center")
 @RestController
 public class CenterController {
-    @DubboReference
+    @Autowired
     private CenterService centerService;
 
     /**

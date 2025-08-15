@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -23,11 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
  * @Date 2025/5/8 14:27
  */
 @Tag(name = "文件接口")
-@RequiredArgsConstructor
 @RequestMapping("/file")
 @RestController
 public class FileController {
-    @DubboReference
+    @Autowired
     private FileService fileService;
 
     /**

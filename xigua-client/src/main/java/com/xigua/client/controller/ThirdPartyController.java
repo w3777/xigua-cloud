@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -19,11 +20,10 @@ import org.springframework.web.bind.annotation.*;
  * @Date 2025/5/11 14:28
  */
 @Tag(name = "三方接口")
-@RequiredArgsConstructor
 @RequestMapping("/thirdParty")
 @RestController
 public class ThirdPartyController {
-    @DubboReference
+    @Autowired
     private ThirdPartyService thirdPartyService;
 
     /**

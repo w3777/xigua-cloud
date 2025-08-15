@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -15,11 +16,10 @@ import org.springframework.web.bind.annotation.*;
  * @Date 2025/5/7 14:52
  */
 @Tag(name = "邮箱接口")
-@RequiredArgsConstructor
 @RequestMapping("/email")
 @RestController
 public class EmailController {
-    @DubboReference
+    @Autowired
     private EmailService emailService;
 
     @Operation(summary = "发送邮箱")

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +23,10 @@ import java.util.List;
  * @Date 2025/5/13 23:07
  */
 @Tag(name = "好友关系接口")
-@RequiredArgsConstructor
 @RequestMapping("/friend/relation")
 @RestController
 public class FriendRelationController {
-    @DubboReference
+    @Autowired
     private FriendRelationService friendRelationService;
 
     /**

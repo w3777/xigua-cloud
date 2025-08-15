@@ -53,14 +53,15 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private Sequence sequence;
     @Autowired
     private RedisUtil redisUtil;
-    @DubboReference
-    private GroupMemberService groupMemberService;
     @Autowired
     private NineCellImageUtil nineCellImageUtil;
     @Autowired
     private MessageQueueProducer messageQueueProducer;
     @Autowired
     private UserService userService;
+
+    @DubboReference
+    private GroupMemberService groupMemberService;
 
     /**
      * 创建群组

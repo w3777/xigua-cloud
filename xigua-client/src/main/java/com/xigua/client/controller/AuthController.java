@@ -23,11 +23,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "认证接口")
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 @RestController
 public class AuthController {
     @Autowired
-    private final AuthService authService;
+    private AuthService authService;
 
     /**
      * 注册

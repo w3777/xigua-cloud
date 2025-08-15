@@ -15,6 +15,7 @@ import com.xigua.domain.enums.GroupRole;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.GroupMemberService;
 import com.xigua.api.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @Author wangjinfei
  * @Date 2025/7/6 11:14
  */
+@Slf4j
 @Service
 @DubboService
 public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, GroupMember> implements GroupMemberService {

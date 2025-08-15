@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
@@ -19,11 +21,13 @@ import java.util.Set;
  * @Date 2025/6/16 20:37
  */
 @Slf4j
-@RequiredArgsConstructor
+@Service
 @DubboService
 public class JobServiceImpl implements JobService {
-    private final RedisUtil redisUtil;
-    private final CenterService centerService;
+    @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private CenterService centerService;
 
     @Override
     public void checkOnlineConnection() {

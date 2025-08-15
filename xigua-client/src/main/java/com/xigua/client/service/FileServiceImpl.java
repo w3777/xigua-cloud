@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -27,19 +29,22 @@ import java.util.Set;
  * @Date 2025/5/8 13:54
  */
 @Slf4j
-@RequiredArgsConstructor
+@Service
 @DubboService
 public class FileServiceImpl implements FileService {
-    private final Sequence sequence;
-
     // 允许上传的文件后缀名
     private final static Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "png");
 
-    private final MinioClient minioClient;
     @Value("${minio.bucket-name}")
     private String bucketName;
     @Value("${minio.proxy}")
     private String proxy;
+
+    @Autowired
+    private Sequence sequence;
+    @Autowired
+    private MinioClient minioClient;
+
 
     /**
      * 上传文件

@@ -1,7 +1,9 @@
 package com.xigua.center.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.factory.MessageHandlerFactory;
+import com.xigua.center.factory.MessageServiceFactory;
+import com.xigua.center.message.AbstractMessageService;
+import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
@@ -10,13 +12,13 @@ import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.ClientService;
 import com.xigua.api.service.CenterService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.rpc.cluster.specifyaddress.Address;
 import org.apache.dubbo.rpc.cluster.specifyaddress.UserSpecifiedAddressUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -31,11 +33,9 @@ import java.util.Set;
 @Slf4j
 @Service
 @DubboService
-@RequiredArgsConstructor
 public class CenterServiceImpl implements CenterService {
-    private final RedisUtil redisUtil;
-    private final MessageHandlerFactory messageHandlerFactory;
-
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 客户端注册上线
@@ -63,8 +63,13 @@ public class CenterServiceImpl implements CenterService {
         // 通知好友用户上线
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
         chatMessageDTO.setSenderId(userId);
-        messageHandlerFactory.dispatch(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_ONLINE.getType(), chatMessageDTO);
 
+        AbstractMessageService messageService = MessageServiceFactory.getMessageService(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_ONLINE.getType());
+        if(messageService == null){
+            log.error("未找到消息服务：消息主类型：{}，消息子类型：{}", MessageType.NOTIFY.getType(), MessageSubType.FRIEND_ONLINE.getType());
+            throw new BusinessException("未找到消息服务");
+        }
+        messageService.handleMessage(chatMessageDTO);
         log.info("------->>>>>>> 用户：{}，所在服务器：{}，注册上线", userId, key);
     }
 
@@ -99,7 +104,13 @@ public class CenterServiceImpl implements CenterService {
         // 通知好友用户下线
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
         chatMessageDTO.setSenderId(userId);
-        messageHandlerFactory.dispatch(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_OFFLINE.getType(), chatMessageDTO);
+
+        AbstractMessageService messageService = MessageServiceFactory.getMessageService(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_OFFLINE.getType());
+        if(messageService == null){
+            log.error("未找到消息服务：消息主类型：{}，消息子类型：{}", MessageType.NOTIFY.getType(), MessageSubType.FRIEND_OFFLINE.getType());
+            throw new BusinessException("未找到消息服务");
+        }
+        messageService.handleMessage(chatMessageDTO);
 
         log.info("------->>>>>>> 用户：{}，所在服务器：{}，注销下线", userId, wsClientKey);
     }
@@ -116,8 +127,14 @@ public class CenterServiceImpl implements CenterService {
         String subType = chatMessageDTO.getSubType();
 
         log.info("------->>>>>>> 接收到客户端消息：{}", chatMessageDTO);
+
         // 接收客户端发来的消息，根据消息类型和子类型进行不同处理 （工厂 + 策略设计模式）
-        messageHandlerFactory.dispatch(messageType, subType, chatMessageDTO);
+        AbstractMessageService messageService = MessageServiceFactory.getMessageService(messageType, subType);
+        if(messageService == null){
+            log.error("未找到消息服务：消息主类型：{}，消息子类型：{}", messageType, subType);
+            throw new BusinessException("未找到消息服务");
+        }
+        messageService.handleMessage(chatMessageDTO);
     }
 
     /**

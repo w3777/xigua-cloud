@@ -19,8 +19,10 @@ import com.xigua.api.service.CenterService;
 import com.xigua.api.service.ChatMessageService;
 import com.xigua.api.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,15 +36,16 @@ import java.util.Set;
  * @Author wangjinfei
  * @Date 2025/5/17 19:19
  */
+@Slf4j
 @Service
 @DubboService
-@RequiredArgsConstructor
 public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatMessage> implements ChatMessageService {
-    private final RedisUtil redisUtil;
+    @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private CenterService centerService;
     @DubboReference
-    private final UserService userService;
-    @DubboReference
-    private final CenterService centerService;
+    private UserService userService;
 
     /**
      * 获取好友最后一条消息

@@ -7,6 +7,7 @@ import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.vo.HomeCountVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
  * @Author wangjinfei
  * @Date 2025/8/9 10:54
  */
+@Slf4j
 @Service
 @DubboService
 public class HomeServiceImpl implements HomeService {
