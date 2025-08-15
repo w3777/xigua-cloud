@@ -1,3 +1,9 @@
+-- 数据库表结构
+
+-- 数据库名称：xigua
+-- 数据库编码：utf8mb4
+-- 数据库排序规则：utf8mb4_0900_ai_ci
+
 -- 用户表
 -- auto-generated definition
 create table xg_user

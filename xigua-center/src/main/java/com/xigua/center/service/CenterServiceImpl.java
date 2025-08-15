@@ -1,7 +1,7 @@
 package com.xigua.center.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.factory.MessageServiceFactory;
+import com.xigua.center.message.MessageServiceFactory;
 import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
@@ -128,12 +128,14 @@ public class CenterServiceImpl implements CenterService {
 
         log.info("------->>>>>>> 接收到客户端消息：{}", chatMessageDTO);
 
-        // 接收客户端发来的消息，根据消息类型和子类型进行不同处理 （工厂 + 策略设计模式）
+        // 根据主类和子类型获取消息service
         AbstractMessageService messageService = MessageServiceFactory.getMessageService(messageType, subType);
         if(messageService == null){
             log.error("未找到消息服务：消息主类型：{}，消息子类型：{}", messageType, subType);
             throw new BusinessException("未找到消息服务");
         }
+
+        // 根据不同的消息service处理消息
         messageService.handleMessage(chatMessageDTO);
     }
 

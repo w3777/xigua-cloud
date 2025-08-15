@@ -1,7 +1,7 @@
-package com.xigua.center.handler.impl.subtype.heartbeat;
+package com.xigua.center.message;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.handler.base.SubTypeHandler;
+import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
@@ -24,19 +24,29 @@ import java.time.LocalDateTime;
  * @Date 2025/6/3 20:34
  */
 @Component
-public class PingSubTypeHandler implements SubTypeHandler {
+public class HeartBeatPingMessageService extends AbstractMessageService {
     @Autowired
     private RedisUtil redisUtil;
     @Autowired
     private CenterService centerService;
 
     @Override
-    public String getSubType() {
+    public String getMessageName() {
+        return MessageSubType.PING.getDesc();
+    }
+
+    @Override
+    public String getMessageType() {
+        return MessageType.HEART_BEAT.getType();
+    }
+
+    @Override
+    public String getMessageSubType() {
         return MessageSubType.PING.getType();
     }
 
     @Override
-    public void handle(ChatMessageDTO chatMessageDTO) {
+    public void handleMessage(ChatMessageDTO chatMessageDTO) {
         String userId = chatMessageDTO.getSenderId();
 
         // 更新最后心跳时间
@@ -48,11 +58,6 @@ public class PingSubTypeHandler implements SubTypeHandler {
         /** 
          * todo 客户端发送的ping，以及服务端响应的pong，是可以做持久化的
         */
-    }
-
-    @Override
-    public String getMessageType() {
-        return MessageType.HEART_BEAT.getType();
     }
 
     /**

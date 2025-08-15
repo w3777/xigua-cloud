@@ -10,19 +10,11 @@ import com.xigua.domain.dto.ChatMessageDTO;
  */
 public abstract class AbstractMessageService {
     /**
-     * 处理消息
-     * @author wangjinfei
-     * @date 2025/8/14 21:52
-     * @param chatMessageDTO
-    */
-    public abstract void handleMessage(ChatMessageDTO chatMessageDTO);
-
-    /**
      * 获取消息服务名称
      * @author wangjinfei
      * @date 2025/8/14 22:31
      * @return String
-    */
+     */
     public abstract String getMessageName();
 
     /**
@@ -30,7 +22,7 @@ public abstract class AbstractMessageService {
      * @author wangjinfei
      * @date 2025/8/14 22:27
      * @return String
-    */
+     */
     public abstract String getMessageType();
 
     /**
@@ -38,6 +30,14 @@ public abstract class AbstractMessageService {
      * @author wangjinfei
      * @date 2025/8/14 22:27
      * @return String
-    */
+     */
     public abstract String getMessageSubType();
+
+    /**
+     * 处理消息
+     * @author wangjinfei
+     * @date 2025/8/14 21:52
+     * @param chatMessageDTO
+    */
+    public abstract void handleMessage(ChatMessageDTO chatMessageDTO);
 }

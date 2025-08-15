@@ -1,8 +1,8 @@
-package com.xigua.center.handler.impl.subtype.chat;
+package com.xigua.center.message;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.handler.base.SubTypeHandler;
+import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
@@ -26,7 +26,7 @@ import java.util.List;
  * @Date 2025/6/4 21:50
  */
 @Component
-public class SubmitUnreadSubTypeHandler implements SubTypeHandler {
+public class ChatSubmitUnreadMessageService extends AbstractMessageService {
     @Autowired
     private ChatMessageService chatMessageService;
     @Autowired
@@ -35,12 +35,22 @@ public class SubmitUnreadSubTypeHandler implements SubTypeHandler {
     private CenterService centerService;
 
     @Override
-    public String getSubType() {
+    public String getMessageName() {
+        return MessageSubType.SUBMIT_UNREAD.getDesc();
+    }
+
+    @Override
+    public String getMessageType() {
+        return MessageType.CHAT.getType();
+    }
+
+    @Override
+    public String getMessageSubType() {
         return MessageSubType.SUBMIT_UNREAD.getType();
     }
 
     @Override
-    public void handle(ChatMessageDTO chatMessageDTO) {
+    public void handleMessage(ChatMessageDTO chatMessageDTO) {
         String senderId = chatMessageDTO.getSenderId();
         String message = chatMessageDTO.getMessage();
         if(StringUtils.isEmpty(message)){
@@ -58,11 +68,6 @@ public class SubmitUnreadSubTypeHandler implements SubTypeHandler {
 
         // 好友未读消息清零
         friendUnreadHande(chatMessageDTO);
-    }
-
-    @Override
-    public String getMessageType() {
-        return MessageType.CHAT.getType();
     }
 
     /**

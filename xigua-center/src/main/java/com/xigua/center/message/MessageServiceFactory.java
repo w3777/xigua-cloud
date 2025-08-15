@@ -1,6 +1,5 @@
-package com.xigua.center.factory;
+package com.xigua.center.message;
 
-import com.xigua.center.handler.base.MessageTypeHandler;
 import com.xigua.center.message.AbstractMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,7 +15,7 @@ import java.util.Map;
  * @Description
  * @Author wangjinfei
  * @Date 2025/6/2 17:55
- * 工厂类，用于根据主类型和子类型找到对应的消息处理器
+ * 消息工厂，获取消息服务
  */
 @Slf4j
 @Component
@@ -47,24 +46,6 @@ public class MessageServiceFactory {
             log.info("--------->>>>>  {} - 消息服务注册成功", messageService.getMessageName());
         }
     }
-
-    /**
-     * 根据主类型和子类型找到对应的消息处理器并处理消息
-     * @author wangjinfei
-     * @date 2025/6/2 19:56
-     * @param mainType
-     * @param subType
-     * @param chatMessageDTO
-    */
-//    public void dispatch(String mainType, String subType, ChatMessageDTO chatMessageDTO) {
-//        MessageTypeHandler maninHandler = mainHandlerMap.get(mainType);
-//        log.info("------->>>>>>> 主类型处理器：{}", maninHandler);
-//        if (maninHandler != null) {
-//            maninHandler.dispatchSub(subType, chatMessageDTO);
-//        } else {;
-//            log.error("未找到主类型处理器: {}", mainType);
-//        }
-//    }
 
     /**
      * 根据主类型和子类型获取消息service

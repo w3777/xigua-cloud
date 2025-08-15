@@ -1,7 +1,7 @@
-package com.xigua.center.handler.impl.subtype.notify;
+package com.xigua.center.message;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.handler.base.SubTypeHandler;
+import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * @Date 2025/6/2 20:34
  */
 @Component
-public class FriendOfflineSubTypeHandler implements SubTypeHandler {
+public class NotifyFriendOfflineMessageService extends AbstractMessageService {
     @Autowired
     private RedisUtil redisUtil;
     @Autowired
@@ -34,7 +34,17 @@ public class FriendOfflineSubTypeHandler implements SubTypeHandler {
 
 
     @Override
-    public String getSubType() {
+    public String getMessageName() {
+        return MessageSubType.FRIEND_OFFLINE.getDesc();
+    }
+
+    @Override
+    public String getMessageType() {
+        return MessageType.NOTIFY.getType();
+    }
+
+    @Override
+    public String getMessageSubType() {
         return MessageSubType.FRIEND_OFFLINE.getType();
     }
 
@@ -45,7 +55,7 @@ public class FriendOfflineSubTypeHandler implements SubTypeHandler {
      * @param chatMessageDTO
     */
     @Override
-    public void handle(ChatMessageDTO chatMessageDTO) {
+    public void handleMessage(ChatMessageDTO chatMessageDTO) {
         String userId = chatMessageDTO.getSenderId();
 
         // 获取和当前用户有好友关系的用户
@@ -78,10 +88,5 @@ public class FriendOfflineSubTypeHandler implements SubTypeHandler {
             chatMessageDTO.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
             centerService.sendMessage2Client(chatMessageDTO, client);
         }
-    }
-
-    @Override
-    public String getMessageType() {
-        return MessageType.NOTIFY.getType();
     }
 }

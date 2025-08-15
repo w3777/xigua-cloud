@@ -1,6 +1,6 @@
-package com.xigua.center.handler.impl.subtype.notify;
+package com.xigua.center.message;
 
-import com.xigua.center.handler.base.SubTypeHandler;
+import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.enums.MessageSubType;
@@ -16,25 +16,30 @@ import org.springframework.stereotype.Component;
  * @Date 2025/6/3 20:34
  */
 @Component
-public class CloseChatWindowSubTypeHandler implements SubTypeHandler {
+public class NotifyRemoveFriendMessageService extends AbstractMessageService {
     @Autowired
     private RedisUtil redisUtil;
 
     @Override
-    public String getSubType() {
-        return MessageSubType.REMOVE_FRIEND.getType();
-    }
-
-    @Override
-    public void handle(ChatMessageDTO chatMessageDTO) {
-        String userId = chatMessageDTO.getSenderId();
-
-        // 删除当前聊天窗口
-        redisUtil.del(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + userId);
+    public String getMessageName() {
+        return MessageSubType.REMOVE_FRIEND.getDesc();
     }
 
     @Override
     public String getMessageType() {
         return MessageType.NOTIFY.getType();
+    }
+
+    @Override
+    public String getMessageSubType() {
+        return MessageSubType.REMOVE_FRIEND.getType();
+    }
+
+    @Override
+    public void handleMessage(ChatMessageDTO chatMessageDTO) {
+        String userId = chatMessageDTO.getSenderId();
+
+        // 删除当前聊天窗口
+        redisUtil.del(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + userId);
     }
 }
