@@ -1,6 +1,7 @@
 package com.xigua.center.message;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.api.service.MessageReadService;
 import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.DateUtil;
@@ -11,6 +12,7 @@ import com.xigua.domain.bo.LastMessageContentBO;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.entity.MessageRead;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.*;
 import com.xigua.api.service.CenterService;
@@ -42,6 +44,8 @@ public class ChatMesSendMessageService extends AbstractMessageService {
     private CenterService centerService;
     @Autowired
     private ChatMessageService chatMessageService;
+    @Autowired
+    private MessageReadService messageReadService;
     @Autowired
     private PlatformTransactionManager transactionManager;
 
@@ -98,7 +102,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
 
         // 接收人在线
         if(StringUtils.isNotEmpty(receiverInServer)){
-            // 发送人消息处理（消息直接已读）
+            // 给发送人发送消息已读
             senderHande(chatMessageDTO);
         }
     }
@@ -254,13 +258,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
         centerService.sendMessage2Client(dto, client);
 
         // 修改消息状态为已读  todo 可以优化成异步处理，减少阻塞
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setId(chatMessageDTO.getChatMessageId());
-        chatMessage.setIsRead(ChatMessageIsRead.READ.getType());
-        chatMessage.setReadTime(LocalDateTime.now());
-        chatMessage.setUpdateBy(receiverId);
-        chatMessage.setUpdateTime(LocalDateTime.now());
-        chatMessageService.updateById(chatMessage);
+        messageReadService.markRead(chatMessageDTO.getChatMessageId(), receiverId);
     }
 
     /**
@@ -273,6 +271,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
         String senderId = chatMessageDTO.getSenderId();
         String receiverId = chatMessageDTO.getReceiverId();
         String message = chatMessageDTO.getMessage();
+        Integer chatType = chatMessageDTO.getChatType();
 
         // 封装聊天消息
         ChatMessage chatMessage = new ChatMessage();
@@ -280,11 +279,22 @@ public class ChatMesSendMessageService extends AbstractMessageService {
         chatMessage.setSenderId(senderId);
         chatMessage.setReceiverId(receiverId);
         chatMessage.setMessage(message);
+        chatMessage.setChatType(chatType);
         // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
         chatMessage.setCreateBy(senderId);
-        // 消息默认全部未读，已读状态由前端主动修改
-        chatMessage.setIsRead(ChatMessageIsRead.UNREAD.getType());
+        // 添加聊天消息
         chatMessageService.save(chatMessage);
+
+        // 添加消息未读
+        MessageRead messageRead = new MessageRead();
+        messageRead.setId(sequence.nextNo());
+        messageRead.setMessageId(chatMessageDTO.getChatMessageId());
+        messageRead.setSenderId(senderId);
+        messageRead.setReceiverId(receiverId);
+        messageRead.setIsRead(MessageReadStatus.UNREAD.getType());
+        // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
+        messageRead.setCreateBy(senderId);
+        messageReadService.save(messageRead);
 
         /**
          * todo 注意同步es

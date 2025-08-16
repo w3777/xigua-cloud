@@ -9,17 +9,18 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * @ClassName Message
+ * @ClassName MessageRead
  * @Description TODO
  * @Author wangjinfei
- * @Date 2025/5/17 19:12
+ * @Date 2025/8/16 16:48
  */
 @Data
-@TableName("xg_chat_message")
-@Schema(title = "消息实体")
-public class ChatMessage implements Serializable {
+@TableName("xg_message_read")
+@Schema(title = "消息已读")
+public class MessageRead implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     /**
      * 主键id
      */
@@ -28,9 +29,9 @@ public class ChatMessage implements Serializable {
     private String id;
 
     /**
-     * 发起人
+     * 发送人
      */
-    @Schema(name = "发起人")
+    @Schema(name = "发送人")
     private String senderId;
 
     /**
@@ -40,16 +41,10 @@ public class ChatMessage implements Serializable {
     private String receiverId;
 
     /**
-     * 消息内容
+     * 消息id
      */
-    @Schema(name = "消息内容")
-    private String message;
-
-    /**
-     * 聊天类型（1：单聊；2：群聊）
-     */
-    @Schema(name = "聊天类型（1：单聊；2：群聊）")
-    private Integer chatType;
+    @Schema(name = "消息id")
+    private String messageId;
 
     /**
      * 是否已读（0：未读；1：已读）

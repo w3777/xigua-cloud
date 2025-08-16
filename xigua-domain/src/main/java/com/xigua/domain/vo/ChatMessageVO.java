@@ -31,9 +31,9 @@ public class ChatMessageVO implements Serializable {
     private String receiverId;
 
     /**
-     * 消息类型
+     * 聊天类型
      */
-    private String messageType;
+    private Integer chatType;
 
     /**
      * 消息文本正文

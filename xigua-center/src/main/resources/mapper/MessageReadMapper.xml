@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xigua.center.mapper.MessageReadMapper">
+
+    <update id="markRead">
+        update xg_message_read
+        set is_read = 1, read_time = now(), update_by = #{receiverId}, update_time = now()
+        where del_flag = 0 and message_id = #{messageId} and receiver_id = #{receiverId}
+    </update>
+    <update id="markReadBatch">
+        update xg_message_read mr
+        set mr.is_read = 1, mr.read_time = now(), mr.update_by = #{receiverId}, mr.update_time = now()
+        where mr.del_flag = 0
+          and mr.message_id in
+        <foreach collection="messageIdList" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

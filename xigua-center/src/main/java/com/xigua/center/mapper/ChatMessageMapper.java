@@ -40,16 +40,6 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
                                       @Param("receiverId") String receiverId);
 
     /**
-     * 批量标记消息为已读
-     * @author wangjinfei
-     * @date 2025/6/4 21:58
-     * @param ids
-     * @param updateBy
-     * @return Integer
-     */
-    Integer batchRead(@Param("ids") List<String> ids, @Param("updateBy")String updateBy);
-
-    /**
      * 获取好友最后一条消息
      * @author wangjinfei
      * @date 2025/8/9 12:11

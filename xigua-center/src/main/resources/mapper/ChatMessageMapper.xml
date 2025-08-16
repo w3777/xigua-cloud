@@ -14,23 +14,14 @@
     </select>
 
     <select id="getHistoryMes" resultType="com.xigua.domain.vo.ChatMessageVO">
-        select ct.id as chatMessageId, ct.sender_id, ct.receiver_id, ct.message, ct.is_read, ct.create_time
+        select ct.id as chatMessageId, ct.sender_id, ct.receiver_id, ct.message, ct.chat_type, ct.create_time, mr.is_read
         from xg_chat_message ct
+        left join xg_message_read mr on mr.message_id = ct.id and mr.receiver_id = ct.receiver_id
         where ct.del_flag = 0
           and (ct.sender_id = #{senderId} and ct.receiver_id = #{receiverId} or
                ct.sender_id = #{receiverId} and ct.receiver_id = #{senderId})
         order by ct.create_time desc
     </select>
-
-    <update id="batchRead">
-        update xg_chat_message cm
-        set cm.is_read = 1, read_time = now(), cm.update_by = #{updateBy}, cm.update_time = now()
-        where cm.del_flag = 0
-          and cm.id in
-        <foreach collection="ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </update>
 
     <select id="getLastMessage" resultType="com.xigua.domain.entity.ChatMessage">
         select cm.id, cm.sender_id, cm.receiver_id, cm.message, cm.is_read, cm.read_time, cm.del_flag,

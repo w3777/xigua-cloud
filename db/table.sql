@@ -69,8 +69,7 @@ create table xg_chat_message
     sender_id   bigint            null comment '发送人',
     receiver_id    bigint            null comment '接收人',
     message     text              null comment '消息内容',
-    is_read     tinyint           null comment '是否已读（0：未读；1：已读）',
-    read_time   datetime          null comment '已读时间',
+    chat_type   tinyint           not null comment '聊天类型（1：单聊；2：群聊）',
     del_flag    tinyint default 0 null comment '是否删除 （0：未删除；1：已删除）',
     create_by   bigint            null comment '创建人',
     create_time datetime          null comment '创建时间',
@@ -116,5 +115,24 @@ create table xg_group_member
     update_time datetime          null comment '修改时间'
 )
     comment '群成员表';
+
+-- 消息已读表
+-- auto-generated definition
+create table xg_message_read
+(
+    id          bigint            not null comment '主键id'
+        primary key,
+    sender_id   bigint            null comment '发送人id',
+    receiver_id bigint            null comment '接收人id',
+    message_id  bigint            null comment '消息id',
+    is_read     tinyint           not null comment '是否已读（0：未读；1：已读）',
+    read_time   datetime          null comment '已读时间',
+    del_flag    tinyint default 0 null comment '是否删除 （0：未删除；1：已删除）',
+    create_by   bigint            null comment '创建人',
+    create_time datetime          null comment '创建时间',
+    update_by   bigint            null comment '修改人',
+    update_time datetime          null comment '修改时间'
+)
+    comment '消息已读表';
 
 

@@ -2,6 +2,7 @@ package com.xigua.center.message;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.api.service.MessageReadService;
 import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
@@ -33,6 +34,8 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
     private RedisUtil redisUtil;
     @Autowired
     private CenterService centerService;
+    @Autowired
+    private MessageReadService messageReadService;
 
     @Override
     public String getMessageName() {
@@ -61,7 +64,7 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
             return;
         }
         // 批量更新消息为已读
-        chatMessageService.batchRead(chatMessageIdList, senderId);
+        messageReadService.markReadBatch(chatMessageIdList, senderId);
 
         // 接收人处理  todo 可以优化成异步处理，减少阻塞
         receiverHande(chatMessageDTO);
@@ -109,19 +112,6 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
             dto.setMessage(json);
             dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
             centerService.sendMessage2Client(dto, client);
-
-
-            /**
-             * 如果要做群聊已读，需要拆出一张已读表，来做一对多的关系
-            */
-            // 修改消息状态为已读
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setId(chatMessageDTO.getChatMessageId());
-            chatMessage.setIsRead(ChatMessageIsRead.READ.getType());
-            chatMessage.setReadTime(LocalDateTime.now());
-            chatMessage.setUpdateBy(receiverId);
-            chatMessage.setUpdateTime(LocalDateTime.now());
-            chatMessageService.updateById(chatMessage);
         }
     }
 

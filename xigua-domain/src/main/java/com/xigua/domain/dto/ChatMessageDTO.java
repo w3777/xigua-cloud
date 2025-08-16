@@ -41,6 +41,12 @@ public class ChatMessageDTO implements Serializable {
     private String message;
 
     /**
+     * 聊天类型
+     * @see com.xigua.domain.enums.ChatType
+     */
+    private Integer chatType;
+
+    /**
      * 创建时间
      */
     private String createTime;
