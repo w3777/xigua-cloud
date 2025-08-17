@@ -1,14 +1,12 @@
-package com.xigua.center.message;
+package com.xigua.center.wsMessage;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.api.service.MessageReadService;
-import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
-import com.xigua.domain.entity.ChatMessage;
 import com.xigua.domain.enums.*;
 import com.xigua.api.service.CenterService;
 import com.xigua.api.service.ChatMessageService;

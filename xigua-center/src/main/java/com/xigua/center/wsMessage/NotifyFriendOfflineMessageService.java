@@ -1,7 +1,6 @@
-package com.xigua.center.message;
+package com.xigua.center.wsMessage;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
@@ -20,13 +19,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @ClassName FriendOnlineSubTypeHandler
+ * @ClassName FriendOfflineSubTypeHandler
  * @Description TODO
  * @Author wangjinfei
- * @Date 2025/6/2 20:19
+ * @Date 2025/6/2 20:34
  */
 @Component
-public class NotifyFriendOnlineMessageService extends AbstractMessageService {
+public class NotifyFriendOfflineMessageService extends AbstractMessageService {
     @Autowired
     private RedisUtil redisUtil;
     @Autowired
@@ -35,7 +34,7 @@ public class NotifyFriendOnlineMessageService extends AbstractMessageService {
 
     @Override
     public String getMessageName() {
-        return MessageSubType.FRIEND_ONLINE.getDesc();
+        return MessageSubType.FRIEND_OFFLINE.getDesc();
     }
 
     @Override
@@ -45,15 +44,15 @@ public class NotifyFriendOnlineMessageService extends AbstractMessageService {
 
     @Override
     public String getMessageSubType() {
-        return MessageSubType.FRIEND_ONLINE.getType();
+        return MessageSubType.FRIEND_OFFLINE.getType();
     }
 
     /**
-     * 通知好友用户上线
+     * 通知好友用户下线
      * @author wangjinfei
      * @date 2025/6/2 20:38
      * @param chatMessageDTO
-     */
+    */
     @Override
     public void handleMessage(ChatMessageDTO chatMessageDTO) {
         String userId = chatMessageDTO.getSenderId();
@@ -84,7 +83,7 @@ public class NotifyFriendOnlineMessageService extends AbstractMessageService {
             chatMessageDTO.setReceiverId(friend);
             chatMessageDTO.setMessage("");
             chatMessageDTO.setMessageType(MessageType.NOTIFY.getType());
-            chatMessageDTO.setSubType(MessageSubType.FRIEND_ONLINE.getType());
+            chatMessageDTO.setSubType(MessageSubType.FRIEND_OFFLINE.getType());
             chatMessageDTO.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
             centerService.sendMessage2Client(chatMessageDTO, client);
         }

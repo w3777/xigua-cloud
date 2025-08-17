@@ -4,11 +4,14 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.center.mapper.ChatMessageMapper;
+import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
+import com.xigua.domain.bo.SenderBo;
 import com.xigua.domain.dto.GetLastMesDTO;
 import com.xigua.domain.dto.GetHistoryMes;
 import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.ChatType;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.result.BasePageVO;
@@ -20,6 +23,8 @@ import com.xigua.api.service.ChatMessageService;
 import com.xigua.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,14 +156,44 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
      */
     @Override
     public BasePageVO<ChatMessageVO> getHistoryMes(GetHistoryMes dto) {
-        String senderId = UserContext.get().getUserId();
+        String userId = UserContext.get().getUserId();
         String receiverId = dto.getReceiverId();
+        Integer chatType = dto.getChatType();
         Integer pageNum = dto.getPageNum();
         Integer pageSize = dto.getPageSize();
         Page<ChatMessageVO> page = new Page<>(pageNum, pageSize);
         List<ChatMessageVO> chatMesList = new ArrayList<>();
-        // 查询历史消息（我发给好友和好友发给我的消息，按时间倒序查询）
-        chatMesList = baseMapper.getHistoryMes(page, senderId, receiverId);
+        // 好友聊天
+        if (chatType == ChatType.ONE.getType()) {
+            // 查询历史消息（我发给好友和好友发给我的消息，按时间倒序查询）
+            chatMesList = baseMapper.getPrivateChatHistoryMes(page, userId, receiverId);
+        }else if(chatType == ChatType.TWO.getType()){
+            chatMesList = baseMapper.getGroupChatHistoryMes(page, receiverId);
+        }else{
+            throw new BusinessException("聊天类型不存在");
+        }
+
+        // 返回空分页
+        if(CollectionUtils.isEmpty(chatMesList)){
+            return BasePage.emptyResult(page);
+        }
+
+        // 群聊
+        if(chatType == ChatType.TWO.getType()){
+            // 遍历发送人信息
+            for (ChatMessageVO chatMessageVO : chatMesList) {
+                SenderBo senderBo = new SenderBo();
+                String senderId = chatMessageVO.getSenderId();
+                String userCache = redisUtil.get(RedisEnum.USER.getKey() + senderId);
+                if(StringUtils.isNotEmpty(userCache)){
+                    User user = JSONObject.parseObject(userCache, User.class);
+                    senderBo.setUsername(user.getUsername());
+                    senderBo.setAvatar(user.getAvatar());
+                }
+                chatMessageVO.setSender(senderBo);
+            }
+        }
+
         // 反转消息列表 页面显示最新的消息在最下面
         Collections.reverse(chatMesList);
         BasePageVO<ChatMessageVO> result = BasePage.getResult(page, chatMesList);

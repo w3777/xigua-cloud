@@ -36,7 +36,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param receiverId
      * @return List<ChatMessageVO>
     */
-    List<ChatMessageVO> getHistoryMes(Page<ChatMessageVO> page, @Param("senderId") String senderId,
+    List<ChatMessageVO> getPrivateChatHistoryMes(Page<ChatMessageVO> page, @Param("senderId") String senderId,
                                       @Param("receiverId") String receiverId);
 
     /**
@@ -48,4 +48,14 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @return ChatMessage
      */
     ChatMessage getLastMessage(@Param("senderId") String senderId, @Param("receiverId") String receiverId);
+
+    /**
+     * 分页获取群聊历史消息
+     * @author wangjinfei
+     * @date 2025/8/17 20:16
+     * @param page
+     * @param groupId
+     * @return List<ChatMessageVO>
+    */
+    List<ChatMessageVO> getGroupChatHistoryMes(Page<ChatMessageVO> page, @Param("groupId") String groupId);
 }

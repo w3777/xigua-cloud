@@ -4,9 +4,10 @@ import com.alibaba.fastjson2.JSONObject;
 import com.xigua.api.service.*;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
-import com.xigua.domain.bo.LastMessageBO;
 import com.xigua.domain.bo.LastMessageContentBO;
 import com.xigua.domain.entity.ChatMessage;
+import com.xigua.domain.entity.Group;
+import com.xigua.domain.entity.GroupMember;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.ChatType;
 import com.xigua.domain.enums.RedisEnum;
@@ -41,6 +42,8 @@ public class SyncRedisServiceImpl implements SyncRedisService {
     private GroupService groupService;
     @DubboReference
     private FriendRelationService friendRelationService;
+    @DubboReference
+    private GroupMemberService groupMemberService;
 
     /**
      * 同步用户到redis
@@ -158,6 +161,62 @@ public class SyncRedisServiceImpl implements SyncRedisService {
                 redisUtil.zsadd(RedisEnum.LAST_MES.getKey() + userId, friendId, DateUtil.toEpochMilli(lastMessage.getCreateTime()));
                 // 同步redis 最后消息内容
                 redisUtil.hashPut(RedisEnum.LAST_MES_CONTENT.getKey() + userId, friendId, JSONObject.toJSONString(lastMessageVO));
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 同步群组聊天列表到redis
+     * @author wangjinfei
+     * @date 2025/8/17 9:40
+     * @param groupIds
+     * @return Boolean
+     */
+    @Override
+    public Boolean syncGroupChatList2Redis(List<String> groupIds) {
+        List<Group> needSyncGroups = new ArrayList<>();
+
+        // 有群组id列表，直接同步
+        if(CollectionUtils.isNotEmpty(groupIds)){
+            needSyncGroups = groupService.getListByIds(groupIds);
+        }else{
+            // 没有群组id列表，查询所有群组id
+            needSyncGroups = groupService.getAllGroup();
+        }
+
+        if(CollectionUtils.isEmpty(needSyncGroups)){
+            return false;
+        }
+
+        // 遍历群组
+        for (Group group : needSyncGroups) {
+            String groupId = group.getId();
+
+            List<GroupMember> groupMembers = groupMemberService.getListByGroupId(groupId);
+            if(CollectionUtils.isEmpty(groupMembers)){
+                continue;
+            }
+
+            for (GroupMember groupMember : groupMembers) {
+                String userId = groupMember.getUserId();
+
+                // 映射vo
+                LastMessageVO lastMessageVO = new LastMessageVO();
+                lastMessageVO.setChatId(groupId);
+                lastMessageVO.setChatType(ChatType.TWO.getType());
+                lastMessageVO.setChatName(group.getGroupName());
+                lastMessageVO.setAvatar(group.getGroupAvatar());
+                LastMessageContentBO lastMessageContentBO = new LastMessageContentBO();
+                lastMessageContentBO.setContent("");
+                lastMessageVO.setLastMessageContent(lastMessageContentBO);
+                lastMessageVO.setUpdateTime(DateUtil.toEpochMilli(groupMember.getCreateTime()));
+
+                // 同步redis 最后消息
+                redisUtil.zsadd(RedisEnum.LAST_MES.getKey() + userId, groupId, DateUtil.toEpochMilli(groupMember.getCreateTime()));
+                // 同步redis 最后消息内容
+                redisUtil.hashPut(RedisEnum.LAST_MES_CONTENT.getKey() + userId, groupId, JSONObject.toJSONString(lastMessageVO));
             }
         }
 

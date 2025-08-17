@@ -1,7 +1,6 @@
-package com.xigua.center.message;
+package com.xigua.center.wsMessage;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;

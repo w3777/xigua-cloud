@@ -49,4 +49,20 @@ public interface GroupService extends IService<Group> {
      * @return GroupDetailVO
     */
     GroupDetailVO getGroupDetail(String groupId);
+
+    /**
+     * 根据群组id获取群组
+     * @author wangjinfei
+     * @date 2025/8/17 9:50
+     * @return List<Group>
+    */
+    List<Group> getListByIds(List<String> groupIds);
+
+    /**
+     * 获取所有群组
+     * @author wangjinfei
+     * @date 2025/8/17 9:55
+     * @return List<Group>
+    */
+    List<Group> getAllGroup();
 }

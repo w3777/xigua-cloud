@@ -17,4 +17,6 @@ public class GetHistoryMes extends BasePageDTO implements Serializable {
 
     private String senderId;
     private String receiverId;
+
+    private Integer chatType;
 }

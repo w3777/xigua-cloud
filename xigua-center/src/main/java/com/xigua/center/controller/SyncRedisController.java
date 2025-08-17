@@ -77,4 +77,21 @@ public class SyncRedisController {
         }
         return R.ok(redisService.syncChatList2Redis(null));
     }
+
+    /**
+     * 同步群组聊天列表到redis
+     * @author wangjinfei
+     * @date 2025/8/17 9:40
+     * @param params
+     * @return Boolean
+     */
+    @Operation(summary = "同步群组聊天列表到redis")
+    @PostMapping("/syncGroupChatList2Redis")
+    public R<Boolean> syncGroupChatList2Redis(@RequestBody Map<String, Object> params){
+        List<String> groupIds = (List<String>) params.get("groupIds");
+        if(CollectionUtils.isNotEmpty(groupIds)){
+            return R.ok(redisService.syncGroupChatList2Redis(groupIds));
+        }
+        return R.ok(redisService.syncGroupChatList2Redis(null));
+    }
 }

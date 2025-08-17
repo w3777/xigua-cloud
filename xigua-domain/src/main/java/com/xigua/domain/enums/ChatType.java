@@ -6,12 +6,14 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public enum ChatType {
-    ONE(1,"单聊"),
-    TWO(2,"群聊"),
+    ONE(1,"privateChat","单聊"),
+    TWO(2,"groupChat","群聊"),
     // todo ai对话
     ;
 
     final Integer type;
+
+    final String name;
 
     final String desc;
 
@@ -19,7 +21,21 @@ public enum ChatType {
         return type;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getDesc() {
         return desc;
+    }
+
+
+    public static ChatType getChatType(Integer type) {
+        for (ChatType chatType : ChatType.values()) {
+            if(chatType.type.equals(type)){
+                return chatType;
+            }
+        }
+        return null;
     }
 }

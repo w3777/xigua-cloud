@@ -1,8 +1,8 @@
 package com.xigua.center.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.message.MessageServiceFactory;
-import com.xigua.center.message.AbstractMessageService;
+import com.xigua.center.wsMessage.MessageServiceFactory;
+import com.xigua.center.wsMessage.AbstractMessageService;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;

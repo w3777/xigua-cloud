@@ -168,7 +168,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
      * @return List<GroupMember>
      */
     @Override
-    public List<GroupMember> getGroupMembersByGroupId(String groupId) {
+    public List<GroupMember> getListByGroupId(String groupId) {
         List<GroupMember> groupMembers = baseMapper.selectList(new LambdaQueryWrapper<GroupMember>()
                 .eq(GroupMember::getGroupId, groupId));
         if(CollectionUtils.isEmpty(groupMembers)){
@@ -226,5 +226,20 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         }
 
         return groupMember.getRole();
+    }
+
+    /**
+     * 根据群id获取群成员列表
+     * @author wangjinfei
+     * @date 2025/8/17 17:47
+     * @param groupId
+     * @return Set<String>
+     */
+    @Override
+    public Set<String> getGroupMembers(String groupId) {
+        // 获取群组成员
+        Set<String> groupMemberIds = redisUtil.zsReverseRange(RedisEnum.GROUP_MEMBER_ID.getKey() + groupId,
+                0, -1, String.class);
+        return groupMemberIds;
     }
 }

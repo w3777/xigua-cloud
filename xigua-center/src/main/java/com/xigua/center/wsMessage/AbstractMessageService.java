@@ -1,10 +1,10 @@
-package com.xigua.center.message;
+package com.xigua.center.wsMessage;
 
 import com.xigua.domain.dto.ChatMessageDTO;
 
 /**
  * @ClassName AbstractMessageService
- * @Description TODO
+ * @Description websocket 消息抽象类
  * @Author wangjinfei
  * @Date 2025/8/14 21:41
  */

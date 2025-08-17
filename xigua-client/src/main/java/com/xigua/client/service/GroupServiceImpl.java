@@ -1,13 +1,13 @@
 package com.xigua.client.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.api.service.UserService;
 import com.xigua.client.mapper.GroupMapper;
 import com.xigua.client.utils.NineCellImageUtil;
 import com.xigua.common.core.exception.BusinessException;
-import com.xigua.common.core.transaction.TransactionSyncMgr;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
@@ -30,7 +30,6 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -267,7 +266,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         redisUtil.set(RedisEnum.GROUP.getKey() + groupId, JSONObject.toJSONString(group));
 
         // 群成员添加缓存
-        List<GroupMember> groupMembers = groupMemberService.getGroupMembersByGroupId(groupId);
+        List<GroupMember> groupMembers = groupMemberService.getListByGroupId(groupId);
         if(CollectionUtils.isNotEmpty(groupMembers)){
             for (GroupMember groupMember : groupMembers) {
                 String userId = groupMember.getUserId();
@@ -357,5 +356,30 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         }
 
         return groupDetailVO;
+    }
+
+    /**
+     * 根据群组id获取群组
+     * @author wangjinfei
+     * @date 2025/8/17 9:50
+     * @return List<Group>
+     */
+    @Override
+    public List<Group> getListByIds(List<String> groupIds) {
+        List<Group> groups = baseMapper.selectList(new LambdaQueryWrapper<Group>()
+                .in(Group::getId, groupIds));
+        return groups;
+    }
+
+    /**
+     * 获取所有群组
+     * @author wangjinfei
+     * @date 2025/8/17 9:55
+     * @return List<Group>
+     */
+    @Override
+    public List<Group> getAllGroup() {
+        List<Group> groups = baseMapper.selectList(null);
+        return groups;
     }
 }

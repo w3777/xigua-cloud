@@ -3,6 +3,7 @@ package com.xigua.domain.util;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xigua.domain.result.BasePageVO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +28,22 @@ public class BasePage<R> {
         result.setRows(list);
         result.setTotalPage(page.getPages());
         result.setTotalCount(page.getTotal());
+        return result;
+    }
+
+    /**
+     * 空分页结果
+     * @author wangjinfei
+     * @date 2025/8/17 20:32
+     * @return BasePageVO<R>
+    */
+    public static <R> BasePageVO<R> emptyResult(Page<R> page){
+        BasePageVO<R> result = new BasePageVO<>();
+        result.setPageNum((int) page.getCurrent());
+        result.setPageSize((int) page.getSize());
+        result.setRows(new ArrayList<>());
+        result.setTotalPage(0L);
+        result.setTotalCount(0L);
         return result;
     }
 }

@@ -18,6 +18,7 @@ public enum RedisEnum {
     FRIEND_RELATION("friend_relation:", "好友关系"),
     CURRENT_CHAT_WINDOW("current_chat_window:", "当前聊天窗口"),
     FRIEND_UNREAD_COUNT("friend_unread_count:", "好友未读数量"),
+    GROUP_UNREAD_COUNT("group_unread_count:", "群聊未读数量"),
     TICKET("ticket:", "一次性ticket"),
     LAST_PING_TIME("last_ping_time:", "最后心跳时间"),
     GROUP("group:", "群聊信息"),

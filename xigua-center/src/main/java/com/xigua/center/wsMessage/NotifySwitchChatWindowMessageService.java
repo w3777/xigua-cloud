@@ -1,6 +1,5 @@
-package com.xigua.center.message;
+package com.xigua.center.wsMessage;
 
-import com.xigua.center.message.AbstractMessageService;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.enums.MessageSubType;
@@ -16,13 +15,13 @@ import org.springframework.stereotype.Component;
  * @Date 2025/6/3 20:34
  */
 @Component
-public class NotifyRemoveFriendMessageService extends AbstractMessageService {
+public class NotifySwitchChatWindowMessageService extends AbstractMessageService {
     @Autowired
     private RedisUtil redisUtil;
 
     @Override
     public String getMessageName() {
-        return MessageSubType.REMOVE_FRIEND.getDesc();
+        return MessageSubType.SWITCH_CHAT_WINDOW.getDesc();
     }
 
     @Override
@@ -32,14 +31,15 @@ public class NotifyRemoveFriendMessageService extends AbstractMessageService {
 
     @Override
     public String getMessageSubType() {
-        return MessageSubType.REMOVE_FRIEND.getType();
+        return MessageSubType.SWITCH_CHAT_WINDOW.getType();
     }
 
     @Override
     public void handleMessage(ChatMessageDTO chatMessageDTO) {
         String userId = chatMessageDTO.getSenderId();
+        String receiverId = chatMessageDTO.getReceiverId();
 
-        // 删除当前聊天窗口
-        redisUtil.del(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + userId);
+        // 更新当前聊天窗口
+        redisUtil.set(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + userId, receiverId);
     }
 }

@@ -1,6 +1,5 @@
-package com.xigua.center.message;
+package com.xigua.center.wsMessage;
 
-import com.xigua.center.message.AbstractMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +14,7 @@ import java.util.Map;
  * @Description
  * @Author wangjinfei
  * @Date 2025/6/2 17:55
- * 消息工厂，获取消息服务
+ * websocket消息工厂，获取消息服务
  */
 @Slf4j
 @Component

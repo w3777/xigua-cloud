@@ -1,5 +1,6 @@
 package com.xigua.common.core.util;
 
+import com.alibaba.fastjson2.JSON;
 import com.xigua.common.core.config.RedisConfig;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -224,6 +225,28 @@ public class RedisUtil {
     public Set<Object> zsReverseRange(String key, long start, long end) {
         Set<Object> setObj = redisTemplate.opsForZSet().reverseRange(key, start, end);
         return setObj;
+    }
+
+    /**
+     * zset获取指定区间的元素
+     * @author wangjinfei
+     * @date 2025/8/17 16:04
+     * @param key
+     * @param start
+     * @param end
+     * @param clazz
+     * @return Set<T>
+    */
+    public <T> Set<T> zsReverseRange(String key, long start, long end, Class<T> clazz) {
+        Set<Object> setObj = redisTemplate.opsForZSet().reverseRange(key, start, end);
+        if(CollectionUtils.isEmpty(setObj)){
+            return Set.of();
+        }
+        Set<T> set = setObj.stream()
+                .map(item -> JSON.parseObject(JSON.toJSONString(item), clazz))
+                .collect(Collectors.toSet());
+
+        return set;
     }
     
     /** 

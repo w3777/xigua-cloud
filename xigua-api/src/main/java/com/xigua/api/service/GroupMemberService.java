@@ -50,7 +50,7 @@ public interface GroupMemberService extends IService<GroupMember> {
      * @param groupId
      * @return List<GroupMember>
     */
-    List<GroupMember> getGroupMembersByGroupId(String groupId);
+    List<GroupMember> getListByGroupId(String groupId);
 
     /**
      * 获取加入时间
@@ -71,4 +71,13 @@ public interface GroupMemberService extends IService<GroupMember> {
      * @return Integer
     */
     Integer getGroupRole(String groupId, String userId);
+
+    /**
+     * 根据群id获取群成员列表
+     * @author wangjinfei
+     * @date 2025/8/17 17:47
+     * @param groupId
+     * @return Set<String>
+    */
+    Set<String> getGroupMembers(String groupId);
 }
