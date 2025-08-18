@@ -8,8 +8,7 @@ import com.xigua.api.service.MessageReadService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
-import com.xigua.domain.bo.LastMessageBO;
-import com.xigua.domain.bo.LastMessageContentBO;
+import com.xigua.domain.bo.*;
 import com.xigua.domain.connect.Client;
 import com.xigua.domain.dto.ChatMessageDTO;
 import com.xigua.domain.entity.Group;
@@ -166,6 +165,17 @@ public class GroupChatMessageService extends AbstractChatMessageService {
         }
 
         for (String groupMemberId : groupMemberIds) {
+            // 群聊 不用给自己推消息
+            if(groupMemberId.equals(chatMessageDTO.getSenderId())){
+                continue;
+            }
+
+            /**
+             * 下面要获取每个群员节点，再进行推送
+             * 本地发送群聊消息广播到每个在线群员都有延迟，更不要说体验版、线上了
+             * todo 可以mq + 线程池每个节点发送一批，就是多消费者思想
+            */
+
             // 获取接收人所在的节点信息
             String receiverInServer = centerService.onlineUser(groupMemberId);
             if(StringUtils.isEmpty(receiverInServer)){
@@ -181,11 +191,34 @@ public class GroupChatMessageService extends AbstractChatMessageService {
             // 此时的接收人是群组成员
             ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO();
             BeanUtils.copyProperties(chatMessageDTO, chatMessageDTO2);
+            chatMessageDTO2.setSenderId(chatMessageDTO.getReceiverId());
+            chatMessageDTO2.setSender(getRealSender(chatMessageDTO.getSenderId()));
             chatMessageDTO2.setReceiverId(groupMemberId);
             chatMessageDTO2.setSubType(MessageSubType.MES_RECEIVE.getType());
             // 实时推送消息，发送到接收人所在节点
             centerService.sendMessage2Client(chatMessageDTO2, client);
         }
+    }
+
+    /**
+     * 真正发送人
+     * @author wangjinfei
+     * @date 2025/8/18 21:25
+     * @param realSenderId
+     * @return SenderBO
+    */
+    private SenderBO getRealSender(String realSenderId){
+        SenderBO senderBO = new SenderBO();
+
+        // 获取真正发送人缓存
+        String userCache = redisUtil.get(RedisEnum.USER.getKey() + realSenderId);
+        if(StringUtils.isNotEmpty(userCache)){
+            User user = JSONObject.parseObject(userCache, User.class);
+            senderBO.setUsername(user.getUsername());
+            senderBO.setAvatar(user.getAvatar());
+        }
+
+        return senderBO;
     }
 
     /**

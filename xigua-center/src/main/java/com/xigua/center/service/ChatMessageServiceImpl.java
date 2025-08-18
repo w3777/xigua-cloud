@@ -7,7 +7,7 @@ import com.xigua.center.mapper.ChatMessageMapper;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
-import com.xigua.domain.bo.SenderBo;
+import com.xigua.domain.bo.SenderBO;
 import com.xigua.domain.dto.GetLastMesDTO;
 import com.xigua.domain.dto.GetHistoryMes;
 import com.xigua.domain.entity.ChatMessage;
@@ -21,7 +21,6 @@ import com.xigua.domain.vo.LastMessageVO;
 import com.xigua.api.service.CenterService;
 import com.xigua.api.service.ChatMessageService;
 import com.xigua.api.service.UserService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -182,7 +181,7 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
         if(chatType == ChatType.TWO.getType()){
             // 遍历发送人信息
             for (ChatMessageVO chatMessageVO : chatMesList) {
-                SenderBo senderBo = new SenderBo();
+                SenderBO senderBo = new SenderBO();
                 String senderId = chatMessageVO.getSenderId();
                 String userCache = redisUtil.get(RedisEnum.USER.getKey() + senderId);
                 if(StringUtils.isNotEmpty(userCache)){

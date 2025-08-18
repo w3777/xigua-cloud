@@ -1,5 +1,6 @@
 package com.xigua.domain.dto;
 
+import com.xigua.domain.bo.SenderBO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,6 +18,11 @@ public class ChatMessageDTO implements Serializable {
      * 发送人id
      */
     private String senderId;
+
+    /**
+     * 群聊 真正发送人
+    */
+    private SenderBO sender;
 
     /**
      * 接收人id

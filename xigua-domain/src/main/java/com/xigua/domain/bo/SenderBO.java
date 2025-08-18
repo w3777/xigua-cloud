@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @Date 2025/8/17 20:27
  */
 @Data
-public class SenderBo implements Serializable {
+public class SenderBO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

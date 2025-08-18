@@ -1,7 +1,6 @@
 package com.xigua.domain.vo;
 
-import com.xigua.domain.bo.SenderBo;
-import com.xigua.domain.result.BasePageVO;
+import com.xigua.domain.bo.SenderBO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -29,7 +28,7 @@ public class ChatMessageVO implements Serializable {
     /**
      * 发送人
      */
-    private SenderBo sender;
+    private SenderBO sender;
     /**
      * 接收人id
      */
