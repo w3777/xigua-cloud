@@ -55,6 +55,16 @@ Xigua-Cloud 是一款网页版即时通讯应用，功能对标微信。它支�
 | 唯一 ID 生成 | 雪花算法（Snowflake）                       | 分布式唯一 ID 生成策略，防止重复冲突             |
 | 接口文档生成   | Swagger (OpenAPI)                     | 自动生成 RESTful 接口文档，已集成到网关，支持可视化测试 |
 
+
+📢 **开发者交流群**  
+遇到问题或想参与讨论？欢迎扫码加入：
+<div align="center">
+  <img src="doc/images/discussion_group_qr.jpg" width="25%"/>
+  <br/> 
+  <sub>（扫码加入技术讨论）</sub>
+</div>
+
+
 ## 🛠️配置说明
 - `db/` 文件夹：数据库建表 SQL
 - `nacos/` 文件夹：Nacos 配置文件，包含各服务的配置项
