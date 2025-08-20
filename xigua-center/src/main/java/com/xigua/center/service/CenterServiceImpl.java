@@ -6,12 +6,13 @@ import com.xigua.center.wsMessage.AbstractMessageService;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.enums.MessageSubType;
 import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.ClientService;
 import com.xigua.api.service.CenterService;
+import com.xigua.domain.ws.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.ReferenceConfig;
@@ -61,15 +62,15 @@ public class CenterServiceImpl implements CenterService {
         redisUtil.sadd(onlineUserKey, userId);
 
         // 通知好友用户上线
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        chatMessageDTO.setSenderId(userId);
+        MessageRequest messageRequest = new MessageRequest();
+        messageRequest.setSenderId(userId);
 
         AbstractMessageService messageService = MessageServiceFactory.getMessageService(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_ONLINE.getType());
         if(messageService == null){
             log.error("未找到消息服务：消息主类型：{}，消息子类型：{}", MessageType.NOTIFY.getType(), MessageSubType.FRIEND_ONLINE.getType());
             throw new BusinessException("未找到消息服务");
         }
-        messageService.handleMessage(chatMessageDTO);
+        messageService.handleMessage(messageRequest);
         log.info("------->>>>>>> 用户：{}，所在服务器：{}，注册上线", userId, key);
     }
 
@@ -102,15 +103,15 @@ public class CenterServiceImpl implements CenterService {
         }
 
         // 通知好友用户下线
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        chatMessageDTO.setSenderId(userId);
+        MessageRequest messageRequest = new MessageRequest();
+        messageRequest.setSenderId(userId);
 
         AbstractMessageService messageService = MessageServiceFactory.getMessageService(MessageType.NOTIFY.getType(), MessageSubType.FRIEND_OFFLINE.getType());
         if(messageService == null){
             log.error("未找到消息服务：消息主类型：{}，消息子类型：{}", MessageType.NOTIFY.getType(), MessageSubType.FRIEND_OFFLINE.getType());
             throw new BusinessException("未找到消息服务");
         }
-        messageService.handleMessage(chatMessageDTO);
+        messageService.handleMessage(messageRequest);
 
         log.info("------->>>>>>> 用户：{}，所在服务器：{}，注销下线", userId, wsClientKey);
     }
@@ -119,14 +120,14 @@ public class CenterServiceImpl implements CenterService {
      * 接收来自客户端的消息
      * @author wangjinfei
      * @date 2025/4/20 15:06
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void receiveMessage4Client(ChatMessageDTO chatMessageDTO) {
-        String messageType = chatMessageDTO.getMessageType();
-        String subType = chatMessageDTO.getSubType();
+    public void receiveMessage4Client(MessageRequest messageRequest) {
+        String messageType = messageRequest.getMessageType();
+        String subType = messageRequest.getSubType();
 
-        log.info("------->>>>>>> 接收到客户端消息：{}", chatMessageDTO);
+        log.info("------->>>>>>> 接收到客户端消息：{}", messageRequest);
 
         // 根据主类和子类型获取消息service
         AbstractMessageService messageService = MessageServiceFactory.getMessageService(messageType, subType);
@@ -136,7 +137,7 @@ public class CenterServiceImpl implements CenterService {
         }
 
         // 根据不同的消息service处理消息
-        messageService.handleMessage(chatMessageDTO);
+        messageService.handleMessage(messageRequest);
     }
 
     /**
@@ -156,10 +157,10 @@ public class CenterServiceImpl implements CenterService {
      * 发送消息到指定节点
      * @author wangjinfei
      * @date 2025/4/20 11:11
-     * @param chatMessageDTO
+     * @param messageResponse
      */
     @Override
-    public void sendMessage2Client(ChatMessageDTO chatMessageDTO, Client client) {
+    public void sendMessage2Client(MessageResponse messageResponse, Client client) {
         String host = client.getHost();
         Integer dubboPort = client.getDubboPort();
 
@@ -168,7 +169,7 @@ public class CenterServiceImpl implements CenterService {
         referenceConfig.setInterface(ClientService.class);
         ClientService clientService = referenceConfig.get();
         UserSpecifiedAddressUtil.setAddress(new Address(host, dubboPort, true));
-        clientService.receiveMessage4Center(chatMessageDTO);
+        clientService.receiveMessage4Center(messageResponse);
     }
 
     /**

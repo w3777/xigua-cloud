@@ -4,11 +4,13 @@ import com.alibaba.fastjson2.JSONObject;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.enums.Sender;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.enums.MessageSubType;
 import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.CenterService;
+import com.xigua.domain.ws.MessageResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,11 +53,11 @@ public class NotifyFriendOnlineMessageService extends AbstractMessageService {
      * 通知好友用户上线
      * @author wangjinfei
      * @date 2025/6/2 20:38
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void handleMessage(ChatMessageDTO chatMessageDTO) {
-        String userId = chatMessageDTO.getSenderId();
+    public void handleMessage(MessageRequest messageRequest) {
+        String userId = messageRequest.getSenderId();
 
         // 获取和当前用户有好友关系的用户
         Set<String> friendKeys = redisUtil.scanZSetKeysInMember(userId, RedisEnum.FRIEND_RELATION.getKey() + "*");
@@ -80,12 +82,14 @@ public class NotifyFriendOnlineMessageService extends AbstractMessageService {
             Client client = JSONObject.parseObject(value, Client.class);
 
             // 通知好友用户上线
-            chatMessageDTO.setReceiverId(friend);
-            chatMessageDTO.setMessage("");
-            chatMessageDTO.setMessageType(MessageType.NOTIFY.getType());
-            chatMessageDTO.setSubType(MessageSubType.FRIEND_ONLINE.getType());
-            chatMessageDTO.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-            centerService.sendMessage2Client(chatMessageDTO, client);
+            MessageResponse messageResponse = new MessageResponse();
+            messageResponse.setSenderId(Sender.SYSTEM.getSender());
+            messageResponse.setReceiverId(friend);
+            messageResponse.setMessage("");
+            messageResponse.setMessageType(MessageType.NOTIFY.getType());
+            messageResponse.setSubType(MessageSubType.FRIEND_ONLINE.getType());
+            messageResponse.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
+            centerService.sendMessage2Client(messageResponse, client);
         }
     }
 }

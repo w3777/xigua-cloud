@@ -1,6 +1,6 @@
 package com.xigua.center.wsMessage;
 
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 
 /**
  * @ClassName AbstractMessageService
@@ -37,7 +37,7 @@ public abstract class AbstractMessageService {
      * 处理消息
      * @author wangjinfei
      * @date 2025/8/14 21:52
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    public abstract void handleMessage(ChatMessageDTO chatMessageDTO);
+    public abstract void handleMessage(MessageRequest messageRequest);
 }

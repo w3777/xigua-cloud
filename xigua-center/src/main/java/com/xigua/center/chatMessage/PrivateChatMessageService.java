@@ -10,10 +10,11 @@ import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.bo.LastMessageBO;
 import com.xigua.domain.bo.LastMessageContentBO;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.entity.MessageRead;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.*;
+import com.xigua.domain.ws.MessageResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,16 +46,16 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
     }
 
     @Override
-    public Boolean saveMessageUnread(ChatMessageDTO chatMessageDTO) {
+    public Boolean saveMessageUnread(MessageRequest messageRequest) {
         // 添加消息未读
         MessageRead messageRead = new MessageRead();
         messageRead.setId(sequence.nextNo());
-        messageRead.setMessageId(chatMessageDTO.getChatMessageId());
-        messageRead.setSenderId(chatMessageDTO.getSenderId());
-        messageRead.setReceiverId(chatMessageDTO.getReceiverId());
+        messageRead.setMessageId(messageRequest.getChatMessageId());
+        messageRead.setSenderId(messageRequest.getSenderId());
+        messageRead.setReceiverId(messageRequest.getReceiverId());
         messageRead.setIsRead(MessageReadStatus.UNREAD.getType());
         // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
-        messageRead.setCreateBy(chatMessageDTO.getSenderId());
+        messageRead.setCreateBy(messageRequest.getSenderId());
         boolean save = messageReadService.save(messageRead);
         return save;
     }
@@ -63,18 +64,18 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
      * 最后一条消息  (消息列表)
      * @author wangjinfei
      * @date 2025/8/17 17:09
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void lastMessage(ChatMessageDTO chatMessageDTO) {
-        String senderId = chatMessageDTO.getSenderId();
-        String receiverId = chatMessageDTO.getReceiverId();
+    public void lastMessage(MessageRequest messageRequest) {
+        String senderId = messageRequest.getSenderId();
+        String receiverId = messageRequest.getReceiverId();
         long timestamp = System.currentTimeMillis();
 
         // 存储redis 最后消息
         redisUtil.zsadd(RedisEnum.LAST_MES.getKey() + receiverId, senderId, timestamp);
         // 存储redis 最后消息内容
-        LastMessageBO lastMessageBO = chatMessageDTO2LastMessageBO(chatMessageDTO);
+        LastMessageBO lastMessageBO = chatMessageDTO2LastMessageBO(messageRequest);
         redisUtil.hashPut(RedisEnum.LAST_MES_CONTENT.getKey() + receiverId, senderId, JSONObject.toJSONString(lastMessageBO));
     }
 
@@ -82,13 +83,13 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
      * 封装最后消息内容
      * @author wangjinfei
      * @date 2025/7/18 13:46
-     * @param chatMessageDTO
+     * @param messageRequest
      * @return LastMessageBO
      */
-    private LastMessageBO chatMessageDTO2LastMessageBO(ChatMessageDTO chatMessageDTO){
+    private LastMessageBO chatMessageDTO2LastMessageBO(MessageRequest messageRequest){
         LastMessageBO lastMessageBO = new LastMessageBO();
         LastMessageContentBO lastMessageContent = new LastMessageContentBO();
-        String senderId = chatMessageDTO.getSenderId();
+        String senderId = messageRequest.getSenderId();
 
         lastMessageBO.setChatId(senderId);
         lastMessageBO.setChatType(ChatType.ONE.getType());
@@ -107,7 +108,7 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
         }
 
         // 封装 最后消息内容
-        lastMessageContent.setContent(chatMessageDTO.getMessage());
+        lastMessageContent.setContent(messageRequest.getMessage());
         lastMessageBO.setLastMessageContent(lastMessageContent);
 
         return lastMessageBO;
@@ -117,12 +118,12 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
      * 聊天消息发送到接收人
      * @author wangjinfei
      * @date 2025/8/17 17:14
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void chatMessage2Receiver(ChatMessageDTO chatMessageDTO) {
+    public void chatMessage2Receiver(MessageRequest messageRequest) {
         // 获取接收人所在的节点信息
-        String receiverInServer = centerService.onlineUser(chatMessageDTO.getReceiverId());
+        String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
         if(StringUtils.isEmpty(receiverInServer)){
             // 如果接收人不在线，直接返回，不做后续处理
             return;
@@ -134,25 +135,25 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
         Client client = JSONObject.parseObject(value, Client.class);
 
         // 实时推送消息，发送到接收人所在节点
-        ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO();
-        BeanUtils.copyProperties(chatMessageDTO, chatMessageDTO2);
-        chatMessageDTO2.setSubType(MessageSubType.MES_RECEIVE.getType());
-        centerService.sendMessage2Client(chatMessageDTO2, client);
+        MessageResponse messageResponse = new MessageResponse();
+        BeanUtils.copyProperties(messageRequest, messageResponse);
+        messageResponse.setSubType(MessageSubType.MES_RECEIVE.getType());
+        centerService.sendMessage2Client(messageResponse, client);
     }
 
     /**
      * 未读消息数量
      * @author wangjinfei
      * @date 2025/8/17 17:25
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void unreadMessageCount(ChatMessageDTO chatMessageDTO) {
-        String senderId = chatMessageDTO.getSenderId();
-        String receiverId = chatMessageDTO.getReceiverId();
+    public void unreadMessageCount(MessageRequest messageRequest) {
+        String senderId = messageRequest.getSenderId();
+        String receiverId = messageRequest.getReceiverId();
 
         // 获取接收人所在的节点信息
-        String receiverInServer = centerService.onlineUser(chatMessageDTO.getReceiverId());
+        String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
         if(StringUtils.isEmpty(receiverInServer)){
             return;
         }
@@ -183,15 +184,15 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
      * 消息未读到消息已读
      * @author wangjinfei
      * @date 2025/8/17 16:33
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void unread2Read(ChatMessageDTO chatMessageDTO) {
-        String senderId = chatMessageDTO.getSenderId();
-        String receiverId = chatMessageDTO.getReceiverId();
+    public void unread2Read(MessageRequest messageRequest) {
+        String senderId = messageRequest.getSenderId();
+        String receiverId = messageRequest.getReceiverId();
 
         // 获取接收人所在的节点信息
-        String receiverInServer = centerService.onlineUser(chatMessageDTO.getReceiverId());
+        String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
         if(StringUtils.isEmpty(receiverInServer)){
             return;
         }
@@ -218,19 +219,19 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
         Client client = JSONObject.parseObject(value, Client.class);
 
         // 系统推送已读通知
-        ChatMessageDTO dto = new ChatMessageDTO();
-        dto.setSenderId(Sender.SYSTEM.getSender());
-        dto.setReceiverId(senderId);
-        dto.setMessageType(MessageType.CHAT.getType());
-        dto.setSubType(MessageSubType.MES_READ.getType());
-        String readChatMessageIds = JSONObject.toJSONString(Arrays.asList(chatMessageDTO.getChatMessageId()));
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setSenderId(Sender.SYSTEM.getSender());
+        messageResponse.setReceiverId(senderId);
+        messageResponse.setMessageType(MessageType.CHAT.getType());
+        messageResponse.setSubType(MessageSubType.MES_READ.getType());
+        String readChatMessageIds = JSONObject.toJSONString(Arrays.asList(messageRequest.getChatMessageId()));
         String json = JSONObject.of("readChatMessageIds", readChatMessageIds).toJSONString();
 
-        dto.setMessage(json);
-        dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-        centerService.sendMessage2Client(dto, client);
+        messageResponse.setMessage(json);
+        messageResponse.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
+        centerService.sendMessage2Client(messageResponse, client);
 
         // 标记为已读
-        messageReadService.markRead(chatMessageDTO.getChatMessageId(), receiverId);
+        messageReadService.markRead(messageRequest.getChatMessageId(), receiverId);
     }
 }

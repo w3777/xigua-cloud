@@ -1,15 +1,13 @@
 package com.xigua.client.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xigua.client.mapper.FriendRelationMapper;
 import com.xigua.common.core.exception.BusinessException;
-import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
 import com.xigua.common.sequence.sequence.Sequence;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.dto.FriendVerifyDTO;
 import com.xigua.domain.dto.sendFriendRequestDTO;
 import com.xigua.domain.entity.FriendRelation;
@@ -17,13 +15,10 @@ import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.*;
 import com.xigua.domain.vo.FriendDetailVO;
-import com.xigua.domain.vo.FriendVO;
-import com.xigua.domain.vo.FriendRequestVO;
 import com.xigua.api.service.CenterService;
 import com.xigua.api.service.FriendRelationService;
 import com.xigua.api.service.FriendRequestService;
 import com.xigua.api.service.UserService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -193,14 +188,14 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
     */
     private void sendDefaultMessage(String userId, String friendId){
         // 添加好友默认发送消息
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        chatMessageDTO.setSenderId(userId);
-        chatMessageDTO.setReceiverId(friendId);
-        chatMessageDTO.setMessageType(MessageType.CHAT.getType());
-        chatMessageDTO.setSubType(MessageSubType.MES_SEND.getType());
-        chatMessageDTO.setMessage("你已成为我的好友");
-        chatMessageDTO.setCreateTime(String.valueOf(System.currentTimeMillis()));
-        centerService.receiveMessage4Client(chatMessageDTO);
+        MessageRequest messageRequest = new MessageRequest();
+        messageRequest.setSenderId(userId);
+        messageRequest.setReceiverId(friendId);
+        messageRequest.setMessageType(MessageType.CHAT.getType());
+        messageRequest.setSubType(MessageSubType.MES_SEND.getType());
+        messageRequest.setMessage("你已成为我的好友");
+        messageRequest.setCreateTime(String.valueOf(System.currentTimeMillis()));
+        centerService.receiveMessage4Client(messageRequest);
     }
 
     /**

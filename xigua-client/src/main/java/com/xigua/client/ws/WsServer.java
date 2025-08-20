@@ -3,7 +3,7 @@ package com.xigua.client.ws;
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.client.helper.SessionHelper;
 import com.xigua.common.core.exception.BusinessException;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.api.service.ClientService;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
@@ -58,14 +58,14 @@ public class WsServer {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         log.info("---->>>>>[websocket] 收到消息：sessionId={}，message={}", session.getId(), message);
-        ChatMessageDTO chatMessageDTO = JSONObject.parseObject(message, ChatMessageDTO.class);
+        MessageRequest messageRequest = JSONObject.parseObject(message, MessageRequest.class);
 
         // 服务端收到消息的时间
-        chatMessageDTO.setServerReceiveTime(System.currentTimeMillis());
+        messageRequest.setServerReceiveTime(System.currentTimeMillis());
 
         // 发消息到长连接服务器
         try{
-            clientService.sendMessage2Center(chatMessageDTO);
+            clientService.sendMessage2Center(messageRequest);
         }catch (BusinessException e){
             log.error("---->>>>>[websocket] 发送消息到长连接服务器业务异常：", e);
         }catch (Exception e){

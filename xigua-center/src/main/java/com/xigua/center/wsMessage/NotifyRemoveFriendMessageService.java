@@ -1,7 +1,7 @@
 package com.xigua.center.wsMessage;
 
 import com.xigua.common.core.util.RedisUtil;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.enums.MessageSubType;
 import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.RedisEnum;
@@ -35,8 +35,8 @@ public class NotifyRemoveFriendMessageService extends AbstractMessageService {
     }
 
     @Override
-    public void handleMessage(ChatMessageDTO chatMessageDTO) {
-        String userId = chatMessageDTO.getSenderId();
+    public void handleMessage(MessageRequest messageRequest) {
+        String userId = messageRequest.getSenderId();
 
         // 删除当前聊天窗口
         redisUtil.del(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + userId);

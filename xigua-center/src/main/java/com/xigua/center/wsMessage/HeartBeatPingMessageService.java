@@ -4,12 +4,13 @@ import com.alibaba.fastjson2.JSONObject;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.enums.MessageSubType;
 import com.xigua.domain.enums.MessageType;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.domain.enums.Sender;
 import com.xigua.api.service.CenterService;
+import com.xigua.domain.ws.MessageResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,8 +46,8 @@ public class HeartBeatPingMessageService extends AbstractMessageService {
     }
 
     @Override
-    public void handleMessage(ChatMessageDTO chatMessageDTO) {
-        String userId = chatMessageDTO.getSenderId();
+    public void handleMessage(MessageRequest messageRequest) {
+        String userId = messageRequest.getSenderId();
 
         // 更新最后心跳时间
         redisUtil.set(RedisEnum.LAST_PING_TIME.getKey() + userId, String.valueOf(System.currentTimeMillis()));
@@ -79,13 +80,13 @@ public class HeartBeatPingMessageService extends AbstractMessageService {
         Client client = JSONObject.parseObject(value, Client.class);
 
         // 发送心跳回复
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
-        chatMessageDTO.setSenderId(Sender.SYSTEM.getSender());
-        chatMessageDTO.setReceiverId(senderId);
-        chatMessageDTO.setMessageType(MessageType.HEART_BEAT.getType());
-        chatMessageDTO.setSubType(MessageSubType.PONG.getType());
-        chatMessageDTO.setMessage("pong");
-        chatMessageDTO.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-        centerService.sendMessage2Client(chatMessageDTO, client);
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setSenderId(Sender.SYSTEM.getSender());
+        messageResponse.setReceiverId(senderId);
+        messageResponse.setMessageType(MessageType.HEART_BEAT.getType());
+        messageResponse.setSubType(MessageSubType.PONG.getType());
+        messageResponse.setMessage("pong");
+        messageResponse.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
+        centerService.sendMessage2Client(messageResponse, client);
     }
 }

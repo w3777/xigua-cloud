@@ -7,9 +7,10 @@ import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.enums.*;
 import com.xigua.api.service.CenterService;
+import com.xigua.domain.ws.MessageResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -51,10 +52,10 @@ public class ChatMesSendMessageService extends AbstractMessageService {
     }
 
     @Override
-    public void handleMessage(ChatMessageDTO chatMessageDTO) {
+    public void handleMessage(MessageRequest messageRequest) {
         String chatMessageId = sequence.nextNo();
-        String receiverId = chatMessageDTO.getReceiverId();
-        chatMessageDTO.setChatMessageId(chatMessageId);
+        String receiverId = messageRequest.getReceiverId();
+        messageRequest.setChatMessageId(chatMessageId);
 
         // 定义事务
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
@@ -64,10 +65,10 @@ public class ChatMesSendMessageService extends AbstractMessageService {
         TransactionStatus status = transactionManager.getTransaction(def);
 
         // db处理 mysql持久化
-        messageDbHandle(chatMessageDTO);
+        messageDbHandle(messageRequest);
 
         // ack处理 (回传消息id给发送人、超时回滚)
-        ackHandle(chatMessageDTO, status);
+        ackHandle(messageRequest, status);
 
         // 执行到这里没有异常 提交事务（保证mysql入库）
         transactionManager.commit(status);
@@ -75,16 +76,16 @@ public class ChatMesSendMessageService extends AbstractMessageService {
         // todo 下面所有逻辑处理都可以放到mq里做排队异步处理，提高系统吞吐量
 
         // 最后一条消息  (消息列表)
-        lastMessage(chatMessageDTO);
+        lastMessage(messageRequest);
 
         // 聊天消息发送到接收人
-        chatMessage2Receiver(chatMessageDTO);
+        chatMessage2Receiver(messageRequest);
 
         // 未读消息数量
-        unreadMessageCount(chatMessageDTO);
+        unreadMessageCount(messageRequest);
 
         // 消息未读到消息已读
-        unread2Read(chatMessageDTO);
+        unread2Read(messageRequest);
     }
 
     /**
@@ -94,10 +95,10 @@ public class ChatMesSendMessageService extends AbstractMessageService {
      * 超时回滚
      * @author wangjinfei
      * @date 2025/6/6 21:02
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    private void ackHandle(ChatMessageDTO chatMessageDTO, TransactionStatus status){
-        String senderId = chatMessageDTO.getSenderId();
+    private void ackHandle(MessageRequest messageRequest, TransactionStatus status){
+        String senderId = messageRequest.getSenderId();
         // 获取发送人所在的节点信息
         String userInServer = centerService.onlineUser(senderId);
         if(StringUtils.isEmpty(userInServer)){
@@ -110,22 +111,22 @@ public class ChatMesSendMessageService extends AbstractMessageService {
         Client client = JSONObject.parseObject(value, Client.class);
 
         // 发送当前消息id到客户端 （id在服务端生成，客户端应该第一时间拿到消息id，也为后续已读做铺垫）
-        ChatMessageDTO dto = new ChatMessageDTO();
-        dto.setSenderId(Sender.SYSTEM.getSender());
-        dto.setReceiverId(senderId);
-        dto.setMessageType(MessageType.CHAT.getType());
-        dto.setSubType(MessageSubType.MES_SEND_ACK.getType());
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setSenderId(Sender.SYSTEM.getSender());
+        messageResponse.setReceiverId(senderId);
+        messageResponse.setMessageType(MessageType.CHAT.getType());
+        messageResponse.setSubType(MessageSubType.MES_SEND_ACK.getType());
         // kv (k消息内容, v消息id)
-        String json = JSONObject.of(chatMessageDTO.getMessage(), chatMessageDTO.getChatMessageId()).toJSONString();
-        dto.setMessage(json);
+        String json = JSONObject.of(messageRequest.getMessage(), messageRequest.getChatMessageId()).toJSONString();
+        messageResponse.setMessage(json);
         // 客户端传过来时间戳，服务端不做处理直接回传
         // 消息内容重复也能根据客户端时间戳 + 消息内容，找到消息并把消息id赋值
-        dto.setCreateTime(chatMessageDTO.getCreateTime());
+        messageResponse.setCreateTime(messageRequest.getCreateTime());
 
         // 发送ack之前，判断是否需要发送ack
-        sendAckBefore(chatMessageDTO, status);
+        sendAckBefore(messageRequest, status);
 
-        centerService.sendMessage2Client(dto, client);
+        centerService.sendMessage2Client(messageResponse, client);
     }
 
     /**
@@ -133,8 +134,8 @@ public class ChatMesSendMessageService extends AbstractMessageService {
      * @author wangjinfei
      * @date 2025/8/12 21:29
     */
-    private void sendAckBefore(ChatMessageDTO chatMessageDTO, TransactionStatus status){
-        if(chatMessageDTO.getServerReceiveTime() == null){
+    private void sendAckBefore(MessageRequest messageRequest, TransactionStatus status){
+        if(messageRequest.getServerReceiveTime() == null){
             transactionManager.rollback(status);
             throw new BusinessException("--------->>>>>>> 服务端收到消息的时间不能为空");
         }
@@ -144,7 +145,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
 
         // 前端发送消息后1500毫秒没有接收到服务端的ack，认为发送失败
         long sendAckBeforeTime = System.currentTimeMillis();
-        if(sendAckBeforeTime - chatMessageDTO.getServerReceiveTime() > 1400){ // 服务端要判断1400毫秒
+        if(sendAckBeforeTime - messageRequest.getServerReceiveTime() > 1400){ // 服务端要判断1400毫秒
             transactionManager.rollback(status);
             // 系统报错，不往下进行任何处理
             throw new BusinessException("--------->>>>>>> 服务端收到消息的时间与当前时间差不能超过1400毫秒");
@@ -174,46 +175,46 @@ public class ChatMesSendMessageService extends AbstractMessageService {
      * 聊天消息发送到接收人
      * @author wangjinfei
      * @date 2025/6/3 20:55
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    private void chatMessage2Receiver(ChatMessageDTO chatMessageDTO){
-        ChatType chatTypeE = ChatType.getChatType(chatMessageDTO.getChatType());
+    private void chatMessage2Receiver(MessageRequest messageRequest){
+        ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
         AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
-        chatMessageService.chatMessage2Receiver(chatMessageDTO);
+        chatMessageService.chatMessage2Receiver(messageRequest);
     }
 
     /**
      * 消息未读到消息已读
      * @author wangjinfei
      * @date 2025/6/3 20:56
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    private void unread2Read(ChatMessageDTO chatMessageDTO){
-        ChatType chatTypeE = ChatType.getChatType(chatMessageDTO.getChatType());
+    private void unread2Read(MessageRequest messageRequest){
+        ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
         AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
-        chatMessageService.unread2Read(chatMessageDTO);
+        chatMessageService.unread2Read(messageRequest);
     }
 
     /**
      * db处理 mysql持久化
      * @author wangjinfei
      * @date 2025/5/20 22:02
-     * @param chatMessageDTO
+     * @param messageRequest
      */
-    private void messageDbHandle(ChatMessageDTO chatMessageDTO){
-        Integer chatType = chatMessageDTO.getChatType();
+    private void messageDbHandle(MessageRequest messageRequest){
+        Integer chatType = messageRequest.getChatType();
         ChatType chatTypeE = ChatType.getChatType(chatType);
 
         // 根据不同聊天类型，调用不同的实现类
         AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
 
         // 保存聊天消息
-        chatMessageService.saveChatMessage(chatMessageDTO);
+        chatMessageService.saveChatMessage(messageRequest);
 
         // 保存消息未读
-        chatMessageService.saveMessageUnread(chatMessageDTO);
+        chatMessageService.saveMessageUnread(messageRequest);
 
         /**
          * todo 注意同步es
@@ -229,25 +230,25 @@ public class ChatMesSendMessageService extends AbstractMessageService {
      * 好友最后消息 hash
      * @author wangjinfei
      * @date 2025/6/9 20:04
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    private void lastMessage(ChatMessageDTO chatMessageDTO){
-        ChatType chatTypeE = ChatType.getChatType(chatMessageDTO.getChatType());
+    private void lastMessage(MessageRequest messageRequest){
+        ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
         AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
-        chatMessageService.lastMessage(chatMessageDTO);
+        chatMessageService.lastMessage(messageRequest);
     }
 
     /**
      * 未读消息数量
      * @author wangjinfei
      * @date 2025/6/9 20:44
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    private void unreadMessageCount(ChatMessageDTO chatMessageDTO){
-        ChatType chatTypeE = ChatType.getChatType(chatMessageDTO.getChatType());
+    private void unreadMessageCount(MessageRequest messageRequest){
+        ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
         AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
-        chatMessageService.unreadMessageCount(chatMessageDTO);
+        chatMessageService.unreadMessageCount(messageRequest);
     }
 }

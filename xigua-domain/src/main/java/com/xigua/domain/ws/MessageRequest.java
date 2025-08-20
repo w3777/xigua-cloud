@@ -1,4 +1,4 @@
-package com.xigua.domain.dto;
+package com.xigua.domain.ws;
 
 import com.xigua.domain.bo.SenderBO;
 import lombok.Data;
@@ -6,23 +6,18 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @ClassName MessageBaseDTO
- * @Description
+ * @ClassName MessageRequest
+ * @Description 消息请求对象
  * @Author wangjinfei
  * @Date 2024/12/2 16:28
  */
 @Data
-public class ChatMessageDTO implements Serializable {
+public class MessageRequest implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 发送人id
      */
     private String senderId;
-
-    /**
-     * 群聊 真正发送人
-    */
-    private SenderBO sender;
 
     /**
      * 接收人id

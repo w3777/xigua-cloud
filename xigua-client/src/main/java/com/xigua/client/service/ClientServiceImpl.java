@@ -3,11 +3,11 @@ package com.xigua.client.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.client.helper.SessionHelper;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.api.service.ClientService;
 import com.xigua.api.service.CenterService;
+import com.xigua.domain.ws.MessageResponse;
 import jakarta.websocket.Session;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -99,27 +99,27 @@ public class ClientServiceImpl implements ClientService {
      * 发消息到长连接服务器
      * @author wangjinfei
      * @date 2025/4/20 15:58
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void sendMessage2Center(ChatMessageDTO chatMessageDTO) {
-        centerService.receiveMessage4Client(chatMessageDTO);
+    public void sendMessage2Center(MessageRequest messageRequest) {
+        centerService.receiveMessage4Client(messageRequest);
     }
 
     /**
      * 接收来自长连接服务器的消息
      * @author wangjinfei
      * @date 2025/4/20 19:27
-     * @param chatMessageDTO
+     * @param messageResponse
      */
     @Override
-    public void receiveMessage4Center(ChatMessageDTO chatMessageDTO) {
-        String receiverId = chatMessageDTO.getReceiverId();
+    public void receiveMessage4Center(MessageResponse messageResponse) {
+        String receiverId = messageResponse.getReceiverId();
 
         Session session = SessionHelper.get(receiverId);
         if(session != null && session.isOpen()){
             try {
-                session.getBasicRemote().sendText(JSONObject.toJSONString(chatMessageDTO));
+                session.getBasicRemote().sendText(JSONObject.toJSONString(messageResponse));
             } catch (Exception e) {
                 log.error("发送消息失败", e);
             }

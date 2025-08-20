@@ -1,6 +1,7 @@
 package com.xigua.api.service;
 
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
+import com.xigua.domain.ws.MessageResponse;
 
 /**
  * @ClassName ClientService
@@ -32,15 +33,15 @@ public interface ClientService {
      * 发消息到长连接服务器
      * @author wangjinfei
      * @date 2025/4/20 15:58
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    void sendMessage2Center(ChatMessageDTO chatMessageDTO);
+    void sendMessage2Center(MessageRequest messageRequest);
 
     /**
      * 接收来自长连接服务器的消息
      * @author wangjinfei
      * @date 2025/4/20 19:27
-     * @param chatMessageDTO
+     * @param messageResponse
     */
-    void receiveMessage4Center(ChatMessageDTO chatMessageDTO);
+    void receiveMessage4Center(MessageResponse messageResponse);
 }

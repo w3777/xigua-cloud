@@ -10,11 +10,12 @@ import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.bo.*;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.entity.Group;
 import com.xigua.domain.entity.MessageRead;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.*;
+import com.xigua.domain.ws.MessageResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -56,12 +57,12 @@ public class GroupChatMessageService extends AbstractChatMessageService {
      * 保存未读消息
      * @author wangjinfei
      * @date 2025/8/17 15:49
-     * @param chatMessageDTO
+     * @param messageRequest
      * @return Boolean
      */
     @Override
-    public Boolean saveMessageUnread(ChatMessageDTO chatMessageDTO) {
-        Set<String> groupMemberIds = groupMemberService.getGroupMembers(chatMessageDTO.getReceiverId());
+    public Boolean saveMessageUnread(MessageRequest messageRequest) {
+        Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return false;
         }
@@ -71,12 +72,12 @@ public class GroupChatMessageService extends AbstractChatMessageService {
         for (String groupMemberId : groupMemberIds) {
             MessageRead messageRead = new MessageRead();
             messageRead.setId(sequence.nextNo());
-            messageRead.setMessageId(chatMessageDTO.getChatMessageId());
-            messageRead.setSenderId(chatMessageDTO.getSenderId());
+            messageRead.setMessageId(messageRequest.getChatMessageId());
+            messageRead.setSenderId(messageRequest.getSenderId());
             messageRead.setReceiverId(groupMemberId);
             messageRead.setIsRead(MessageReadStatus.UNREAD.getType());
             // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
-            messageRead.setCreateBy(chatMessageDTO.getSenderId());
+            messageRead.setCreateBy(messageRequest.getSenderId());
             messageReads.add(messageRead);
         }
 
@@ -90,12 +91,12 @@ public class GroupChatMessageService extends AbstractChatMessageService {
      * 最后一条消息  (消息列表)
      * @author wangjinfei
      * @date 2025/8/17 17:09
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void lastMessage(ChatMessageDTO chatMessageDTO) {
-        String groupId = chatMessageDTO.getReceiverId();
-        Set<String> groupMemberIds = groupMemberService.getGroupMembers(chatMessageDTO.getReceiverId());
+    public void lastMessage(MessageRequest messageRequest) {
+        String groupId = messageRequest.getReceiverId();
+        Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return;
         }
@@ -106,7 +107,7 @@ public class GroupChatMessageService extends AbstractChatMessageService {
             // 存储redis 最后消息
             redisUtil.zsadd(RedisEnum.LAST_MES.getKey() + groupMemberId, groupId, timestamp);
             // 存储redis 最后消息内容
-            LastMessageBO lastMessageBO = chatMessageDTO2LastMessageBO(chatMessageDTO);
+            LastMessageBO lastMessageBO = chatMessageDTO2LastMessageBO(messageRequest);
             redisUtil.hashPut(RedisEnum.LAST_MES_CONTENT.getKey() + groupMemberId, groupId, JSONObject.toJSONString(lastMessageBO));
         }
     }
@@ -115,14 +116,14 @@ public class GroupChatMessageService extends AbstractChatMessageService {
      * 封装最后消息内容
      * @author wangjinfei
      * @date 2025/7/18 13:46
-     * @param chatMessageDTO
+     * @param messageRequest
      * @return LastMessageBO
      */
-    private LastMessageBO chatMessageDTO2LastMessageBO(ChatMessageDTO chatMessageDTO){
+    private LastMessageBO chatMessageDTO2LastMessageBO(MessageRequest messageRequest){
         LastMessageBO lastMessageBO = new LastMessageBO();
         LastMessageContentBO lastMessageContent = new LastMessageContentBO();
-        String senderId = chatMessageDTO.getSenderId();
-        String groupId = chatMessageDTO.getReceiverId();
+        String senderId = messageRequest.getSenderId();
+        String groupId = messageRequest.getReceiverId();
 
         lastMessageBO.setChatId(groupId);
         lastMessageBO.setChatType(ChatType.TWO.getType());
@@ -144,7 +145,7 @@ public class GroupChatMessageService extends AbstractChatMessageService {
         String userCache = redisUtil.get(RedisEnum.USER.getKey() + senderId);
         if(StringUtils.isNotEmpty(userCache)){
             User user = JSONObject.parseObject(userCache, User.class);
-            lastMessageContent.setContent(user.getUsername() + ": " + chatMessageDTO.getMessage());
+            lastMessageContent.setContent(user.getUsername() + ": " + messageRequest.getMessage());
         }
         lastMessageBO.setLastMessageContent(lastMessageContent);
 
@@ -155,18 +156,18 @@ public class GroupChatMessageService extends AbstractChatMessageService {
      * 聊天消息发送到接收人
      * @author wangjinfei
      * @date 2025/8/17 17:14
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void chatMessage2Receiver(ChatMessageDTO chatMessageDTO) {
-        Set<String> groupMemberIds = groupMemberService.getGroupMembers(chatMessageDTO.getReceiverId());
+    public void chatMessage2Receiver(MessageRequest messageRequest) {
+        Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return;
         }
 
         for (String groupMemberId : groupMemberIds) {
             // 群聊 不用给自己推消息
-            if(groupMemberId.equals(chatMessageDTO.getSenderId())){
+            if(groupMemberId.equals(messageRequest.getSenderId())){
                 continue;
             }
 
@@ -189,14 +190,14 @@ public class GroupChatMessageService extends AbstractChatMessageService {
             Client client = JSONObject.parseObject(value, Client.class);
 
             // 此时的接收人是群组成员
-            ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO();
-            BeanUtils.copyProperties(chatMessageDTO, chatMessageDTO2);
-            chatMessageDTO2.setSenderId(chatMessageDTO.getReceiverId());
-            chatMessageDTO2.setSender(getRealSender(chatMessageDTO.getSenderId()));
-            chatMessageDTO2.setReceiverId(groupMemberId);
-            chatMessageDTO2.setSubType(MessageSubType.MES_RECEIVE.getType());
+            MessageResponse messageResponse = new MessageResponse();
+            BeanUtils.copyProperties(messageRequest, messageResponse);
+            messageResponse.setSenderId(messageRequest.getReceiverId());
+            messageResponse.setSender(getRealSender(messageRequest.getSenderId()));
+            messageResponse.setReceiverId(groupMemberId);
+            messageResponse.setSubType(MessageSubType.MES_RECEIVE.getType());
             // 实时推送消息，发送到接收人所在节点
-            centerService.sendMessage2Client(chatMessageDTO2, client);
+            centerService.sendMessage2Client(messageResponse, client);
         }
     }
 
@@ -225,19 +226,19 @@ public class GroupChatMessageService extends AbstractChatMessageService {
      * 未读消息数量
      * @author wangjinfei
      * @date 2025/8/17 17:25
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void unreadMessageCount(ChatMessageDTO chatMessageDTO) {
-        String senderId = chatMessageDTO.getSenderId();
-        Set<String> groupMemberIds = groupMemberService.getGroupMembers(chatMessageDTO.getReceiverId());
+    public void unreadMessageCount(MessageRequest messageRequest) {
+        String senderId = messageRequest.getSenderId();
+        Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return;
         }
 
         for (String groupMemberId : groupMemberIds) {
             // 获取接收人所在的节点信息
-            String receiverInServer = centerService.onlineUser(chatMessageDTO.getReceiverId());
+            String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
             if(StringUtils.isEmpty(receiverInServer)){
                 return;
             }
@@ -269,19 +270,19 @@ public class GroupChatMessageService extends AbstractChatMessageService {
      * 消息未读到消息已读
      * @author wangjinfei
      * @date 2025/8/17 16:33
-     * @param chatMessageDTO
+     * @param messageRequest
      */
     @Override
-    public void unread2Read(ChatMessageDTO chatMessageDTO) {
-        String senderId = chatMessageDTO.getSenderId();
-        Set<String> groupMemberIds = groupMemberService.getGroupMembers(chatMessageDTO.getReceiverId());
+    public void unread2Read(MessageRequest messageRequest) {
+        String senderId = messageRequest.getSenderId();
+        Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return;
         }
 
         for (String groupMemberId : groupMemberIds) {
             // 获取接收人所在的节点信息
-            String receiverInServer = centerService.onlineUser(chatMessageDTO.getReceiverId());
+            String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
             if(StringUtils.isEmpty(receiverInServer)){
                 return;
             }
@@ -308,20 +309,20 @@ public class GroupChatMessageService extends AbstractChatMessageService {
             Client client = JSONObject.parseObject(value, Client.class);
 
             // 系统推送已读通知
-            ChatMessageDTO dto = new ChatMessageDTO();
-            dto.setSenderId(Sender.SYSTEM.getSender());
-            dto.setReceiverId(senderId);
-            dto.setMessageType(MessageType.CHAT.getType());
-            dto.setSubType(MessageSubType.MES_READ.getType());
-            String readChatMessageIds = JSONObject.toJSONString(Arrays.asList(chatMessageDTO.getChatMessageId()));
+            MessageResponse messageResponse = new MessageResponse();
+            messageResponse.setSenderId(Sender.SYSTEM.getSender());
+            messageResponse.setReceiverId(senderId);
+            messageResponse.setMessageType(MessageType.CHAT.getType());
+            messageResponse.setSubType(MessageSubType.MES_READ.getType());
+            String readChatMessageIds = JSONObject.toJSONString(Arrays.asList(messageRequest.getChatMessageId()));
             String json = JSONObject.of("readChatMessageIds", readChatMessageIds).toJSONString();
 
-            dto.setMessage(json);
-            dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-            centerService.sendMessage2Client(dto, client);
+            messageResponse.setMessage(json);
+            messageResponse.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
+            centerService.sendMessage2Client(messageResponse, client);
 
             // 标记为已读
-            messageReadService.markRead(chatMessageDTO.getChatMessageId(), groupMemberId);
+            messageReadService.markRead(messageRequest.getChatMessageId(), groupMemberId);
         }
     }
 }

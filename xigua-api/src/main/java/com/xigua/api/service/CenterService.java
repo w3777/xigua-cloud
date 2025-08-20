@@ -1,7 +1,8 @@
 package com.xigua.api.service;
 
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
+import com.xigua.domain.ws.MessageResponse;
 
 import java.util.Set;
 
@@ -33,17 +34,17 @@ public interface CenterService {
      * 接收来自客户端的消息
      * @author wangjinfei
      * @date 2025/4/20 15:06
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    void receiveMessage4Client(ChatMessageDTO chatMessageDTO);
+    void receiveMessage4Client(MessageRequest messageRequest);
 
     /**
      * 发送消息到客户端
      * @author wangjinfei
      * @date 2025/4/20 11:11
-     * @param chatMessageDTO
+     * @param messageResponse
     */
-    void sendMessage2Client(ChatMessageDTO chatMessageDTO, Client client);
+    void sendMessage2Client(MessageResponse messageResponse, Client client);
 
     /**
      * 用户是否在线

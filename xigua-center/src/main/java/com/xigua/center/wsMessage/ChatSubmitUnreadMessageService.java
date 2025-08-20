@@ -6,10 +6,11 @@ import com.xigua.api.service.MessageReadService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.dto.ChatMessageDTO;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.enums.*;
 import com.xigua.api.service.CenterService;
 import com.xigua.api.service.ChatMessageService;
+import com.xigua.domain.ws.MessageResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +52,9 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
     }
 
     @Override
-    public void handleMessage(ChatMessageDTO chatMessageDTO) {
-        String senderId = chatMessageDTO.getSenderId();
-        String message = chatMessageDTO.getMessage();
+    public void handleMessage(MessageRequest messageRequest) {
+        String senderId = messageRequest.getSenderId();
+        String message = messageRequest.getMessage();
         if(StringUtils.isEmpty(message)){
             return;
         }
@@ -65,21 +66,21 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
         messageReadService.markReadBatch(chatMessageIdList, senderId);
 
         // 接收人处理  todo 可以优化成异步处理，减少阻塞
-        receiverHande(chatMessageDTO);
+        receiverHande(messageRequest);
 
         // 好友未读消息清零
-        friendUnreadHande(chatMessageDTO);
+        friendUnreadHande(messageRequest);
     }
 
     /**
      * 接收人处理 （要给消息发送者发送已读）
      * @author wangjinfei
      * @date 2025/6/6 21:51
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    private void receiverHande(ChatMessageDTO chatMessageDTO){
-        String senderId = chatMessageDTO.getSenderId();
-        String receiverId = chatMessageDTO.getReceiverId();
+    private void receiverHande(MessageRequest messageRequest){
+        String senderId = messageRequest.getSenderId();
+        String receiverId = messageRequest.getReceiverId();
 
         String userInServer = centerService.onlineUser(receiverId);
         if(StringUtils.isEmpty(userInServer)){
@@ -101,15 +102,15 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
             Client client = JSONObject.parseObject(value, Client.class);
 
             // 系统推送已读通知
-            ChatMessageDTO dto = new ChatMessageDTO();
-            dto.setSenderId(Sender.SYSTEM.getSender());
-            dto.setReceiverId(receiverId);
-            dto.setMessageType(MessageType.CHAT.getType());
-            dto.setSubType(MessageSubType.MES_READ.getType());
-            String json = JSONObject.of("readChatMessageIds", chatMessageDTO.getMessage().toString()).toJSONString();
-            dto.setMessage(json);
-            dto.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
-            centerService.sendMessage2Client(dto, client);
+            MessageResponse messageResponse = new MessageResponse();
+            messageResponse.setSenderId(Sender.SYSTEM.getSender());
+            messageResponse.setReceiverId(receiverId);
+            messageResponse.setMessageType(MessageType.CHAT.getType());
+            messageResponse.setSubType(MessageSubType.MES_READ.getType());
+            String json = JSONObject.of("readChatMessageIds", messageRequest.getMessage().toString()).toJSONString();
+            messageResponse.setMessage(json);
+            messageResponse.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
+            centerService.sendMessage2Client(messageResponse, client);
         }
     }
 
@@ -117,11 +118,11 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
      * 好友未读消息清零
      * @author wangjinfei
      * @date 2025/6/9 21:36
-     * @param chatMessageDTO
+     * @param messageRequest
     */
-    private void friendUnreadHande(ChatMessageDTO chatMessageDTO){
-        String senderId = chatMessageDTO.getSenderId();
-        String receiverId = chatMessageDTO.getReceiverId();
+    private void friendUnreadHande(MessageRequest messageRequest){
+        String senderId = messageRequest.getSenderId();
+        String receiverId = messageRequest.getReceiverId();
         String friendUnreadCountKey = RedisEnum.FRIEND_UNREAD_COUNT.getKey() + senderId;
 
         /**
