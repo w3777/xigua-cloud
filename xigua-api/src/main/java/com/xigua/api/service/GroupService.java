@@ -34,6 +34,15 @@ public interface GroupService extends IService<Group> {
     Boolean addGroup2Redis(String groupId);
 
     /**
+     * 添加最后一条空消息到缓存
+     * @author wangjinfei
+     * @date 2025/8/23 13:15
+     * @param groupId
+     * @return Boolean
+    */
+    Boolean addLastEmptyMes2Redis(String groupId);
+
+    /**
      * 获取所有群组id
      * @author wangjinfei
      * @date 2025/7/29 17:50

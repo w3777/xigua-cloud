@@ -62,14 +62,14 @@ public class SyncMySqlServiceImpl implements SyncMySqlService {
                 messageRead.setSenderId(message.getSenderId());
                 messageRead.setReceiverId(message.getReceiverId());
                 messageRead.setMessageId(message.getId());
-                messageRead.setIsRead(message.getIsRead());
-                messageRead.setReadTime(message.getReadTime());
+//                messageRead.setIsRead(message.getIsRead());
+//                messageRead.setReadTime(message.getReadTime());
                 messageRead.setDelFlag(0);
                 messageRead.setCreateBy(messageRead.getSenderId());
                 messageRead.setCreateTime(message.getCreateTime());
                 if(messageRead.getIsRead() == MessageReadStatus.READ.getType()){
                     messageRead.setUpdateBy(message.getReceiverId());
-                    messageRead.setUpdateTime(message.getReadTime());
+//                    messageRead.setUpdateTime(message.getReadTime());
                 }
                 addMessageReads.add(messageRead);
             }

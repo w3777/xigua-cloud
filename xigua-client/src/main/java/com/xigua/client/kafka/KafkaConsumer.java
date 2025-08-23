@@ -44,8 +44,13 @@ public class KafkaConsumer {
             log.info("----->>>>>>  缓存群组收到消息为空");
         }
 
+        log.info("----->>>>>>  缓存群组收到消息为:{}", value);
+        String groupId = String.valueOf(object);
+
         // 调用方法 缓存群组
-        groupService.addGroup2Redis(String.valueOf(object));
+        groupService.addGroup2Redis(groupId);
+        // 调用方法 每个群成员最后一条消息为空串 （这样可以在消息列表显示该群聊）
+        groupService.addLastEmptyMes2Redis(groupId);
 
         // 手动提交 offset
         ack.acknowledge();

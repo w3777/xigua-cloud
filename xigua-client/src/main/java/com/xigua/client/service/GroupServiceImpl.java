@@ -14,15 +14,18 @@ import com.xigua.common.core.util.UserContext;
 import com.xigua.common.mq.constant.TopicEnum;
 import com.xigua.common.mq.producer.MessageQueueProducer;
 import com.xigua.common.sequence.sequence.Sequence;
+import com.xigua.domain.bo.LastMessageContentBO;
 import com.xigua.domain.dto.GroupDTO;
 import com.xigua.domain.entity.Group;
 import com.xigua.domain.entity.GroupMember;
 import com.xigua.domain.entity.User;
+import com.xigua.domain.enums.ChatType;
 import com.xigua.domain.enums.GroupRole;
 import com.xigua.domain.enums.RedisEnum;
 import com.xigua.api.service.GroupMemberService;
 import com.xigua.api.service.GroupService;
 import com.xigua.domain.vo.GroupDetailVO;
+import com.xigua.domain.vo.LastMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -280,6 +283,52 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             }
         }
 
+        return true;
+    }
+
+    /**
+     * 添加最后一条空消息到缓存
+     * @author wangjinfei
+     * @date 2025/8/23 13:15
+     * @param groupId
+     * @return Boolean
+     */
+    @Override
+    public Boolean addLastEmptyMes2Redis(String groupId) {
+        String groupCache = redisUtil.get(RedisEnum.GROUP.getKey() + groupId);
+        if(StringUtils.isEmpty(groupCache)){
+            return false;
+        }
+
+        Group group = JSONObject.parseObject(groupCache, Group.class);
+        if(group == null){
+            return false;
+        }
+
+        List<GroupMember> groupMembers = groupMemberService.getListByGroupId(groupId);
+        if(CollectionUtils.isEmpty(groupMembers)){
+            return false;
+        }
+
+        for (GroupMember groupMember : groupMembers) {
+            String userId = groupMember.getUserId();
+
+            // 映射vo
+            LastMessageVO lastMessageVO = new LastMessageVO();
+            lastMessageVO.setChatId(groupId);
+            lastMessageVO.setChatType(ChatType.TWO.getType());
+            lastMessageVO.setChatName(group.getGroupName());
+            lastMessageVO.setAvatar(group.getGroupAvatar());
+            LastMessageContentBO lastMessageContentBO = new LastMessageContentBO();
+            lastMessageContentBO.setContent("");
+            lastMessageVO.setLastMessageContent(lastMessageContentBO);
+            lastMessageVO.setUpdateTime(DateUtil.toEpochMilli(groupMember.getCreateTime()));
+
+            // redis 最后消息
+            redisUtil.zsadd(RedisEnum.LAST_MES.getKey() + userId, groupId, DateUtil.toEpochMilli(groupMember.getCreateTime()));
+            // redis 最后消息内容
+            redisUtil.hashPut(RedisEnum.LAST_MES_CONTENT.getKey() + userId, groupId, JSONObject.toJSONString(lastMessageVO));
+        }
         return true;
     }
 

@@ -76,6 +76,9 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
 
         // 遍历最后聊天消息 （获取内容、在线状态等）
         for (Object lastMessage : lastMessages) {
+            Long unreadCount = 0L;
+            Boolean isOnline = false;
+
             // 获取最后一条消息
             Object mesObj = redisUtil.hashGet(RedisEnum.LAST_MES_CONTENT.getKey() + userId, lastMessage.toString());
 
@@ -88,13 +91,18 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
             // 聊天类型
             if (chatType == ChatType.ONE.getType()) {
                 // 好友是否在线
-                lastMessageVO.setIsOnline(centerService.isOnline(senderId));
-            }else{
-                lastMessageVO.setIsOnline(false);
+                isOnline = centerService.isOnline(senderId);
+                // 好友未读消息数量
+                unreadCount = redisUtil.hincrget(RedisEnum.FRIEND_UNREAD_COUNT.getKey() + userId, senderId);
+            }else if(chatType == ChatType.TWO.getType()){
+                isOnline = false;
+                // 群聊未读消息数量
+                unreadCount = redisUtil.hincrget(RedisEnum.GROUP_UNREAD_COUNT.getKey() + userId, senderId);
+            }else {
+                isOnline = false;
+                unreadCount = 0L;
             }
-
-            // 好友未读消息数量
-            Long unreadCount = redisUtil.hincrget(RedisEnum.FRIEND_UNREAD_COUNT.getKey() + userId, senderId);
+            lastMessageVO.setIsOnline(isOnline);
             lastMessageVO.setUnreadCount(unreadCount);
             lastChatList.add(lastMessageVO);
         }

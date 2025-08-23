@@ -135,4 +135,8 @@ create table xg_message_read
 )
     comment '消息已读表';
 
-
+-- 2025-08-23 删除字段
+alter table xg_chat_message
+drop column is_read;
+alter table xg_chat_message
+drop column read_time;

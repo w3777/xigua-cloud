@@ -154,9 +154,6 @@ public class PrivateChatMessageService extends AbstractChatMessageService {
 
         // 获取接收人所在的节点信息
         String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
-        if(StringUtils.isEmpty(receiverInServer)){
-            return;
-        }
 
         // 获取接收人打开的聊天窗口好友是谁
         String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + receiverId);

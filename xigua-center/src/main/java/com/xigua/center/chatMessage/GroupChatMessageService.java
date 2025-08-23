@@ -62,6 +62,7 @@ public class GroupChatMessageService extends AbstractChatMessageService {
      */
     @Override
     public Boolean saveMessageUnread(MessageRequest messageRequest) {
+        String senderId = messageRequest.getSenderId();
         Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return false;
@@ -70,14 +71,18 @@ public class GroupChatMessageService extends AbstractChatMessageService {
         List<MessageRead> messageReads = new ArrayList<>();
         // 给群组成员添加未读消息
         for (String groupMemberId : groupMemberIds) {
+            if(senderId.equals(groupMemberId)){
+                continue;
+            }
             MessageRead messageRead = new MessageRead();
             messageRead.setId(sequence.nextNo());
             messageRead.setMessageId(messageRequest.getChatMessageId());
-            messageRead.setSenderId(messageRequest.getSenderId());
+            messageRead.setSenderId(senderId);
             messageRead.setReceiverId(groupMemberId);
             messageRead.setIsRead(MessageReadStatus.UNREAD.getType());
             // ws拿不到threadLocal存储的当前用户 （此时的发送人就是创建人）
-            messageRead.setCreateBy(messageRequest.getSenderId());
+            messageRead.setCreateBy(senderId);
+            messageRead.setDelFlag(0);
             messageReads.add(messageRead);
         }
 
@@ -231,17 +236,18 @@ public class GroupChatMessageService extends AbstractChatMessageService {
     @Override
     public void unreadMessageCount(MessageRequest messageRequest) {
         String senderId = messageRequest.getSenderId();
-        Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
+        String groupId = messageRequest.getReceiverId();
+        Set<String> groupMemberIds = groupMemberService.getGroupMembers(groupId);
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return;
         }
 
         for (String groupMemberId : groupMemberIds) {
-            // 获取接收人所在的节点信息
-            String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
-            if(StringUtils.isEmpty(receiverInServer)){
-                return;
+            // 群聊 不用给自己推消息
+            if(groupMemberId.equals(senderId)){
+                continue;
             }
+            String receiverInServer = centerService.onlineUser(groupMemberId);
 
             // 获取接收人打开的聊天窗口好友是谁
             String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + groupMemberId);
@@ -250,9 +256,9 @@ public class GroupChatMessageService extends AbstractChatMessageService {
             String groupUnreadCountKey = RedisEnum.GROUP_UNREAD_COUNT.getKey() + groupMemberId;
 
             // 接收人在线 && 打开聊天框是发送人
-            if(StringUtils.isNotEmpty(receiverInServer) && senderId.equals(receiverActiveFriend)){
+            if(StringUtils.isNotEmpty(receiverInServer) && groupId.equals(receiverActiveFriend)){
                 // 未读消息清零
-                redisUtil.hashPut(groupUnreadCountKey, senderId, 0);
+                redisUtil.hashPut(groupUnreadCountKey, groupId, 0);
             }else{
                 /**
                  * 如果使用hash先获取，再put +1，时间复杂度是O(1) + O(1)
@@ -261,7 +267,7 @@ public class GroupChatMessageService extends AbstractChatMessageService {
                  */
 
                 // 使用redis中的hincrby命令  未读消息 + 1
-                redisUtil.hincrby(groupUnreadCountKey, senderId, 1);
+                redisUtil.hincrby(groupUnreadCountKey, groupId, 1);
             }
         }
     }
@@ -275,33 +281,39 @@ public class GroupChatMessageService extends AbstractChatMessageService {
     @Override
     public void unread2Read(MessageRequest messageRequest) {
         String senderId = messageRequest.getSenderId();
-        Set<String> groupMemberIds = groupMemberService.getGroupMembers(messageRequest.getReceiverId());
+        String groupId = messageRequest.getReceiverId();
+        Set<String> groupMemberIds = groupMemberService.getGroupMembers(groupId);
         if (CollectionUtils.isEmpty(groupMemberIds)){
             return;
         }
 
         for (String groupMemberId : groupMemberIds) {
+            // 群聊 跳过自己
+            if(groupMemberId.equals(senderId)){
+                continue;
+            }
+
             // 获取接收人所在的节点信息
-            String receiverInServer = centerService.onlineUser(messageRequest.getReceiverId());
+            String receiverInServer = centerService.onlineUser(groupMemberId);
             if(StringUtils.isEmpty(receiverInServer)){
-                return;
+                continue;
             }
 
             // 获取接收人打开的聊天窗口好友是谁
             String receiverActiveFriend = redisUtil.get(RedisEnum.CURRENT_CHAT_WINDOW.getKey() + groupMemberId);
             if (StringUtils.isEmpty(receiverActiveFriend)) {
-                return;
+                continue;
             }
 
-            if (!receiverActiveFriend.equals(senderId)) {
-                return;
+            if (!receiverActiveFriend.equals(groupId)) {
+                continue;
             }
 
             // 接收人打开的聊天窗口好友是发送人，发送已读通知  （对方在线 && 对方打开的聊天框是发送人）
             // 获取发送人所在的节点信息
             String userInServer = centerService.onlineUser(senderId);
             if (StringUtils.isEmpty(userInServer)) {
-                return;
+                continue;
             }
             String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
                     userInServer.split(":")[1] + ":" + userInServer.split(":")[2];
