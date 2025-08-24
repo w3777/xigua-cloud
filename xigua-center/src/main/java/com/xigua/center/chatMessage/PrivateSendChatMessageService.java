@@ -30,7 +30,7 @@ import java.util.Arrays;
  * @Date 2025/8/17 15:50
  */
 @Component
-public class PrivateChatMessageService extends AbstractChatMessageService {
+public class PrivateSendChatMessageService extends AbstractSendChatMessageService {
     @Autowired
     private Sequence sequence;
     @Autowired

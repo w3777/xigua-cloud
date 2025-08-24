@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @Author wangjinfei
  * @Date 2025/8/17 15:45
  */
-public abstract class AbstractChatMessageService {
+public abstract class AbstractSendChatMessageService {
     @Autowired
     private Sequence sequence;
     @Autowired

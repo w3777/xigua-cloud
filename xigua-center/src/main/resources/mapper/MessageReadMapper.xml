@@ -13,6 +13,7 @@
         update xg_message_read mr
         set mr.is_read = 1, mr.read_time = now(), mr.update_by = #{receiverId}, mr.update_time = now()
         where mr.del_flag = 0
+          and mr.receiver_id = #{receiverId}
           and mr.message_id in
         <foreach collection="messageIdList" item="id" open="(" close=")" separator=",">
             #{id}

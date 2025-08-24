@@ -1,8 +1,8 @@
 package com.xigua.center.wsMessage;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.center.chatMessage.AbstractChatMessageService;
-import com.xigua.center.chatMessage.ChatMessageServiceFactory;
+import com.xigua.center.chatMessage.AbstractSendChatMessageService;
+import com.xigua.center.chatMessage.SendChatMessageServiceFactory;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
@@ -26,7 +26,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
  * @Date 2025/6/2 17:44
  */
 @Component
-public class ChatMesSendMessageService extends AbstractMessageService {
+public class SendChatMessageService extends AbstractMessageService {
     @Autowired
     private Sequence sequence;
     @Autowired
@@ -180,7 +180,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
     private void chatMessage2Receiver(MessageRequest messageRequest){
         ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
-        AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
+        AbstractSendChatMessageService chatMessageService = SendChatMessageServiceFactory.getSendService(chatTypeE.getName());
         chatMessageService.chatMessage2Receiver(messageRequest);
     }
 
@@ -193,7 +193,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
     private void unread2Read(MessageRequest messageRequest){
         ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
-        AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
+        AbstractSendChatMessageService chatMessageService = SendChatMessageServiceFactory.getSendService(chatTypeE.getName());
         chatMessageService.unread2Read(messageRequest);
     }
 
@@ -208,7 +208,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
         ChatType chatTypeE = ChatType.getChatType(chatType);
 
         // 根据不同聊天类型，调用不同的实现类
-        AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
+        AbstractSendChatMessageService chatMessageService = SendChatMessageServiceFactory.getSendService(chatTypeE.getName());
 
         // 保存聊天消息
         chatMessageService.saveChatMessage(messageRequest);
@@ -235,7 +235,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
     private void lastMessage(MessageRequest messageRequest){
         ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
-        AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
+        AbstractSendChatMessageService chatMessageService = SendChatMessageServiceFactory.getSendService(chatTypeE.getName());
         chatMessageService.lastMessage(messageRequest);
     }
 
@@ -248,7 +248,7 @@ public class ChatMesSendMessageService extends AbstractMessageService {
     private void unreadMessageCount(MessageRequest messageRequest){
         ChatType chatTypeE = ChatType.getChatType(messageRequest.getChatType());
         // 调用不同的实现类
-        AbstractChatMessageService chatMessageService = ChatMessageServiceFactory.getChatMessageService(chatTypeE.getName());
+        AbstractSendChatMessageService chatMessageService = SendChatMessageServiceFactory.getSendService(chatTypeE.getName());
         chatMessageService.unreadMessageCount(messageRequest);
     }
 }

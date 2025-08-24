@@ -175,7 +175,7 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
             // 查询历史消息（我发给好友和好友发给我的消息，按时间倒序查询）
             chatMesList = baseMapper.getPrivateChatHistoryMes(page, userId, receiverId);
         }else if(chatType == ChatType.TWO.getType()){
-            chatMesList = baseMapper.getGroupChatHistoryMes(page, receiverId);
+            chatMesList = baseMapper.getGroupChatHistoryMes(page, userId, receiverId);
         }else{
             throw new BusinessException("聊天类型不存在");
         }

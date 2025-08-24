@@ -1,84 +1,48 @@
-package com.xigua.center.wsMessage;
+package com.xigua.center.chatMessage;
 
-import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.api.service.CenterService;
 import com.xigua.api.service.MessageReadService;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.domain.connect.Client;
-import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.enums.*;
-import com.xigua.api.service.CenterService;
-import com.xigua.api.service.ChatMessageService;
+import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.ws.MessageResponse;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
- * @ClassName MesReadSubTypeHandler
+ * @ClassName PrivateReadChatMessageService
  * @Description TODO
  * @Author wangjinfei
- * @Date 2025/6/4 21:50
+ * @Date 2025/8/24 11:41
  */
 @Component
-public class ChatSubmitUnreadMessageService extends AbstractMessageService {
+public class PrivateReadChatMessageService extends AbstractReadChatMessageService{
     @Autowired
-    private ChatMessageService chatMessageService;
-    @Autowired
-    private RedisUtil redisUtil;
+    private MessageReadService messageReadService;
     @Autowired
     private CenterService centerService;
     @Autowired
-    private MessageReadService messageReadService;
+    private RedisUtil redisUtil;
 
     @Override
-    public String getMessageName() {
-        return MessageSubType.SUBMIT_UNREAD.getDesc();
-    }
-
-    @Override
-    public String getMessageType() {
-        return MessageType.CHAT.getType();
-    }
-
-    @Override
-    public String getMessageSubType() {
-        return MessageSubType.SUBMIT_UNREAD.getType();
-    }
-
-    @Override
-    public void handleMessage(MessageRequest messageRequest) {
-        String senderId = messageRequest.getSenderId();
-        String message = messageRequest.getMessage();
-        if(StringUtils.isEmpty(message)){
-            return;
-        }
-        List<String> chatMessageIdList = JSONArray.parseArray(message, String.class);
-        if(CollectionUtils.isEmpty(chatMessageIdList)){
-            return;
-        }
-        // 批量更新消息为已读
-        messageReadService.markReadBatch(chatMessageIdList, senderId);
-
-        // 接收人处理  todo 可以优化成异步处理，减少阻塞
-        receiverHande(messageRequest);
-
-        // 好友未读消息清零
-        friendUnreadHande(messageRequest);
+    protected ChatType getChatType() {
+        return ChatType.ONE;
     }
 
     /**
-     * 接收人处理 （要给消息发送者发送已读）
+     * 通知发送人消息已读
      * @author wangjinfei
-     * @date 2025/6/6 21:51
+     * @date 2025/8/24 11:32
      * @param messageRequest
-    */
-    private void receiverHande(MessageRequest messageRequest){
+     */
+    @Override
+    public void notifySenderOfMessageRead(MessageRequest messageRequest) {
         String senderId = messageRequest.getSenderId();
         String receiverId = messageRequest.getReceiverId();
 
@@ -115,12 +79,13 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
     }
 
     /**
-     * 好友未读消息清零
+     * 清空未读消息数量
      * @author wangjinfei
-     * @date 2025/6/9 21:36
+     * @date 2025/8/24 11:35
      * @param messageRequest
-    */
-    private void friendUnreadHande(MessageRequest messageRequest){
+     */
+    @Override
+    public void clearUnreadCount(MessageRequest messageRequest) {
         String senderId = messageRequest.getSenderId();
         String receiverId = messageRequest.getReceiverId();
         String friendUnreadCountKey = RedisEnum.FRIEND_UNREAD_COUNT.getKey() + senderId;
@@ -128,7 +93,7 @@ public class ChatSubmitUnreadMessageService extends AbstractMessageService {
         /**
          * todo 点开聊天框，清零，可以根据已读数据逐次 - 1
          * 暂时直接清零
-        */
+         */
         redisUtil.hashPut(friendUnreadCountKey, receiverId, 0);
     }
 }

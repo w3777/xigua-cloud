@@ -54,8 +54,10 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @author wangjinfei
      * @date 2025/8/17 20:16
      * @param page
-     * @param groupId
+     * @param userId 当前用户id
+     * @param groupId 群聊id
      * @return List<ChatMessageVO>
     */
-    List<ChatMessageVO> getGroupChatHistoryMes(Page<ChatMessageVO> page, @Param("groupId") String groupId);
+    List<ChatMessageVO> getGroupChatHistoryMes(Page<ChatMessageVO> page, @Param("userId") String userId,
+                                               @Param("groupId") String groupId);
 }

@@ -35,8 +35,9 @@
             limit 1
     </select>
     <select id="getGroupChatHistoryMes" resultType="com.xigua.domain.vo.ChatMessageVO">
-        select ct.id as chatMessageId, ct.sender_id, ct.receiver_id, ct.message, ct.chat_type, ct.create_time
+        select ct.id as chatMessageId, ct.sender_id, ct.receiver_id, ct.message, ct.chat_type, ct.create_time, mr.is_read
         from xg_chat_message ct
+        left join xg_message_read mr on mr.message_id = ct.id and mr.receiver_id = #{userId} and mr.del_flag = 0
         where ct.del_flag = 0
           and ct.chat_type = 2
           and ct.receiver_id = #{groupId}
