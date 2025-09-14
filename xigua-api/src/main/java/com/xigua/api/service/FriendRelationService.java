@@ -76,4 +76,23 @@ public interface FriendRelationService {
      * @return List<User>
     */
     List<User> getFriendsByUserId4Db(String userId);
+
+    /**
+     * 删除好友
+     * @author wangjinfei
+     * @date 2025/9/1 20:48
+     * @param friendId
+     * @return Boolean
+    */
+    Boolean delFriend(String friendId);
+
+    /**
+     * 是否好友
+     * @author wangjinfei
+     * @date 2025/9/13 17:41
+     * @param userId
+     * @param friendId
+     * @return Boolean
+    */
+    Boolean isFriend(String userId, String friendId);
 }

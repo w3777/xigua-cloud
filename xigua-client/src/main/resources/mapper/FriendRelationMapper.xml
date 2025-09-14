@@ -24,4 +24,9 @@
     <select id="getCountByUserId" resultType="java.lang.Integer">
         select count(fr.id) from xg_friend_relation fr where fr.del_flag = 0 and fr.user_id = #{userId}
     </select>
+
+    <delete id="delFriend">
+        update xg_friend_relation set del_flag = 1, update_by = #{userId}, update_time = now()
+        where del_flag = 0 and user_id = #{userId} and friend_id = #{friendId}
+    </delete>
 </mapper>

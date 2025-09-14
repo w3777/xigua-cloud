@@ -214,6 +214,31 @@ public class RedisUtil {
     }
 
     /**
+     * zset删除元素
+     * @author wangjinfei
+     * @date 2025/9/1 20:54
+     * @param key
+     * @param value
+     * @return Long
+     */
+    public Long zsrem(String key, Object value) {
+        return redisTemplate.opsForZSet().remove(key, value);
+    }
+
+    /**
+     * 判断zset是否存在member
+     * @author wangjinfei
+     * @date 2025/9/13 16:48
+     * @param key
+     * @param member
+     * @return boolean
+    */
+    public boolean isExistInZSet(String key, String member) {
+        Double score = redisTemplate.opsForZSet().score(key, member);
+        return score != null;
+    }
+
+    /**
      * zset获取指定区间的元素
      * @author wangjinfei
      * @date 2025/5/20 20:54
@@ -308,6 +333,30 @@ public class RedisUtil {
             return false;
         }
         return true;
+    }
+
+    /**
+     * hash判断是否存在field
+     * @author wangjinfei
+     * @date 2025/9/13 16:55
+     * @param key
+     * @param field
+     * @return boolean
+    */
+    public boolean isExistInHash(String key, String field) {
+        return redisTemplate.opsForHash().hasKey(key, field);
+    }
+
+    /**
+     * hash删除field
+     * @author wangjinfei
+     * @date 2025/9/13 16:56
+     * @param key
+     * @param field
+     * @return Long
+    */
+    public Long hashDel(String key, String field) {
+        return redisTemplate.opsForHash().delete(key, field);
     }
     
     /** 

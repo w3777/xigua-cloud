@@ -87,4 +87,21 @@ public class FriendRelationController {
         friendRelationService.allFriendRelationToRedis();
         return R.ok(true, "缓存成功");
     }
+
+    /**
+     * 删除好友
+     * @author wangjinfei
+     * @date 2025/9/1 20:48
+     * @param friendId
+     * @return Boolean
+     */
+    @Operation(summary = "删除好友")
+    @PostMapping("/delFriend")
+    public R<Boolean> delFriend(@RequestParam("friendId") String friendId){
+        Boolean b = friendRelationService.delFriend(friendId);
+        if(!b){
+            return R.fail("删除失败");
+        }
+        return R.ok(true, "删除成功");
+    }
 }

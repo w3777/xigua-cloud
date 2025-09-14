@@ -19,6 +19,7 @@ public enum MessageSubType {
     MES_RECEIVE("mes_receive", "消息接收"),
     SUBMIT_UNREAD("submit_unread", "提交未读消息"),
     MES_READ("mes_read", "消息已读"),
+    SYSTEM_MES("system_mes", "系统消息"),
 
     // unread
     FRIEND_UNREAD("friend_unread", "好友未读消息"),

@@ -3,6 +3,9 @@ package com.xigua.center.wsMessage;
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.center.chatMessage.AbstractSendChatMessageService;
 import com.xigua.center.chatMessage.SendChatMessageServiceFactory;
+import com.xigua.center.validator.ChatValidateCode;
+import com.xigua.center.validator.MessagePermissionValidator;
+import com.xigua.center.validator.ValidatorFactory;
 import com.xigua.common.core.exception.BusinessException;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
@@ -35,6 +38,8 @@ public class SendChatMessageService extends AbstractMessageService {
     private CenterService centerService;
     @Autowired
     private PlatformTransactionManager transactionManager;
+    @Autowired
+    private ValidatorFactory validatorFactory;
 
     @Override
     public String getMessageName() {
@@ -74,6 +79,14 @@ public class SendChatMessageService extends AbstractMessageService {
         transactionManager.commit(status);
 
         // todo 下面所有逻辑处理都可以放到mq里做排队异步处理，提高系统吞吐量
+
+        // 校验消息权限
+        ChatValidateCode validateCode = validateMessage(messageRequest);
+        if(!validateCode.equals(ChatValidateCode.SUCCESS)){
+            // 根据校验code 处理失败
+            validateFail(validateCode, messageRequest);
+            return;
+        }
 
         // 最后一条消息  (消息列表)
         lastMessage(messageRequest);
@@ -169,6 +182,72 @@ public class SendChatMessageService extends AbstractMessageService {
             transactionManager.rollback(status);
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 校验消息权限
+     * @author wangjinfei
+     * @date 2025/9/13 18:12
+     * @param messageRequest
+     * @return Boolean
+    */
+    private ChatValidateCode validateMessage(MessageRequest messageRequest){
+        Integer chatType = messageRequest.getChatType();
+        if(chatType == null){
+            throw new BusinessException("--------->>>>>>> 聊天类型不能为空");
+        }
+
+        ChatType chatTypeE = ChatType.getChatType(chatType);
+        if(chatTypeE == null){
+            throw new BusinessException("--------->>>>>>> 聊天类型不存在");
+        }
+
+        // 获取校验器
+        MessagePermissionValidator validator = validatorFactory.getValidator(chatTypeE);
+        if(validator == null){
+            throw new BusinessException("--------->>>>>>> 校验器不存在");
+        }
+
+        // 校验权限
+        ChatValidateCode chatValidateCode = validator.validatePermission(messageRequest);
+
+        return chatValidateCode;
+    }
+
+    /**
+     * 校验失败处理
+     * @author wangjinfei
+     * @date 2025/9/13 18:23
+     * @param chatValidateCode
+    */
+    private void validateFail(ChatValidateCode chatValidateCode, MessageRequest messageRequest){
+        // todo 这个方法的处理写死了，应该抽出一层
+
+        if(chatValidateCode == null){
+            return;
+        }
+        // 获取发送人所在的节点信息
+        String senderInServer = centerService.onlineUser(messageRequest.getSenderId());
+        if(StringUtils.isEmpty(senderInServer)){
+            // 发送人不在线，直接返回，不做后续处理
+            return;
+        }
+
+        // 获取发送人所在的节点信息
+        String key = RedisEnum.CLIENT_CONNECT_CENTER.getKey() +
+                senderInServer.split(":")[1] + ":" + senderInServer.split(":")[2];
+        String value = redisUtil.get(key);
+        Client client = JSONObject.parseObject(value, Client.class);
+
+        // 实时推送消息，发送到发送人所在节点
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setSenderId(Sender.SYSTEM.getSender());
+        messageResponse.setReceiverId(messageRequest.getSenderId());
+        messageResponse.setMessageType(MessageType.CHAT.getType());
+        messageResponse.setSubType(MessageSubType.SYSTEM_MES.getType());
+        messageResponse.setMessage(chatValidateCode.getMsg());
+        messageResponse.setCreateTime(String.valueOf(System.currentTimeMillis()));
+        centerService.sendMessage2Client(messageResponse, client);
     }
 
     /**

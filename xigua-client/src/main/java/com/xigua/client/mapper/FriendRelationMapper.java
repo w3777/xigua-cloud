@@ -30,4 +30,14 @@ public interface FriendRelationMapper extends BaseMapper<FriendRelation> {
      * @return Integer
      */
     Integer getCountByUserId(@Param("userId") String userId);
+
+    /**
+     * 删除好友
+     * @author wangjinfei
+     * @date 2025/9/1 20:50
+     * @param userId
+     * @param friendId
+     * @return Integer
+    */
+    Integer delFriend(@Param("userId") String userId, @Param("friendId") String friendId);
 }

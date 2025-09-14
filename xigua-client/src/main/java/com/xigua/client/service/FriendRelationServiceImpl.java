@@ -25,6 +25,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -346,5 +347,50 @@ public class FriendRelationServiceImpl extends ServiceImpl<FriendRelationMapper,
         List<String> friendIds = friendRelations.stream().map(FriendRelation::getFriendId).collect(Collectors.toList());
         List<User> friends = userService.listByIds(friendIds);
         return friends;
+    }
+
+    /**
+     * 删除好友
+     * @author wangjinfei
+     * @date 2025/9/1 20:48
+     * @param friendId
+     * @return Boolean
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean delFriend(String friendId) {
+        String userId = UserContext.get().getUserId();
+        Integer i = baseMapper.delFriend(userId, friendId);
+        if(i <= 0){
+            return false;
+        }
+
+        // 从缓存中删除好友关系
+        redisUtil.zsrem(RedisEnum.FRIEND_RELATION.getKey() + userId, friendId);
+
+        // 缓存删除消息列表
+        if(redisUtil.isExistInZSet(RedisEnum.LAST_MES.getKey() + userId, friendId)){
+            redisUtil.zsrem(RedisEnum.LAST_MES.getKey() + userId, friendId);
+        }
+        // 缓存删除消息内容
+        if(redisUtil.isExistInHash(RedisEnum.LAST_MES_CONTENT.getKey() + userId, friendId)){
+            redisUtil.hashDel(RedisEnum.LAST_MES_CONTENT.getKey() + userId, friendId);
+        }
+
+        return true;
+    }
+
+    /**
+     * 是否好友
+     * @author wangjinfei
+     * @date 2025/9/13 17:41
+     * @param userId
+     * @param friendId
+     * @return Boolean
+     */
+    @Override
+    public Boolean isFriend(String userId, String friendId) {
+        Boolean isFriend = redisUtil.isExistInZSet(RedisEnum.FRIEND_RELATION.getKey() + userId, friendId);
+        return isFriend;
     }
 }
