@@ -94,6 +94,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String originalUserName = userToken.getUserName();
         String username = user.getUsername();
 
+        if("admin".equals(originalUserName)){
+            throw new BusinessException("管理员不能修改用户信息");
+        }
+
         // 用户名根之前不一样在校验
         if(!originalUserName.equals(username)){
             // 用户名是否存在
