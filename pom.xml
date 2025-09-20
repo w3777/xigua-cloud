@@ -48,6 +48,7 @@
         <module>xigua-domain</module>
         <module>xigua-client</module>
         <module>xigua-center</module>
+        <module>xigua-ai</module>
     </modules>
 
     <profiles>
