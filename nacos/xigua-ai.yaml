@@ -1,0 +1,44 @@
+# llm
+llm:
+  # llm 供应商 deepseek、chatgpt
+  provider: deepseek
+  deepseek:
+    api-key: xxx
+    model: xxx
+
+dubbo:
+  scan:
+    base-packages: com.xigua
+  protocol:
+    name: dubbo
+    port: 20885
+  registry:
+    check: false
+    # 注册中心nacos
+    address: nacos://127.0.0.1:8848
+    # 指定nacos namespace命名空间
+    parameters:
+      namespace: xigua-dubbo
+  consumer:
+    check: false
+    # 重试为0
+    retries: 0
+    # 超时5秒
+    timeout: 5000
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id，异常处理，去除默认处理）
+    filter: userContextFilter, traceIdFilter, dubboExceptionFilter, -exception
+  provider:
+    check: false
+    # 重试为0
+    retries: 0
+    # 超时5秒
+    timeout: 5000
+    # 自定义过滤器（用来隐式传当前用户信息，传递链路id，异常处理，去除默认处理）
+    filter: userContextFilter, traceIdFilter, dubboExceptionFilter, -exception
+
+# swagger配置
+springdoc:
+  api-docs:
+    path: /ai/v3/api-docs
+  swagger-ui:
+    path: /ai/swagger-ui.html

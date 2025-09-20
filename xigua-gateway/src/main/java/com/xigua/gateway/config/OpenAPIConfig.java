@@ -68,4 +68,14 @@ public class OpenAPIConfig {
                         .uri("http://127.0.0.1:8082"))
                 .build();
     }
+
+    // ai的swagger路由转发配置
+    @Bean
+    public RouteLocator aiRoute(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("ai-api", r -> r.path("/ai/v3/api-docs")
+                        .filters(f -> f.rewritePath("/ai/(?<segment>.*)", "/ai/${segment}"))
+                        .uri("http://127.0.0.1:8085"))
+                .build();
+    }
 }
