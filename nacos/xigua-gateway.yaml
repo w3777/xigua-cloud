@@ -35,6 +35,13 @@ spring:
           filters:
             - StripPrefix=1
 
+        - id: xigua-ai
+          uri: lb://xigua-ai
+          predicates:
+            - Path=/ai/**
+          filters:
+            - StripPrefix=1
+
 springdoc:
   webjars:
     # 设置为空，不要前缀
@@ -49,3 +56,5 @@ springdoc:
         url: /center/v3/api-docs
       - name: sso-api
         url: /sso/v3/api-docs
+      - name: ai-api
+        url: /ai/v3/api-docs

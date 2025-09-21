@@ -15,6 +15,5 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "llm.deepseek")
 public class DeepseekLLMProperties {
     private String apiKey;
-    private String baseUrl;
     private String model;
 }
