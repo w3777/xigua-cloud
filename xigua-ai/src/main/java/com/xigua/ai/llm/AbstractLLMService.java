@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
  * @Author wangjinfei
  * @Date 2025/9/20 15:23
  */
-@Service
 public abstract class AbstractLLMService implements LLMService {
     @Autowired
     protected LLMProperties llmProperties;

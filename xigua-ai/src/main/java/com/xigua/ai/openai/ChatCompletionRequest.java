@@ -1,5 +1,9 @@
 package com.xigua.ai.openai;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +13,9 @@ import java.util.Map;
  * @Author wangjinfei
  * @Date 2025/9/20 22:16
  */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatCompletionRequest {
     // 必需字段
     private String model;

@@ -1,5 +1,9 @@
 package com.xigua.ai.llm;
 
+import com.xigua.ai.context.ChatContext;
+
+import java.io.IOException;
+
 /**
  * @ClassName LLMService
  * @Description TODO
@@ -8,7 +12,7 @@ package com.xigua.ai.llm;
  */
 public interface LLMService {
 
-    void chat();
+    String chat(ChatContext chatContext) throws IOException;
 
-    void streamChat();
+    String chatStream(ChatContext chatContext);
 }

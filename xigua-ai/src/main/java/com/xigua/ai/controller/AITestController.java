@@ -1,22 +1,26 @@
-package com.xigua.ai;
+package com.xigua.ai.controller;
 
 import com.xigua.ai.client.DeepSeekClient;
 import com.xigua.ai.openai.ChatCompletionRequest;
 import com.xigua.ai.openai.ChatCompletionResponse;
 import com.xigua.ai.sse.StreamCallback;
+import com.xigua.api.service.AIService;
 import com.xigua.domain.result.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName AITestController
@@ -28,8 +32,10 @@ import java.util.List;
 @RequestMapping("/test")
 @RestController
 public class AITestController {
-    @Autowired
+    @Autowired(required = false)
     private DeepSeekClient deepSeekClient;
+    @DubboReference
+    private AIService aiService;
 
     @ApiResponses({@ApiResponse(responseCode = "200", description = "查询成功", content =
             { @Content(mediaType = "application/json") })})
@@ -127,5 +133,18 @@ public class AITestController {
                 System.out.println("Stream completed");
             }
         });
+    }
+
+    @Operation(summary = "测试ai对话")
+    @PostMapping("/test3")
+    public R<String> test3(@RequestBody Map<String, String> map) {
+        String input = map.getOrDefault("input", "你是谁");
+        try {
+            String output = aiService.chat(input, false);
+            return R.ok(output);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return R.fail("测试失败");
     }
 }

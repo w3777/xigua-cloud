@@ -28,6 +28,9 @@ public class DeepSeekClient {
 
 
     public ChatCompletionResponse chatCompletions(ChatCompletionRequest requestBody) throws IOException {
+        requestBody.setStream(false);
+        // todo 设置默认超时时间
+
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
