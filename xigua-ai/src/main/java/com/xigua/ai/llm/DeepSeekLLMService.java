@@ -78,7 +78,32 @@ public class DeepSeekLLMService extends AbstractLLMService {
     }
 
     @Override
-    public String chatStream(ChatContext chatContext) {
-        return null;
+    public void chatStream(ChatContext chatContext) {
+        // 设置响应格式
+        ChatCompletionRequest.ResponseFormat responseFormat =
+                new ChatCompletionRequest.ResponseFormat();
+        responseFormat.setType("text");
+
+        // 设置系统消息
+        ChatCompletionRequest.Message systemMessage = new ChatCompletionRequest.Message();
+        systemMessage.setRole("system");
+        systemMessage.setContent(chatContext.getPrompt());
+
+        // 用户input
+        ChatCompletionRequest.Message userMessage = new ChatCompletionRequest.Message();
+        userMessage.setRole("user");
+        userMessage.setContent(chatContext.getInput());
+
+        ChatCompletionRequest request = ChatCompletionRequest.builder()
+                .model(deepseekLLMProperties.getModel())
+                .maxTokens(llmProperties.getMaxTokens())
+                .temperature(llmProperties.getTemperature())
+                .frequencyPenalty(0.0)
+                .presencePenalty(0.0)
+                .responseFormat(responseFormat)
+                .messages(List.of(systemMessage, userMessage))
+                .build();
+
+        deepSeekClient.chatCompletionsStream(request, chatContext.getStreamCallback());
     }
 }

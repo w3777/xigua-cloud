@@ -1,5 +1,7 @@
 package com.xigua.api.service;
 
+import reactor.core.publisher.Flux;
+
 import java.io.IOException;
 
 /**
@@ -9,5 +11,5 @@ import java.io.IOException;
  * @Date 2025/9/20 13:07
  */
 public interface AIService {
-    String chat(String input, boolean stream) throws IOException;
+    Flux<String> chat(String input, boolean stream) throws IOException;
 }

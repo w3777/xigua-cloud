@@ -3,6 +3,7 @@ package com.xigua.ai.controller;
 import com.xigua.ai.client.DeepSeekClient;
 import com.xigua.ai.openai.ChatCompletionRequest;
 import com.xigua.ai.openai.ChatCompletionResponse;
+import com.xigua.ai.service.AIServiceImpl;
 import com.xigua.ai.sse.StreamCallback;
 import com.xigua.api.service.AIService;
 import com.xigua.domain.result.R;
@@ -13,10 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,6 +39,8 @@ public class AITestController {
     private DeepSeekClient deepSeekClient;
     @DubboReference
     private AIService aiService;
+    @Autowired
+    private AIServiceImpl aiServiceImpl;
 
     @ApiResponses({@ApiResponse(responseCode = "200", description = "查询成功", content =
             { @Content(mediaType = "application/json") })})
@@ -136,15 +141,14 @@ public class AITestController {
     }
 
     @Operation(summary = "测试ai对话")
-    @PostMapping("/test3")
-    public R<String> test3(@RequestBody Map<String, String> map) {
+    @PostMapping(value = "/test3", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> test3(@RequestBody Map<String, String> map) {
         String input = map.getOrDefault("input", "你是谁");
+        boolean stream = Boolean.parseBoolean(map.getOrDefault("stream", "true"));
         try {
-            String output = aiService.chat(input, false);
-            return R.ok(output);
-        }catch (Exception e){
-            e.printStackTrace();
+            return aiServiceImpl.chat(input, stream);
+        } catch (IOException e) {
+            return Flux.error(e);
         }
-        return R.fail("测试失败");
     }
 }

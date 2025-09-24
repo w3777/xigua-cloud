@@ -14,5 +14,5 @@ public interface LLMService {
 
     String chat(ChatContext chatContext) throws IOException;
 
-    String chatStream(ChatContext chatContext);
+    void chatStream(ChatContext chatContext);
 }
