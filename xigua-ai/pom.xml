@@ -65,6 +65,12 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.apache.dubbo</groupId>-->
+<!--            <artifactId>dubbo-reactive</artifactId>-->
+<!--            <version>${dubbo.version}</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>com.xigua</groupId>
             <artifactId>xigua-api</artifactId>

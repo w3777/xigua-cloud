@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package com.xigua.api.service;
+option java_multiple_files = true;
+option java_package = "com.xigua.api.service";
+option java_outer_classname = "AIServiceProto";
+
+// 定义请求参数
+message ChatRequest {
+  string input = 1;   // 输入的内容
+  bool stream = 2;    // 是否开启流式返回
+}
+
+// 定义响应结果
+message ChatResponse {
+  string output = 1;    // 输出的内容
+}
+
+// 定义服务
+service AIService {
+  // 如果需要流式，可以这样写：返回 stream
+  rpc Chat(ChatRequest) returns (stream ChatResponse);
+}

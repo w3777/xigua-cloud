@@ -10,7 +10,7 @@ dubbo:
   scan:
     base-packages: com.xigua
   protocol:
-    name: dubbo
+    name: tri
     port: 20885
   registry:
     check: false
@@ -20,11 +20,13 @@ dubbo:
     parameters:
       namespace: xigua-dubbo
   consumer:
+    # 关闭 injvm
+    scope: remote
     check: false
     # 重试为0
     retries: 0
     # 超时5秒
-    timeout: 5000
+    timeout: 30000
     # 自定义过滤器（用来隐式传当前用户信息，传递链路id，异常处理，去除默认处理）
     filter: userContextFilter, traceIdFilter, dubboExceptionFilter, -exception
   provider:
@@ -32,7 +34,7 @@ dubbo:
     # 重试为0
     retries: 0
     # 超时5秒
-    timeout: 5000
+    timeout: 30000
     # 自定义过滤器（用来隐式传当前用户信息，传递链路id，异常处理，去除默认处理）
     filter: userContextFilter, traceIdFilter, dubboExceptionFilter, -exception
 

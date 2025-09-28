@@ -6,6 +6,8 @@ import com.xigua.ai.openai.ChatCompletionResponse;
 import com.xigua.ai.service.AIServiceImpl;
 import com.xigua.ai.sse.StreamCallback;
 import com.xigua.api.service.AIService;
+import com.xigua.api.service.ChatRequest;
+import com.xigua.api.service.ChatResponse;
 import com.xigua.domain.result.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,8 +42,6 @@ public class AITestController {
     private DeepSeekClient deepSeekClient;
     @DubboReference
     private AIService aiService;
-    @Autowired
-    private AIServiceImpl aiServiceImpl;
 
     @ApiResponses({@ApiResponse(responseCode = "200", description = "查询成功", content =
             { @Content(mediaType = "application/json") })})
@@ -146,8 +147,16 @@ public class AITestController {
         String input = map.getOrDefault("input", "你是谁");
         boolean stream = Boolean.parseBoolean(map.getOrDefault("stream", "true"));
         try {
-            return aiServiceImpl.chat(input, stream);
-        } catch (IOException e) {
+            Mono<ChatRequest> request = Mono.just(
+                    ChatRequest.newBuilder()
+                            .setInput(input)
+                            .setStream(stream)
+                            .build()
+            );
+            Flux<ChatResponse> chat = aiService.chat(request);
+            Flux<String> stringFlux = chat.map(ChatResponse::getOutput);
+            return stringFlux;
+        } catch (Exception e) {
             return Flux.error(e);
         }
     }
