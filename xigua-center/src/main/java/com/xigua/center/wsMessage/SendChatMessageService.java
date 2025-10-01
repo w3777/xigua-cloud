@@ -202,6 +202,11 @@ public class SendChatMessageService extends AbstractMessageService {
             throw new BusinessException("--------->>>>>>> 聊天类型不存在");
         }
 
+        // ai对话 不校验
+        if(chatTypeE == ChatType.THREE){
+            return ChatValidateCode.SUCCESS;
+        }
+
         // 获取校验器
         MessagePermissionValidator validator = validatorFactory.getValidator(chatTypeE);
         if(validator == null){

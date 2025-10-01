@@ -8,7 +8,7 @@ import lombok.ToString;
 public enum ChatType {
     ONE(1,"privateChat","单聊"),
     TWO(2,"groupChat","群聊"),
-    // todo ai对话
+    THREE(3,"aiChat","ai对话")
     ;
 
     final Integer type;
