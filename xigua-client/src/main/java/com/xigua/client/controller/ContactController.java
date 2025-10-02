@@ -2,10 +2,7 @@ package com.xigua.client.controller;
 
 import com.xigua.api.service.ContactService;
 import com.xigua.domain.result.R;
-import com.xigua.domain.vo.ContactCountVO;
-import com.xigua.domain.vo.FriendRequestVO;
-import com.xigua.domain.vo.FriendVO;
-import com.xigua.domain.vo.GroupVO;
+import com.xigua.domain.vo.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +64,20 @@ public class ContactController {
     public R<List<GroupVO>> getGroupList(){
         return R.ok(contactService.getGroupList());
     }
+
+    /**
+     * 获取机器人列表
+     * @author wangjinfei
+     * @date 2025/10/1 16:49
+     * @return List<BotVO>
+     */
+    @Operation(summary = "获取机器人列表")
+    @GetMapping("/getBotList")
+    public R<List<BotVO>> getBotList(){
+        return R.ok(contactService.getBotList());
+    }
+
+
 
     /**
      * 获取发送好友申请列表

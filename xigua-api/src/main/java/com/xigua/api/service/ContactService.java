@@ -1,9 +1,6 @@
 package com.xigua.api.service;
 
-import com.xigua.domain.vo.ContactCountVO;
-import com.xigua.domain.vo.FriendRequestVO;
-import com.xigua.domain.vo.FriendVO;
-import com.xigua.domain.vo.GroupVO;
+import com.xigua.domain.vo.*;
 
 import java.util.List;
 
@@ -38,6 +35,14 @@ public interface ContactService {
      * @return List<GroupVO>
      */
     List<GroupVO> getGroupList();
+
+    /**
+     * 获取机器人列表
+     * @author wangjinfei
+     * @date 2025/10/1 16:49
+     * @return List<BotVO>
+    */
+    List<BotVO> getBotList();
 
     /**
      * 获取发送好友申请列表

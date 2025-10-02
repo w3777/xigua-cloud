@@ -18,6 +18,8 @@ public class ContactCountVO implements Serializable {
 
     private Integer groupCount;
 
+    private Integer botCount;
+
     private Integer sendCount;
 
     private Integer receiveCount;

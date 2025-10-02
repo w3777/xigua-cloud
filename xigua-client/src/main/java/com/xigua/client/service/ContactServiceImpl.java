@@ -5,14 +5,12 @@ import com.xigua.api.service.*;
 import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.core.util.UserContext;
+import com.xigua.domain.entity.Bot;
 import com.xigua.domain.entity.FriendRequest;
 import com.xigua.domain.entity.Group;
 import com.xigua.domain.entity.User;
 import com.xigua.domain.enums.RedisEnum;
-import com.xigua.domain.vo.ContactCountVO;
-import com.xigua.domain.vo.FriendRequestVO;
-import com.xigua.domain.vo.FriendVO;
-import com.xigua.domain.vo.GroupVO;
+import com.xigua.domain.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +42,8 @@ public class ContactServiceImpl implements ContactService {
     private GroupMemberService groupMemberService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private BotService botService;
     @DubboReference
     private CenterService centerService;
 
@@ -63,6 +63,8 @@ public class ContactServiceImpl implements ContactService {
         contactCountVO.setFriendCount(friendRelationService.getCountByUserId(userId));
         // 群数量
         contactCountVO.setGroupCount(groupMemberService.getCountByUserId(userId));
+        // 机器人数量
+        contactCountVO.setBotCount(botService.getCountByUserId(userId));
         // 发送好友申请数量
         contactCountVO.setSendCount(friendRequestService.getSendCountByUserId(userId));
         // 接收好友申请数量
@@ -143,6 +145,34 @@ public class ContactServiceImpl implements ContactService {
             groupVO.setGroupAvatar(group.getGroupAvatar());
             groupVO.setCurrentMember(group.getCurrentMember());
             voList.add(groupVO);
+        }
+
+        return voList;
+    }
+
+    /**
+     * 获取机器人列表
+     * @author wangjinfei
+     * @date 2025/10/1 16:49
+     * @return List<BotVO>
+     */
+    @Override
+    public List<BotVO> getBotList() {
+        String userId = UserContext.get().getUserId();
+        List<BotVO> voList = new ArrayList<>();
+
+        // 获取加入的群组
+        Set<String> botIds = botService.getBotIdsByUserId(userId);
+        if(CollectionUtils.isEmpty(botIds)){
+            return voList;
+        }
+        for (String botId : botIds) {
+            String botCache = redisUtil.get(RedisEnum.BOT.getKey() + botId);
+            if(StringUtils.isEmpty(botCache)){
+                continue;
+            }
+            BotVO bot = JSONObject.parseObject(botCache, BotVO.class);
+            voList.add(bot);
         }
 
         return voList;

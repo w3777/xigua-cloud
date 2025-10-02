@@ -70,15 +70,18 @@ public class AISendChatMessageService extends AbstractSendChatMessageService{
                         .build()
         );
         Flux<ChatResponse> chatFlux = aiService.chat(aiReq);
+        // todo 暂时用一个新id 来表示一次ai的会话
+        String sessionId = sequence.nextNo();
         chatFlux.subscribe(output -> {
             // 实时推送消息，发送到接收人所在节点
             MessageResponse messageResponse = new MessageResponse();
-            messageResponse.setSenderId(Sender.SYSTEM.getSender());
+            messageResponse.setSenderId(messageRequest.getReceiverId());
             messageResponse.setReceiverId(messageRequest.getSenderId());
             messageResponse.setMessageType(MessageType.CHAT.getType());
             messageResponse.setChatType(ChatType.THREE.getType());
             messageResponse.setSubType(MessageSubType.MES_RECEIVE.getType());
             messageResponse.setMessage(output.getOutput());
+            messageResponse.setChatMessageId(sessionId);
             centerService.sendMessage2Client(messageResponse, client);
         });
     }

@@ -23,6 +23,7 @@ public enum RedisEnum {
     GROUP("group:", "群聊信息"),
     GROUP_MEMBER("group_member:", "群成员"),
     GROUP_MEMBER_ID("group_member_id:", "群成员id"),
+    BOT("bot:", "机器人"),
     ;
 
     final String key;

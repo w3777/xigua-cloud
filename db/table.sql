@@ -140,3 +140,20 @@ alter table xg_chat_message
 drop column is_read;
 alter table xg_chat_message
 drop column read_time;
+
+-- ai机器人表
+create table xg_bot
+(
+    id          bigint            not null comment '主键id'
+        primary key,
+    name        varchar(200)      null comment '名称',
+    avatar      varchar(200)      null comment '头像',
+    description varchar(300)      null comment '描述',
+    prompt      text              null comment '提示词',
+    del_flag    tinyint default 0 null comment '是否删除 （0：未删除；1：已删除）',
+    create_by   bigint            null comment '创建人',
+    create_time datetime          null comment '创建时间',
+    update_by   bigint            null comment '修改人',
+    update_time datetime          null comment '修改时间'
+)
+    comment 'ai机器人';

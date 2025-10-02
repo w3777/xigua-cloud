@@ -98,6 +98,9 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
                 isOnline = false;
                 // 群聊未读消息数量
                 unreadCount = redisUtil.hincrget(RedisEnum.GROUP_UNREAD_COUNT.getKey() + userId, senderId);
+            }else if(chatType == ChatType.THREE.getType()){
+                isOnline = false;
+                unreadCount = 0L;
             }else {
                 isOnline = false;
                 unreadCount = 0L;
