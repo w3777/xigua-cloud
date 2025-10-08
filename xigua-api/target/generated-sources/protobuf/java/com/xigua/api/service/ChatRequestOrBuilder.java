@@ -36,4 +36,16 @@ public interface ChatRequestOrBuilder extends
    * @return The stream.
    */
   boolean getStream();
+
+  /**
+   * <code>string prompt = 3;</code>
+   * @return The prompt.
+   */
+  java.lang.String getPrompt();
+  /**
+   * <code>string prompt = 3;</code>
+   * @return The bytes for prompt.
+   */
+  com.google.protobuf.ByteString
+      getPromptBytes();
 }

@@ -2,9 +2,11 @@ package com.xigua.center.chatMessage;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xigua.api.service.*;
+import com.xigua.common.core.util.DateUtil;
 import com.xigua.common.core.util.RedisUtil;
 import com.xigua.common.sequence.sequence.Sequence;
 import com.xigua.domain.connect.Client;
+import com.xigua.domain.entity.Bot;
 import com.xigua.domain.enums.*;
 import com.xigua.domain.ws.MessageRequest;
 import com.xigua.domain.ws.MessageResponse;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 /**
  * @ClassName AISendChatMessage
@@ -63,10 +67,20 @@ public class AISendChatMessageService extends AbstractSendChatMessageService{
         String value = redisUtil.get(key);
         Client client = JSONObject.parseObject(value, Client.class);
 
+        // 获取机器人缓存信息
+        String botCache = redisUtil.get(RedisEnum.BOT.getKey() + messageRequest.getReceiverId());
+        Bot bot = null;
+        if(StringUtils.isEmpty(botCache)){
+            // todo 可以查库
+        }else{
+            bot = JSONObject.parseObject(botCache, Bot.class);
+        }
+
         Mono<ChatRequest> aiReq = Mono.just(
                 ChatRequest.newBuilder()
                         .setInput(messageRequest.getMessage())
                         .setStream(true)
+                        .setPrompt(bot.getPrompt())
                         .build()
         );
         Flux<ChatResponse> chatFlux = aiService.chat(aiReq);
@@ -82,6 +96,7 @@ public class AISendChatMessageService extends AbstractSendChatMessageService{
             messageResponse.setSubType(MessageSubType.MES_RECEIVE.getType());
             messageResponse.setMessage(output.getOutput());
             messageResponse.setChatMessageId(sessionId);
+            messageResponse.setCreateTime(DateUtil.formatDateTime(LocalDateTime.now(), DateUtil.DATE_TIME_FORMATTER));
             centerService.sendMessage2Client(messageResponse, client);
         });
     }

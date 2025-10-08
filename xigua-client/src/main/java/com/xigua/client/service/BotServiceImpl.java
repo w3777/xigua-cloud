@@ -14,6 +14,7 @@ import com.xigua.domain.dto.BotDTO;
 import com.xigua.domain.entity.Bot;
 import com.xigua.domain.enums.ChatType;
 import com.xigua.domain.enums.RedisEnum;
+import com.xigua.domain.vo.BotDetailVO;
 import com.xigua.domain.vo.LastMessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -112,5 +113,25 @@ public class BotServiceImpl extends ServiceImpl<BotMapper, Bot> implements BotSe
     @Override
     public Set<String> getBotIdsByUserId(String userId) {
         return baseMapper.getBotIdsByUserId(userId);
+    }
+
+    /**
+     * 获取机器人详情
+     * @author wangjinfei
+     * @date 2025/10/8 18:19
+     * @param botId
+     * @return BotDetailVO
+     */
+    @Override
+    public BotDetailVO getBotDetail(String botId) {
+        String botCache = redisUtil.get(RedisEnum.BOT.getKey() + botId);
+        BotDetailVO botDetailVO = null;
+        if(StringUtils.isNotEmpty(botCache)){
+            botDetailVO = JSONObject.parseObject(botCache, BotDetailVO.class);
+        }else{
+            // todo query db
+        }
+
+        return botDetailVO;
     }
 }

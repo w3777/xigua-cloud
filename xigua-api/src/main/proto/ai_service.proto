@@ -9,6 +9,7 @@ option java_outer_classname = "AIServiceProto";
 message ChatRequest {
   string input = 1;   // 输入的内容
   bool stream = 2;    // 是否开启流式返回
+  string prompt = 3;
 }
 
 // 定义响应结果

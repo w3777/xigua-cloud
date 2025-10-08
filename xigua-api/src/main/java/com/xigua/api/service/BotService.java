@@ -3,6 +3,7 @@ package com.xigua.api.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xigua.domain.dto.BotDTO;
 import com.xigua.domain.entity.Bot;
+import com.xigua.domain.vo.BotDetailVO;
 
 import java.util.Set;
 
@@ -40,4 +41,13 @@ public interface BotService extends IService<Bot> {
      * @return Set<String>
     */
     Set<String> getBotIdsByUserId(String userId);
+
+    /**
+     * 获取机器人详情
+     * @author wangjinfei
+     * @date 2025/10/8 18:19
+     * @param botId
+     * @return BotDetailVO
+    */
+    BotDetailVO getBotDetail(String botId);
 }

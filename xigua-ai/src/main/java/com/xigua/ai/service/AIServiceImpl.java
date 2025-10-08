@@ -5,9 +5,11 @@ import com.xigua.ai.llm.LLMService;
 import com.xigua.ai.sse.StreamCallback;
 import com.xigua.api.service.AIService;
 import com.xigua.api.service.ChatRequest;
+import com.xigua.api.service.ChatResponse;
 import com.xigua.api.service.DubboAIServiceTriple;
 import com.xigua.common.core.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -33,20 +35,18 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
     private LLMService llmService;
 
     @Override
-    public Flux<com.xigua.api.service.ChatResponse> chat(Mono<ChatRequest> request) {
-        String prompt = "";
-        ClassPathResource resource = new ClassPathResource("prompts/system_prompt");
-        try {
-            Path path = resource.getFile().toPath();
-            prompt = new String(Files.readAllBytes(path));
-        } catch (IOException e) {
-            log.error("读取prompts/system_prompt文件失败", e);
-        }
-
+    public Flux<ChatResponse> chat(Mono<ChatRequest> request) {
         // 阻塞等待请求完成
         ChatRequest req = request.block();
         String input = req.getInput();
         boolean stream = req.getStream();
+        String prompt = req.getPrompt();
+
+        if(StringUtils.isEmpty(prompt)){
+            // 获取默认提示词
+            prompt = getDefaultPrompt();
+        }
+
         ChatContext chatContext = ChatContext.builder()
                 .input(input)
                 .prompt(prompt)
@@ -60,8 +60,8 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
         }
 
         // Flux<String> 转 Flux<ChatResponse>
-        Flux<com.xigua.api.service.ChatResponse> responseFlux = output.map(s ->
-                com.xigua.api.service.ChatResponse.newBuilder().setOutput(s).build()
+        Flux<ChatResponse> responseFlux = output.map(s ->
+                ChatResponse.newBuilder().setOutput(s).build()
         );
         return responseFlux;
     }
@@ -84,6 +84,18 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
 //        Flux<String> output = stream ? adaptStream(chatContext) : Flux.just(llmService.chat(chatContext));
 //        return output;
 //    }
+
+    private String getDefaultPrompt(){
+        String prompt = "";
+        ClassPathResource resource = new ClassPathResource("prompts/system_prompt");
+        try {
+            Path path = resource.getFile().toPath();
+            prompt = new String(Files.readAllBytes(path));
+        } catch (IOException e) {
+            log.error("读取prompts/system_prompt文件失败", e);
+        }
+        return prompt;
+    }
 
     private Flux<String> adaptStream(ChatContext chatContext) {
         return Flux.create(sink -> {

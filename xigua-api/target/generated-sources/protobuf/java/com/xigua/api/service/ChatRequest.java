@@ -21,6 +21,7 @@ private static final long serialVersionUID = 0L;
   }
   private ChatRequest() {
     input_ = "";
+    prompt_ = "";
   }
 
   @java.lang.Override
@@ -109,6 +110,44 @@ private static final long serialVersionUID = 0L;
     return stream_;
   }
 
+  public static final int PROMPT_FIELD_NUMBER = 3;
+  private volatile java.lang.Object prompt_;
+  /**
+   * <code>string prompt = 3;</code>
+   * @return The prompt.
+   */
+  @java.lang.Override
+  public java.lang.String getPrompt() {
+    java.lang.Object ref = prompt_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      prompt_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string prompt = 3;</code>
+   * @return The bytes for prompt.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getPromptBytes() {
+    java.lang.Object ref = prompt_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      prompt_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -129,6 +168,9 @@ private static final long serialVersionUID = 0L;
     if (stream_ != false) {
       output.writeBool(2, stream_);
     }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(prompt_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, prompt_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -144,6 +186,9 @@ private static final long serialVersionUID = 0L;
     if (stream_ != false) {
       size += com.google.protobuf.CodedOutputStream
         .computeBoolSize(2, stream_);
+    }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(prompt_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, prompt_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -164,6 +209,8 @@ private static final long serialVersionUID = 0L;
         .equals(other.getInput())) return false;
     if (getStream()
         != other.getStream()) return false;
+    if (!getPrompt()
+        .equals(other.getPrompt())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -180,6 +227,8 @@ private static final long serialVersionUID = 0L;
     hash = (37 * hash) + STREAM_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
         getStream());
+    hash = (37 * hash) + PROMPT_FIELD_NUMBER;
+    hash = (53 * hash) + getPrompt().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -316,6 +365,8 @@ private static final long serialVersionUID = 0L;
 
       stream_ = false;
 
+      prompt_ = "";
+
       return this;
     }
 
@@ -344,6 +395,7 @@ private static final long serialVersionUID = 0L;
       com.xigua.api.service.ChatRequest result = new com.xigua.api.service.ChatRequest(this);
       result.input_ = input_;
       result.stream_ = stream_;
+      result.prompt_ = prompt_;
       onBuilt();
       return result;
     }
@@ -399,6 +451,10 @@ private static final long serialVersionUID = 0L;
       if (other.getStream() != false) {
         setStream(other.getStream());
       }
+      if (!other.getPrompt().isEmpty()) {
+        prompt_ = other.prompt_;
+        onChanged();
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -435,6 +491,11 @@ private static final long serialVersionUID = 0L;
 
               break;
             } // case 16
+            case 26: {
+              prompt_ = input.readStringRequireUtf8();
+
+              break;
+            } // case 26
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -586,6 +647,82 @@ private static final long serialVersionUID = 0L;
     public Builder clearStream() {
       
       stream_ = false;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object prompt_ = "";
+    /**
+     * <code>string prompt = 3;</code>
+     * @return The prompt.
+     */
+    public java.lang.String getPrompt() {
+      java.lang.Object ref = prompt_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        prompt_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string prompt = 3;</code>
+     * @return The bytes for prompt.
+     */
+    public com.google.protobuf.ByteString
+        getPromptBytes() {
+      java.lang.Object ref = prompt_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        prompt_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string prompt = 3;</code>
+     * @param value The prompt to set.
+     * @return This builder for chaining.
+     */
+    public Builder setPrompt(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      prompt_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string prompt = 3;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearPrompt() {
+      
+      prompt_ = getDefaultInstance().getPrompt();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string prompt = 3;</code>
+     * @param value The bytes for prompt to set.
+     * @return This builder for chaining.
+     */
+    public Builder setPromptBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      prompt_ = value;
       onChanged();
       return this;
     }

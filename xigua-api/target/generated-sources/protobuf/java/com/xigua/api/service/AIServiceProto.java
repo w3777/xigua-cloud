@@ -34,12 +34,13 @@ public final class AIServiceProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\020ai_service.proto\022\025com.xigua.api.servic" +
-      "e\",\n\013ChatRequest\022\r\n\005input\030\001 \001(\t\022\016\n\006strea" +
-      "m\030\002 \001(\010\"\036\n\014ChatResponse\022\016\n\006output\030\001 \001(\t2" +
-      "^\n\tAIService\022Q\n\004Chat\022\".com.xigua.api.ser" +
-      "vice.ChatRequest\032#.com.xigua.api.service" +
-      ".ChatResponse0\001B)\n\025com.xigua.api.service" +
-      "B\016AIServiceProtoP\001b\006proto3"
+      "e\"<\n\013ChatRequest\022\r\n\005input\030\001 \001(\t\022\016\n\006strea" +
+      "m\030\002 \001(\010\022\016\n\006prompt\030\003 \001(\t\"\036\n\014ChatResponse\022" +
+      "\016\n\006output\030\001 \001(\t2^\n\tAIService\022Q\n\004Chat\022\".c" +
+      "om.xigua.api.service.ChatRequest\032#.com.x" +
+      "igua.api.service.ChatResponse0\001B)\n\025com.x" +
+      "igua.api.serviceB\016AIServiceProtoP\001b\006prot" +
+      "o3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -50,7 +51,7 @@ public final class AIServiceProto {
     internal_static_com_xigua_api_service_ChatRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_com_xigua_api_service_ChatRequest_descriptor,
-        new java.lang.String[] { "Input", "Stream", });
+        new java.lang.String[] { "Input", "Stream", "Prompt", });
     internal_static_com_xigua_api_service_ChatResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_com_xigua_api_service_ChatResponse_fieldAccessorTable = new
