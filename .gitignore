@@ -4,10 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# 取消忽略 生成的grpc代码，和dubbo3的triple代码需要提交git
-!xigua-api/target/generated-sources/
-!xigua-api/target/generated-sources/**
-
 ### STS ###
 .apt_generated
 .classpath
