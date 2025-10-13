@@ -5,9 +5,7 @@ import com.xigua.ai.openai.ChatCompletionRequest;
 import com.xigua.ai.openai.ChatCompletionResponse;
 import com.xigua.ai.service.AIServiceImpl;
 import com.xigua.ai.sse.StreamCallback;
-import com.xigua.api.service.AIService;
-import com.xigua.api.service.ChatRequest;
-import com.xigua.api.service.ChatResponse;
+import com.xigua.api.service.*;
 import com.xigua.domain.result.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,6 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -158,6 +157,26 @@ public class AITestController {
             return stringFlux;
         } catch (Exception e) {
             return Flux.error(e);
+        }
+    }
+
+    @Operation(summary = "识别用户意图")
+    @PostMapping(value = "/test4")
+    public R<Map<String, Object>> test4(@RequestBody Map<String, String> map) {
+        String input = map.getOrDefault("input", "你好啊");
+        try {
+            Mono<IntentRequest> request = Mono.just(
+                    IntentRequest.newBuilder()
+                            .setInput(input)
+                            .build()
+            );
+            Mono<IntentResponse> intentResponseMono = aiService.detectIntent(request);
+            IntentResponse intentResponse = intentResponseMono.block();
+            Map<String, Object> result = new HashMap<>();
+            result.put("intent", intentResponse.getIntent());
+            return R.ok(result);
+        } catch (Exception e) {
+            return R.fail(e.getMessage());
         }
     }
 }

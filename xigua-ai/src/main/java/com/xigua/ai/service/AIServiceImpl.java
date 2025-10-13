@@ -1,12 +1,11 @@
 package com.xigua.ai.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.xigua.ai.context.ChatContext;
 import com.xigua.ai.llm.LLMService;
 import com.xigua.ai.sse.StreamCallback;
+import com.xigua.api.service.*;
 import com.xigua.api.service.AIService;
-import com.xigua.api.service.ChatRequest;
-import com.xigua.api.service.ChatResponse;
-import com.xigua.api.service.DubboAIServiceTriple;
 import com.xigua.common.core.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -66,25 +65,6 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
         return responseFlux;
     }
 
-//    @Override
-//    public Flux<String> chat(String input, boolean stream) throws IOException {
-//        String prompt = "";
-//        ClassPathResource resource = new ClassPathResource("prompts/system_prompt");
-//        Path path = resource.getFile().toPath();
-//        try {
-//            prompt = new String(Files.readAllBytes(path));
-//        } catch (IOException e) {
-//            log.error("读取prompts/system_prompt文件失败", e);
-//        }
-//
-//        ChatContext chatContext = ChatContext.builder()
-//                .input(input)
-//                .prompt(prompt)
-//                .build();
-//        Flux<String> output = stream ? adaptStream(chatContext) : Flux.just(llmService.chat(chatContext));
-//        return output;
-//    }
-
     private String getDefaultPrompt(){
         String prompt = "";
         ClassPathResource resource = new ClassPathResource("prompts/system_prompt");
@@ -118,5 +98,54 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
 
             llmService.chatStream(chatContext);
         });
+    }
+
+    @Override
+    public Mono<IntentResponse> detectIntent(Mono<IntentRequest> reactorRequest) {
+        ChatRequest aiChatReq = ChatRequest.newBuilder()
+                .setInput(reactorRequest.block().getInput())
+                .setStream(false)
+                .setPrompt(getDetectIntentPrompt())
+                .build();
+        Mono<ChatRequest> aiChatReqM = Mono.just(aiChatReq);
+        Flux<ChatResponse> chatFlux = chat(aiChatReqM);
+        // 阻塞等待完成
+        ChatResponse response = chatFlux.blockLast();
+        // 解析意图
+        IntentResponse intentResponse = parseIntent(response);
+        return Mono.just(intentResponse);
+    }
+
+    private String getDetectIntentPrompt(){
+        String prompt = "";
+        ClassPathResource resource = new ClassPathResource("prompts/detect_intent_prompt");
+        try {
+            Path path = resource.getFile().toPath();
+            prompt = new String(Files.readAllBytes(path));
+        } catch (IOException e) {
+            log.error("读取prompts/detect_intent_prompt文件失败", e);
+        }
+        return prompt;
+    }
+
+    private IntentResponse parseIntent(ChatResponse response){
+        IntentResponse intentResponse = IntentResponse.newBuilder()
+                .setIntent(IntentType.UNKNOWN)
+                .build();
+        try {
+            if (StringUtils.isEmpty(response.getOutput())) {
+                return intentResponse;
+            }
+            JSONObject intentJson = JSONObject.parseObject(response.getOutput());
+            String intent = intentJson.getString("intent");
+            if (StringUtils.isNotEmpty(intent)) {
+                intentResponse = intentResponse.toBuilder()
+                        .setIntent(IntentType.valueOf(intent))
+                        .build();
+            }
+        } catch (Exception e) {
+            log.error("解析意图失败, 输出内容: {}", response.getOutput(), e);
+        }
+        return intentResponse;
     }
 }

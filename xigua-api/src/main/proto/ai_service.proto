@@ -17,8 +17,29 @@ message ChatResponse {
   string output = 1;    // 输出的内容
 }
 
+message IntentRequest {
+  string input = 1;
+}
+
+enum IntentType {
+  UNKNOWN = 0;
+  TEXT_TO_TEXT = 1;
+  USE_TOOL = 2;
+
+  // 其他暂时不考虑
+//  TEXT_TO_IMAGE = 3;
+//  TEXT_TO_VIDEO = 4;
+}
+
+message IntentResponse {
+  IntentType intent = 1;
+}
+
+
 // 定义服务
 service AIService {
   // 如果需要流式，可以这样写：返回 stream
   rpc Chat(ChatRequest) returns (stream ChatResponse);
+
+  rpc DetectIntent(IntentRequest) returns (IntentResponse);
 }
