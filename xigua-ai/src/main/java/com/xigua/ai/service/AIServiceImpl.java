@@ -1,7 +1,10 @@
 package com.xigua.ai.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.ai.agent.Agent;
+import com.xigua.ai.agent.model.AgentContext;
 import com.xigua.ai.context.ChatContext;
+import com.xigua.ai.intent.IntentRecognizer;
 import com.xigua.ai.llm.LLMService;
 import com.xigua.ai.sse.StreamCallback;
 import com.xigua.api.service.*;
@@ -32,6 +35,11 @@ import java.nio.file.Path;
 public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
     @Autowired
     private LLMService llmService;
+    @Autowired
+    private IntentRecognizer intentRecognizer;
+
+    @Autowired
+    private Agent agent;
 
     @Override
     public Flux<ChatResponse> chat(Mono<ChatRequest> request) {
@@ -102,50 +110,41 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
 
     @Override
     public Mono<IntentResponse> detectIntent(Mono<IntentRequest> reactorRequest) {
-        ChatRequest aiChatReq = ChatRequest.newBuilder()
-                .setInput(reactorRequest.block().getInput())
-                .setStream(false)
-                .setPrompt(getDetectIntentPrompt())
-                .build();
-        Mono<ChatRequest> aiChatReqM = Mono.just(aiChatReq);
-        Flux<ChatResponse> chatFlux = chat(aiChatReqM);
-        // 阻塞等待完成
-        ChatResponse response = chatFlux.blockLast();
+        com.xigua.ai.intent.IntentType intentType = intentRecognizer.detect(reactorRequest.block().getInput());
         // 解析意图
-        IntentResponse intentResponse = parseIntent(response);
+        IntentResponse intentResponse = parseIntent(intentType);
         return Mono.just(intentResponse);
     }
 
-    private String getDetectIntentPrompt(){
-        String prompt = "";
-        ClassPathResource resource = new ClassPathResource("prompts/detect_intent_prompt");
-        try {
-            Path path = resource.getFile().toPath();
-            prompt = new String(Files.readAllBytes(path));
-        } catch (IOException e) {
-            log.error("读取prompts/detect_intent_prompt文件失败", e);
-        }
-        return prompt;
-    }
-
-    private IntentResponse parseIntent(ChatResponse response){
+    private IntentResponse parseIntent(com.xigua.ai.intent.IntentType intentType){
         IntentResponse intentResponse = IntentResponse.newBuilder()
                 .setIntent(IntentType.UNKNOWN)
                 .build();
         try {
-            if (StringUtils.isEmpty(response.getOutput())) {
+            if (StringUtils.isEmpty(intentType.getType())) {
                 return intentResponse;
             }
-            JSONObject intentJson = JSONObject.parseObject(response.getOutput());
-            String intent = intentJson.getString("intent");
-            if (StringUtils.isNotEmpty(intent)) {
-                intentResponse = intentResponse.toBuilder()
-                        .setIntent(IntentType.valueOf(intent))
-                        .build();
-            }
+            intentResponse = intentResponse.toBuilder()
+                    .setIntent(IntentType.valueOf(intentType.getType()))
+                    .build();
         } catch (Exception e) {
-            log.error("解析意图失败, 输出内容: {}", response.getOutput(), e);
+            log.error("解析意图失败, 意图类型: {}", intentType.getType(), e);
         }
         return intentResponse;
+    }
+
+    @Override
+    public Flux<AgentResponse> agentProcess(Mono<AgentRequest> request) {
+        AgentRequest req = request.block();
+        Boolean stream = req.getStream();
+
+        Flux<String> output = agent.process(AgentContext.builder()
+                .input(req.getInput())
+                .stream(stream)
+                .build());
+
+        return output.map(s ->
+                AgentResponse.newBuilder().setOutput(s).build()
+        );
     }
 }

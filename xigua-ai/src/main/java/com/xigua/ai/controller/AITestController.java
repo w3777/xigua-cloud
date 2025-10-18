@@ -179,4 +179,25 @@ public class AITestController {
             return R.fail(e.getMessage());
         }
     }
+
+
+    @Operation(summary = "测试agent")
+    @PostMapping(value = "/test5", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> test5(@RequestBody Map<String, String> map) {
+        String input = map.getOrDefault("input", "北京今天天气怎么样");
+        boolean stream = Boolean.parseBoolean(map.getOrDefault("stream", "true"));
+        try {
+            Mono<AgentRequest> request = Mono.just(
+                    AgentRequest.newBuilder()
+                            .setInput(input)
+                            .setStream(stream)
+                            .build()
+            );
+            Flux<AgentResponse> chat = aiService.agentProcess(request);
+            Flux<String> stringFlux = chat.map(AgentResponse::getOutput);
+            return stringFlux;
+        } catch (Exception e) {
+            return Flux.error(e);
+        }
+    }
 }

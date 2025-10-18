@@ -35,6 +35,15 @@ message IntentResponse {
   IntentType intent = 1;
 }
 
+message AgentRequest {
+  string input = 1;
+  bool stream = 2;
+}
+
+message AgentResponse {
+  string output = 1;
+}
+
 
 // 定义服务
 service AIService {
@@ -42,4 +51,6 @@ service AIService {
   rpc Chat(ChatRequest) returns (stream ChatResponse);
 
   rpc DetectIntent(IntentRequest) returns (IntentResponse);
+
+  rpc AgentProcess(AgentRequest) returns (stream AgentResponse);
 }
