@@ -44,3 +44,8 @@ springdoc:
     path: /ai/v3/api-docs
   swagger-ui:
     path: /ai/swagger-ui.html
+
+# 工具
+tool:
+  weather:
+    key: xxx

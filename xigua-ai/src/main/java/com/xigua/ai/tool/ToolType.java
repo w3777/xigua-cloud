@@ -25,4 +25,16 @@ public enum ToolType {
     public String getDescription() {
         return description;
     }
+
+    /**
+     * 根据工具名称获取工具类型
+     */
+    public static ToolType getByToolName(String name) {
+        for (ToolType toolType : ToolType.values()) {
+            if (toolType.getName().equalsIgnoreCase(name)) {
+                return toolType;
+            }
+        }
+        return null;
+    }
 }

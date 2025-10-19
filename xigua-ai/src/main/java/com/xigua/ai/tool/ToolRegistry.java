@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,10 +17,8 @@ import java.util.Map;
 public class ToolRegistry {
     private final Map<String, AITool> tools = new HashMap<>();
 
-    @PostConstruct
-    public void init() {
-        register(new WeatherTool());
-//        register(new SearchTool());
+    public ToolRegistry(List<AITool> tools) {
+        tools.forEach(this::register);
     }
 
     public void register(AITool tool) {

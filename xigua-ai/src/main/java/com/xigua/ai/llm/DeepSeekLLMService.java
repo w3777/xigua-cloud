@@ -1,7 +1,7 @@
 package com.xigua.ai.llm;
 
 import com.xigua.ai.client.DeepSeekClient;
-import com.xigua.ai.context.ChatContext;
+import com.xigua.ai.llm.model.ChatContext;
 import com.xigua.ai.llm.properties.DeepseekLLMProperties;
 import com.xigua.ai.llm.properties.LLMProperties;
 import com.xigua.ai.openai.ChatCompletionRequest;

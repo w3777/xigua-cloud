@@ -1,6 +1,6 @@
 package com.xigua.ai.llm;
 
-import com.xigua.ai.context.ChatContext;
+import com.xigua.ai.llm.model.ChatContext;
 
 import java.io.IOException;
 

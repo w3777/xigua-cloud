@@ -1,4 +1,4 @@
-package com.xigua.ai.context;
+package com.xigua.ai.llm.model;
 
 import com.xigua.ai.sse.StreamCallback;
 import lombok.Builder;

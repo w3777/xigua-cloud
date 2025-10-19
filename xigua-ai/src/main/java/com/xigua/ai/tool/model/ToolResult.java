@@ -20,6 +20,7 @@ import java.util.Map;
 public class ToolResult {
     private boolean success;
     private String output;
+    // 工具执行耗时，单位毫秒
     private Long latency;
     private String toolName;
     private Map<String, Object> data;

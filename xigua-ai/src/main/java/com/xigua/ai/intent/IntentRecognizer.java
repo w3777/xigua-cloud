@@ -1,7 +1,7 @@
 package com.xigua.ai.intent;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.xigua.ai.context.ChatContext;
+import com.xigua.ai.llm.model.ChatContext;
 import com.xigua.ai.llm.LLMService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

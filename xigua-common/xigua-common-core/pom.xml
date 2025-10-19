@@ -71,6 +71,13 @@
 			<artifactId>commons-collections4</artifactId>
 			<version>${collections4.version}</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>${beanutils.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

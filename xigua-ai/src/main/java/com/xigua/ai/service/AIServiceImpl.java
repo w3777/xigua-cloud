@@ -1,14 +1,12 @@
 package com.xigua.ai.service;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.xigua.ai.agent.Agent;
 import com.xigua.ai.agent.model.AgentContext;
-import com.xigua.ai.context.ChatContext;
+import com.xigua.ai.llm.model.ChatContext;
 import com.xigua.ai.intent.IntentRecognizer;
 import com.xigua.ai.llm.LLMService;
 import com.xigua.ai.sse.StreamCallback;
 import com.xigua.api.service.*;
-import com.xigua.api.service.AIService;
 import com.xigua.common.core.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
