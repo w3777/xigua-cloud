@@ -10,6 +10,7 @@ import com.xigua.common.core.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 
@@ -38,16 +39,16 @@ public class ToolSelector {
                 .input(input)
                 .stream(false)
                 .build();
-        String output = null;
+        Flux<String> output = null;
         try {
             output = llmService.chat(chatContext);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("调用模型失败, input: {}", input, e);
             throw new BusinessException("调用模型失败");
         }
 
         try {
-            JSONObject json = JSONObject.parseObject(output);
+            JSONObject json = JSONObject.parseObject(output.blockFirst());
             String toolName = json.getString("tool");
             JSONObject args = json.getJSONObject("args");
 

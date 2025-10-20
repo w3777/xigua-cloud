@@ -55,11 +55,12 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
         ChatContext chatContext = ChatContext.builder()
                 .input(input)
                 .prompt(prompt)
+                .stream(stream)
                 .build();
         Flux<String> output = null;
         try {
-            output = stream ? adaptStream(chatContext) : Flux.just(llmService.chat(chatContext));
-        } catch (IOException e) {
+            output = llmService.chat(chatContext);
+        } catch (Exception e) {
             log.error("调用LLM服务失败", e);
             throw new BusinessException("调用LLM服务失败");
         }
@@ -81,29 +82,6 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
             log.error("读取prompts/system_prompt文件失败", e);
         }
         return prompt;
-    }
-
-    private Flux<String> adaptStream(ChatContext chatContext) {
-        return Flux.create(sink -> {
-            chatContext.setStreamCallback(new StreamCallback() {
-                @Override
-                public void onMessage(String content) {
-                    sink.next(content);
-                }
-
-                @Override
-                public void onComplete() {
-                    sink.complete();
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    sink.error(t);
-                }
-            });
-
-            llmService.chatStream(chatContext);
-        });
     }
 
     @Override

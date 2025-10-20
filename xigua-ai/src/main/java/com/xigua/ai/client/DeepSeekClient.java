@@ -27,7 +27,7 @@ public class DeepSeekClient {
     private String model;
 
 
-    public ChatCompletionResponse chatCompletions(ChatCompletionRequest requestBody) throws IOException {
+    public ChatCompletionResponse chatCompletions(ChatCompletionRequest requestBody) {
         requestBody.setStream(false);
         // todo 设置默认超时时间
 
@@ -42,15 +42,20 @@ public class DeepSeekClient {
                 .addHeader("Accept", "application/json")
                 .addHeader("Authorization", "Bearer " + apiKey)
                 .build();
-        Response response = client.newCall(request).execute();
+        Response response = null;
         ChatCompletionResponse responseBody = null;
-        if (response.isSuccessful()) {
-            String responseStr = response.body().string();
-            System.out.println("Response: " + responseStr);
-            responseBody = JSONObject.parseObject(responseStr, ChatCompletionResponse.class);
-        } else {
-            System.out.println("Request failed with code: " + response.code());
+        try {
+            response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String responseStr = response.body().string();
+                responseBody = JSONObject.parseObject(responseStr, ChatCompletionResponse.class);
+            } else {
+                log.error(("Request failed with code: {}" + response.code()));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
         return responseBody;
     }
 

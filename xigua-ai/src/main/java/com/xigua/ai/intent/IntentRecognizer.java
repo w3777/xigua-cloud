@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,15 +30,16 @@ public class IntentRecognizer {
         ChatContext chatContext = ChatContext.builder()
                 .input(input)
                 .prompt(getDetectIntentPrompt())
+                .stream(false)
                 .build();
         chatContext.setPrompt(getDetectIntentPrompt());
         try {
-            String output = llmService.chat(chatContext);
-            IntentType intentType = parseIntent(output);
+            Flux<String> output = llmService.chat(chatContext);
+            IntentType intentType = parseIntent(output.blockFirst());
             if(intentType != null){
                 return intentType;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 

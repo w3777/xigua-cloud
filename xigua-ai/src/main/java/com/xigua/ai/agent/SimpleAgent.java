@@ -61,7 +61,7 @@ public class SimpleAgent implements Agent {
                         .stream(stream)
                         .build();
                 try {
-                    result = stream ? adaptStream(chatContext) : Flux.just(llmService.chat(chatContext));
+                    result = llmService.chat(chatContext);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -93,29 +93,6 @@ public class SimpleAgent implements Agent {
         return result;
     }
 
-    private Flux<String> adaptStream(ChatContext chatContext) {
-        return Flux.create(sink -> {
-            chatContext.setStreamCallback(new StreamCallback() {
-                @Override
-                public void onMessage(String content) {
-                    sink.next(content);
-                }
-
-                @Override
-                public void onComplete() {
-                    sink.complete();
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    sink.error(t);
-                }
-            });
-
-            llmService.chatStream(chatContext);
-        });
-    }
-
     private Flux<String> refineOutput(String input, Boolean stream, ToolResult toolResult){
         Flux<String> refinedOutput = Flux.empty();
         String prompt = PromptUtil.getPrompt(Prompt.REFINE);
@@ -131,12 +108,11 @@ public class SimpleAgent implements Agent {
         ChatContext chatContext = ChatContext.builder()
                 .prompt(prompt)
                 .input(refineInput)
-                .stream(false)
+                .stream(stream)
                 .build();
         try {
-            // todo 这里可以再支持流式
-            refinedOutput = stream ? adaptStream(chatContext) : Flux.just(llmService.chat(chatContext));
-        } catch (IOException e) {
+            refinedOutput = llmService.chat(chatContext);
+        } catch (Exception e) {
             log.error("调用模型失败, input: {}", input, e);
             throw new BusinessException("调用模型失败");
         }

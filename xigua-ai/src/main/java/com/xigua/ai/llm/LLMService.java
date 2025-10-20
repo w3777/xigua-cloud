@@ -1,6 +1,7 @@
 package com.xigua.ai.llm;
 
 import com.xigua.ai.llm.model.ChatContext;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 
@@ -12,7 +13,5 @@ import java.io.IOException;
  */
 public interface LLMService {
 
-    String chat(ChatContext chatContext) throws IOException;
-
-    void chatStream(ChatContext chatContext);
+    Flux<String> chat(ChatContext chatContext);
 }

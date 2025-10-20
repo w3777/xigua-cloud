@@ -19,6 +19,5 @@ public class ChatContext implements Serializable {
 
     private String prompt;
     private String input;
-    private boolean stream;
-    private StreamCallback streamCallback;
+    private Boolean stream;
 }

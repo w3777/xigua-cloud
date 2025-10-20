@@ -6,10 +6,12 @@ import com.xigua.ai.llm.properties.DeepseekLLMProperties;
 import com.xigua.ai.llm.properties.LLMProperties;
 import com.xigua.ai.openai.ChatCompletionRequest;
 import com.xigua.ai.openai.ChatCompletionResponse;
+import com.xigua.ai.sse.StreamCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,8 +39,9 @@ public class DeepSeekLLMService extends AbstractLLMService {
 
 
     @Override
-    public String chat(ChatContext chatContext) throws IOException {
-        String output = "";
+    public Flux<String> chat(ChatContext chatContext) {
+        Flux<String> output = Flux.empty();
+        Boolean stream = chatContext.getStream();
 
         // 设置响应格式
         ChatCompletionRequest.ResponseFormat responseFormat =
@@ -65,45 +68,42 @@ public class DeepSeekLLMService extends AbstractLLMService {
                 .messages(List.of(systemMessage, userMessage))
                 .build();
 
-        ChatCompletionResponse response = deepSeekClient.chatCompletions(request);
-        if(response == null){
-            return output;
-        }
-        if(CollectionUtils.isEmpty(response.getChoices())){
-            return output;
-        }
+        if(stream){
+           output = adaptStream(request);
+        }else{
+            ChatCompletionResponse response = deepSeekClient.chatCompletions(request);
+            if(response == null){
+                return output;
+            }
+            if(CollectionUtils.isEmpty(response.getChoices())){
+                return output;
+            }
 
-        output = response.getChoices().get(0).getMessage().getContent();
+            output = Flux.just(response.getChoices().get(0).getMessage().getContent());
+        }
         return output;
     }
 
-    @Override
-    public void chatStream(ChatContext chatContext) {
-        // 设置响应格式
-        ChatCompletionRequest.ResponseFormat responseFormat =
-                new ChatCompletionRequest.ResponseFormat();
-        responseFormat.setType("text");
+    private Flux<String> adaptStream(ChatCompletionRequest request) {
+        return Flux.create(sink -> {
+            StreamCallback streamCallback = new StreamCallback() {
+                @Override
+                public void onMessage(String content) {
+                    sink.next(content);
+                }
 
-        // 设置系统消息
-        ChatCompletionRequest.Message systemMessage = new ChatCompletionRequest.Message();
-        systemMessage.setRole("system");
-        systemMessage.setContent(chatContext.getPrompt());
+                @Override
+                public void onComplete() {
+                    sink.complete();
+                }
 
-        // 用户input
-        ChatCompletionRequest.Message userMessage = new ChatCompletionRequest.Message();
-        userMessage.setRole("user");
-        userMessage.setContent(chatContext.getInput());
+                @Override
+                public void onError(Throwable t) {
+                    sink.error(t);
+                }
+            };
 
-        ChatCompletionRequest request = ChatCompletionRequest.builder()
-                .model(deepseekLLMProperties.getModel())
-                .maxTokens(llmProperties.getMaxTokens())
-                .temperature(llmProperties.getTemperature())
-                .frequencyPenalty(0.0)
-                .presencePenalty(0.0)
-                .responseFormat(responseFormat)
-                .messages(List.of(systemMessage, userMessage))
-                .build();
-
-        deepSeekClient.chatCompletionsStream(request, chatContext.getStreamCallback());
+            deepSeekClient.chatCompletionsStream(request, streamCallback);
+        });
     }
 }
