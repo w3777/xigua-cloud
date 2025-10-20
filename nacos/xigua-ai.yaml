@@ -49,3 +49,5 @@ springdoc:
 tool:
   weather:
     key: xxx
+  web-search:
+    key: xxx

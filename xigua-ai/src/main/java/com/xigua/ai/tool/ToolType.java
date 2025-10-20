@@ -7,6 +7,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public enum ToolType {
     WEATHER("weather", "获取天气信息"),
+    WEB_SEARCH("web_search", "网络搜索"),
     ;
 
     private final String name;

@@ -5,7 +5,6 @@ import com.xigua.ai.agent.model.AgentContext;
 import com.xigua.ai.llm.model.ChatContext;
 import com.xigua.ai.intent.IntentRecognizer;
 import com.xigua.ai.llm.LLMService;
-import com.xigua.ai.sse.StreamCallback;
 import com.xigua.api.service.*;
 import com.xigua.common.core.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +73,7 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
 
     private String getDefaultPrompt(){
         String prompt = "";
-        ClassPathResource resource = new ClassPathResource("prompts/system_prompt");
+        ClassPathResource resource = new ClassPathResource("prompts/system_prompt.txt");
         try {
             Path path = resource.getFile().toPath();
             prompt = new String(Files.readAllBytes(path));

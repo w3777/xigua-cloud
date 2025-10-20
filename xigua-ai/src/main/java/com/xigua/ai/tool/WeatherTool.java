@@ -27,7 +27,7 @@ public class WeatherTool implements AITool {
 
     @Override
     public String name() {
-        return "weather";
+        return ToolType.WEATHER.getName();
     }
 
     @Override

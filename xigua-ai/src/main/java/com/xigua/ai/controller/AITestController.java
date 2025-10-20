@@ -5,6 +5,8 @@ import com.xigua.ai.openai.ChatCompletionRequest;
 import com.xigua.ai.openai.ChatCompletionResponse;
 import com.xigua.ai.service.AIServiceImpl;
 import com.xigua.ai.sse.StreamCallback;
+import com.xigua.ai.tool.WebSearchTool;
+import com.xigua.ai.tool.model.ToolRequest;
 import com.xigua.api.service.*;
 import com.xigua.domain.result.R;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +43,8 @@ public class AITestController {
     private DeepSeekClient deepSeekClient;
     @DubboReference
     private AIService aiService;
+    @Autowired
+    private WebSearchTool webSearchTool;
 
     @ApiResponses({@ApiResponse(responseCode = "200", description = "查询成功", content =
             { @Content(mediaType = "application/json") })})
@@ -199,5 +203,16 @@ public class AITestController {
         } catch (Exception e) {
             return Flux.error(e);
         }
+    }
+
+    @Operation(summary = "测试")
+    @PostMapping(value = "/test6")
+    public R test6(@RequestBody Map<String, String> map) {
+        String content = map.getOrDefault("content", "河北各个城市最近的天气");
+        ToolRequest toolRequest = new ToolRequest();
+        toolRequest.setParams(Map.of("content", content));
+        webSearchTool.execute(toolRequest);
+
+        return R.ok();
     }
 }

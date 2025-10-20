@@ -48,7 +48,7 @@ public class IntentRecognizer {
 
     private String getDetectIntentPrompt(){
         String prompt = "";
-        ClassPathResource resource = new ClassPathResource("prompts/detect_intent_prompt");
+        ClassPathResource resource = new ClassPathResource("prompts/detect_intent_prompt.txt");
         try {
             Path path = resource.getFile().toPath();
             prompt = new String(Files.readAllBytes(path));
