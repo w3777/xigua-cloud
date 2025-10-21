@@ -45,7 +45,6 @@ public class WebSearchTool implements AITool {
     @Override
     public ToolResult execute(ToolRequest toolRequest) {
         WebSearchResponse response = getWebSearch(toolRequest);
-        System.out.println("response = " + response);
         return ToolResult.success(name(), "", null, BeanUtil.convertToMap(response));
     }
 

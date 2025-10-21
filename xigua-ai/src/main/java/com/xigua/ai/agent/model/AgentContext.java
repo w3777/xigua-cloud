@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AgentContext {
+    private String requestId;
     private String input;
     private Boolean stream;
+    private String systemPrompt;
 }

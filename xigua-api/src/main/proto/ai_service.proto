@@ -21,23 +21,15 @@ message IntentRequest {
   string input = 1;
 }
 
-enum IntentType {
-  UNKNOWN = 0;
-  TEXT_TO_TEXT = 1;
-  USE_TOOL = 2;
-
-  // 其他暂时不考虑
-//  TEXT_TO_IMAGE = 3;
-//  TEXT_TO_VIDEO = 4;
-}
-
 message IntentResponse {
-  IntentType intent = 1;
+  string intent = 1;
 }
 
 message AgentRequest {
-  string input = 1;
-  bool stream = 2;
+  string requestId = 1;
+  string input = 2;
+  bool stream = 3;
+  string prompt = 4;
 }
 
 message AgentResponse {

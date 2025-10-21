@@ -18,6 +18,7 @@ import com.xigua.ai.tool.model.ToolSelectionResult;
 import com.xigua.ai.utils.PromptUtil;
 import com.xigua.common.core.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -46,22 +47,30 @@ public class SimpleAgent implements Agent {
     @Override
     public Flux<String> process(AgentContext agentContext) {
         Flux<String> result = Flux.empty();
+        String requestId = agentContext.getRequestId();
         Boolean stream = agentContext.getStream();
         String input = agentContext.getInput();
 
         IntentType intentType = intentRecognizer.detect(input);
+        log.info("agentProcess requestId: {}，意图: {}", requestId, intentType);
 
         switch (intentType) {
             case UNKNOWN:
                 return Flux.just("未知意图");
             case TEXT_TO_TEXT:
+                String systemPrompt = agentContext.getSystemPrompt();
+                if(StringUtils.isEmpty(systemPrompt)) {
+                    systemPrompt = PromptUtil.getPrompt(Prompt.DEFAULT);
+                }
                 ChatContext chatContext = ChatContext.builder()
-                        .prompt(PromptUtil.getPrompt(Prompt.DEFAULT))
+                        .prompt(systemPrompt)
                         .input(input)
                         .stream(stream)
                         .build();
                 try {
+                    log.info("agentProcess ai对话开始 requestId: {}，调用模型入参: {}", requestId, chatContext);
                     result = llmService.chat(chatContext);
+                    log.info("agentProcess ai对话结束 requestId: {}，调用模型结束", requestId);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -69,6 +78,7 @@ public class SimpleAgent implements Agent {
             case USE_TOOL:
                 // llm推理调用工具名称和参数
                 ToolSelectionResult toolSelectionResult = toolSelector.selectTool(input);
+                log.info("agentProcess requestId: {}，工具选择结果: {}", requestId, toolSelectionResult);
                 if(toolSelectionResult == null){
                     return Flux.just("未选择到合适的工具");
                 }
@@ -80,9 +90,12 @@ public class SimpleAgent implements Agent {
                                 .params(toolSelectionResult.getParams())
                                 .build())
                         .build();
+                log.info("agentProcess requestId: {}，工具调用入参: {}", requestId, toolCall);
                 ToolResult toolResult = toolDispatcher.dispatch(toolCall);
+                log.info("agentProcess requestId: {}，工具调用结果: {}", requestId, toolResult);
 
                 // tool调用结果 再根据llm推理处理一下
+                log.info("agentProcess requestId: {}，大模型推理处理工具调用结果", requestId);
                 Flux<String> refinedOutput = refineOutput(input, stream, toolResult);
                 result = refinedOutput;
                 break;

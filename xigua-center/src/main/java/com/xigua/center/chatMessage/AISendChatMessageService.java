@@ -76,14 +76,15 @@ public class AISendChatMessageService extends AbstractSendChatMessageService{
             bot = JSONObject.parseObject(botCache, Bot.class);
         }
 
-        Mono<ChatRequest> aiReq = Mono.just(
-                ChatRequest.newBuilder()
+        Mono<AgentRequest> agentReq = Mono.just(
+                AgentRequest.newBuilder()
+                        .setRequestId(sequence.nextNo())
                         .setInput(messageRequest.getMessage())
                         .setStream(true)
                         .setPrompt(bot.getPrompt())
                         .build()
         );
-        Flux<ChatResponse> chatFlux = aiService.chat(aiReq);
+        Flux<AgentResponse> chatFlux = aiService.agentProcess(agentReq);
         // todo 暂时用一个新id 来表示一次ai的会话
         String sessionId = sequence.nextNo();
         chatFlux.subscribe(output -> {

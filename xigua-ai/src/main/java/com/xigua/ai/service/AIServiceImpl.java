@@ -2,6 +2,7 @@ package com.xigua.ai.service;
 
 import com.xigua.ai.agent.Agent;
 import com.xigua.ai.agent.model.AgentContext;
+import com.xigua.ai.intent.IntentType;
 import com.xigua.ai.llm.model.ChatContext;
 import com.xigua.ai.intent.IntentRecognizer;
 import com.xigua.ai.llm.LLMService;
@@ -85,27 +86,12 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
 
     @Override
     public Mono<IntentResponse> detectIntent(Mono<IntentRequest> reactorRequest) {
-        com.xigua.ai.intent.IntentType intentType = intentRecognizer.detect(reactorRequest.block().getInput());
+        IntentType intentType = intentRecognizer.detect(reactorRequest.block().getInput());
         // 解析意图
-        IntentResponse intentResponse = parseIntent(intentType);
-        return Mono.just(intentResponse);
-    }
-
-    private IntentResponse parseIntent(com.xigua.ai.intent.IntentType intentType){
         IntentResponse intentResponse = IntentResponse.newBuilder()
-                .setIntent(IntentType.UNKNOWN)
+                .setIntent(intentType.getType())
                 .build();
-        try {
-            if (StringUtils.isEmpty(intentType.getType())) {
-                return intentResponse;
-            }
-            intentResponse = intentResponse.toBuilder()
-                    .setIntent(IntentType.valueOf(intentType.getType()))
-                    .build();
-        } catch (Exception e) {
-            log.error("解析意图失败, 意图类型: {}", intentType.getType(), e);
-        }
-        return intentResponse;
+        return Mono.just(intentResponse);
     }
 
     @Override
@@ -113,10 +99,14 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
         AgentRequest req = request.block();
         Boolean stream = req.getStream();
 
+        log.info("agentProcess开始处理，requestId: {}，入参: {}", req.getRequestId(), req);
         Flux<String> output = agent.process(AgentContext.builder()
+                 .requestId(req.getRequestId())
                 .input(req.getInput())
                 .stream(stream)
+                .systemPrompt(req.getPrompt())
                 .build());
+        log.info("agentProcess处理完成，requestId: {}", req.getRequestId());
 
         return output.map(s ->
                 AgentResponse.newBuilder().setOutput(s).build()
