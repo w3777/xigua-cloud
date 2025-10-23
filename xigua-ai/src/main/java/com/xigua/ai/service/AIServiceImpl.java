@@ -2,10 +2,12 @@ package com.xigua.ai.service;
 
 import com.xigua.ai.agent.Agent;
 import com.xigua.ai.agent.model.AgentContext;
+import com.xigua.ai.enums.Prompt;
 import com.xigua.ai.intent.IntentType;
 import com.xigua.ai.llm.model.ChatContext;
 import com.xigua.ai.intent.IntentRecognizer;
 import com.xigua.ai.llm.LLMService;
+import com.xigua.ai.utils.PromptUtil;
 import com.xigua.api.service.*;
 import com.xigua.common.core.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +51,7 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
 
         if(StringUtils.isEmpty(prompt)){
             // 获取默认提示词
-            prompt = getDefaultPrompt();
+            prompt = PromptUtil.getPrompt(Prompt.DEFAULT);
         }
 
         ChatContext chatContext = ChatContext.builder()
@@ -70,18 +72,6 @@ public class AIServiceImpl extends DubboAIServiceTriple.AIServiceImplBase {
                 ChatResponse.newBuilder().setOutput(s).build()
         );
         return responseFlux;
-    }
-
-    private String getDefaultPrompt(){
-        String prompt = "";
-        ClassPathResource resource = new ClassPathResource("prompts/system_prompt.txt");
-        try {
-            Path path = resource.getFile().toPath();
-            prompt = new String(Files.readAllBytes(path));
-        } catch (IOException e) {
-            log.error("读取prompts/system_prompt文件失败", e);
-        }
-        return prompt;
     }
 
     @Override

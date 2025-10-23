@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -21,8 +23,8 @@ public class PromptUtil {
         String prompt = "";
         ClassPathResource resource = new ClassPathResource(promptE.getPath());
         try {
-            Path path = resource.getFile().toPath();
-            prompt = new String(Files.readAllBytes(path));
+            InputStream inputStream = resource.getInputStream();
+            prompt = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("读取prompts/system_prompt文件失败", e);
         }

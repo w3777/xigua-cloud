@@ -1,8 +1,10 @@
 package com.xigua.ai.intent;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.xigua.ai.enums.Prompt;
 import com.xigua.ai.llm.model.ChatContext;
 import com.xigua.ai.llm.LLMService;
+import com.xigua.ai.utils.PromptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +31,9 @@ public class IntentRecognizer {
     public IntentType detect(String input){
         ChatContext chatContext = ChatContext.builder()
                 .input(input)
-                .prompt(getDetectIntentPrompt())
+                .prompt(PromptUtil.getPrompt(Prompt.DETECT_INTENT))
                 .stream(false)
                 .build();
-        chatContext.setPrompt(getDetectIntentPrompt());
         try {
             Flux<String> output = llmService.chat(chatContext);
             IntentType intentType = parseIntent(output.blockFirst());
@@ -44,18 +45,6 @@ public class IntentRecognizer {
         }
 
         return IntentType.UNKNOWN;
-    }
-
-    private String getDetectIntentPrompt(){
-        String prompt = "";
-        ClassPathResource resource = new ClassPathResource("prompts/detect_intent_prompt.txt");
-        try {
-            Path path = resource.getFile().toPath();
-            prompt = new String(Files.readAllBytes(path));
-        } catch (IOException e) {
-            log.error("读取prompts/detect_intent_prompt文件失败", e);
-        }
-        return prompt;
     }
 
     private IntentType parseIntent(String output){
