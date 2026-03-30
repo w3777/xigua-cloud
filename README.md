@@ -18,7 +18,8 @@ Xigua-Cloud 是一款网页版即时通讯应用，功能对标微信。它支�
 
 ## 🌐 体验地址
 
-- 前端页面入口：[http://xgchat.cn](http://xgchat.cn) 
+- 前端页面入口：[http://xgchat.cn](http://xgchat.cn)
+- 管理端入口：[http://admin.xgchat.cn](http://admin.xgchat.cn)
 
 > ⚠️ **注意事项：**
 > 
