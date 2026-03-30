@@ -164,6 +164,70 @@ xigua-cloud (Root Project)
   <img src="doc/images/scroll_read.gif"/>
 </div>
 
+## 🎛️ 后台管理系统
+
+后台管理系统提供了完善的运营管理和数据监控能力，帮助管理员实时掌握系统运行状态。
+
+### 📊 数据概览大盘
+实时展示核心业务指标，包括注册用户数、在线用户数、消息总量、活跃群组数等，并通过可视化地图展示用户地理位置分布和消息发送趋势。
+<div align="center">
+  <img src="doc/images/dashboard.png"/>
+</div>
+
+### 👥 实时在线用户
+实时监控当前在线用户列表，展示用户的连接设备、在线时长、IP地址、登录地点等详细信息，支持按需刷新。
+<div align="center">
+  <img src="doc/images/online-users.png"/>
+</div>
+
+### 🔍 在线用户详情
+查看在线用户的详细信息，包括浏览器版本、操作系统、网络延迟、服务器心跳状态，并在地图上精确定位用户位置。
+<div align="center">
+  <img src="doc/images/online-user-detail.png"/>
+</div>
+
+### 👨‍💼 用户管理
+提供完整的用户管理功能，支持查看所有注册用户、筛选账号状态、查询注册时间等，方便管理员进行用户管理操作。
+<div align="center">
+  <img src="doc/images/user-management.png"/>
+</div>
+
+### 📋 用户详情
+展示单个用户的完整档案，包括基本信息、活跃统计（好友数量、群组数量、消息总数）以及登录历史记录。
+<div align="center">
+  <img src="doc/images/user-detail.png"/>
+</div>
+
+### 💬 群聊管理
+管理系统中的所有群组，查看群成员列表、群组统计数据，支持群组信息编辑和成员管理。
+<div align="center">
+  <img src="doc/images/group-management.png"/>
+</div>
+
+### 🤖 机器人管理
+管理AI机器人配置，查看机器人类型、所属用户、创建时间，并配置机器人的提示词（Prompt）等内容详情。
+<div align="center">
+  <img src="doc/images/robot-management.png"/>
+</div>
+
+### 🖥️ 节点管理
+实时监控所有服务节点状态，展示节点总数、连接总数、在线/离线节点统计，以及各节点的IP地址、连接人数、系统负载（CPU/RAM）和网络延迟等关键指标。
+<div align="center">
+  <img src="doc/images/node-management.png"/>
+</div>
+
+### 📡 节点详情
+查看单个服务节点的详细运行状态，包括当前连接用户列表、消息吞吐量（TPS）、系统资源占用情况，便于进行性能分析和问题排查。
+<div align="center">
+  <img src="doc/images/node-detail.png"/>
+</div>
+
+### 📝 登录日志
+记录并展示所有用户的登录历史，包括登录时间、IP地址、登录地点、设备信息、登录状态等，支持按时间范围和状态筛选，便于安全审计和异常监控。
+<div align="center">
+  <img src="doc/images/login-logs.png"/>
+</div>
+
 ## 联系作者
 如需获取完整版或技术支持，请通过以下方式联系
 
